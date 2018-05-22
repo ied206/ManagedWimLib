@@ -21,8 +21,8 @@
   <files>
     <file src="bin\Release\ManagedWimLib.dll" target="lib\net45" />
     <file src="bin\Release\ManagedWimLib.pdb" target="lib\net45" />
-    <file src="Precompiled\x86\wimlib-15.dll" target="build\net45\Precompiled\x86" />
-    <file src="Precompiled\x64\wimlib-15.dll" target="build\net45\Precompiled\x64" />
+    <file src="Precompiled\x86\libwim-15.dll" target="build\net45\Precompiled\x86" />
+    <file src="Precompiled\x64\libwim-15.dll" target="build\net45\Precompiled\x64" />
     <file src="ManagedWimLib.targets" target="build\net45\ManagedWimLib.targets" />
   </files>
 </package>
