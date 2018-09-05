@@ -47,7 +47,7 @@ namespace ManagedWimLib
 
         #region Field
         public IntPtr Ptr { get; private set; }
-        private ManagedProgressCallback managedCallback;
+        private ManagedProgressCallback _managedCallback;
         #endregion
 
         #region Properties
@@ -873,7 +873,7 @@ namespace ManagedWimLib
 
             return new Wim(wimPtr)
             {
-                managedCallback = mCallback
+                _managedCallback = mCallback
             };
         }
         #endregion
@@ -1086,12 +1086,12 @@ namespace ManagedWimLib
         {
             if (callback != null)
             { // RegisterCallback
-                managedCallback = new ManagedProgressCallback(callback, userData);
-                NativeMethods.RegisterProgressFunction(Ptr, managedCallback.NativeFunc, IntPtr.Zero);
+                _managedCallback = new ManagedProgressCallback(callback, userData);
+                NativeMethods.RegisterProgressFunction(Ptr, _managedCallback.NativeFunc, IntPtr.Zero);
             }
             else
             { // Delete callback
-                managedCallback = null;
+                _managedCallback = null;
                 NativeMethods.RegisterProgressFunction(Ptr, null, IntPtr.Zero);
             }
         }
