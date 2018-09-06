@@ -25,12 +25,9 @@ using Microsoft.Win32.SafeHandles;
 using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
-using System.Text;
-using System.Threading.Tasks;
 // ReSharper disable InconsistentNaming
 // ReSharper disable EnumUnderlyingTypeIsInt
 
@@ -56,75 +53,6 @@ namespace ManagedWimLib
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool FreeLibrary(IntPtr hModule);
         #endregion
-    }
-    #endregion
-
-    #region PinnedObject, PinnedArray
-    internal class PinnedObject : IDisposable
-    {
-        private GCHandle _hObject;
-        public IntPtr Ptr => _hObject.AddrOfPinnedObject();
-
-        public PinnedObject(object _object)
-        {
-            _hObject = GCHandle.Alloc(_object, GCHandleType.Pinned);
-        }
-
-        ~PinnedObject()
-        {
-            Dispose(false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (_hObject.IsAllocated)
-                    _hObject.Free();
-            }
-        }
-    }
-
-    internal class PinnedArray : IDisposable
-    {
-        private GCHandle _hArray;
-        public Array Array;
-        public IntPtr Ptr => _hArray.AddrOfPinnedObject();
-
-        public IntPtr this[int idx] => Marshal.UnsafeAddrOfPinnedArrayElement(Array, idx);
-        public static implicit operator IntPtr(PinnedArray fixedArray) => fixedArray[0];
-
-        public PinnedArray(Array array)
-        {
-            Array = array;
-            _hArray = GCHandle.Alloc(array, GCHandleType.Pinned);
-        }
-
-        ~PinnedArray()
-        {
-            Dispose(false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (_hArray.IsAllocated)
-                    _hArray.Free();
-            }
-        }
     }
     #endregion
 
@@ -207,7 +135,7 @@ namespace ManagedWimLib
             GetWimInfo = (wimlib_get_wim_info)GetFuncPtr("wimlib_get_wim_info", typeof(wimlib_get_wim_info));
             GetXmlData = (wimlib_get_xml_data)GetFuncPtr("wimlib_get_xml_data", typeof(wimlib_get_xml_data));
             IsImageNameInUse = (wimlib_image_name_in_use)GetFuncPtr("wimlib_image_name_in_use", typeof(wimlib_image_name_in_use));
-            ResolveImage = (wimlib_resolve_image) GetFuncPtr("wimlib_resolve_image", typeof(wimlib_resolve_image));
+            ResolveImage = (wimlib_resolve_image)GetFuncPtr("wimlib_resolve_image", typeof(wimlib_resolve_image));
             #endregion
 
             #region GetVersion - GetVersion
@@ -253,7 +181,7 @@ namespace ManagedWimLib
             #endregion
 
             #region SetOutput - SetOutputChunkSize, SetOutputPackChunkSize, SetOutputCompressionType, SetOutputPackCompressionType
-            SetOutputChunkSize = (wimlib_set_output_chunk_size) GetFuncPtr("wimlib_set_output_chunk_size", typeof(wimlib_set_output_chunk_size));
+            SetOutputChunkSize = (wimlib_set_output_chunk_size)GetFuncPtr("wimlib_set_output_chunk_size", typeof(wimlib_set_output_chunk_size));
             SetOutputPackChunkSize = (wimlib_set_output_pack_chunk_size)GetFuncPtr("wimlib_set_output_pack_chunk_size", typeof(wimlib_set_output_pack_chunk_size));
             SetOutputCompressionType = (wimlib_set_output_compression_type)GetFuncPtr("wimlib_set_output_compression_type", typeof(wimlib_set_output_compression_type));
             SetOutputPackCompressionType = (wimlib_set_output_pack_compression_type)GetFuncPtr("wimlib_set_output_pack_compression_type", typeof(wimlib_set_output_pack_compression_type));
@@ -1771,7 +1699,7 @@ namespace ManagedWimLib
         /// Allow other users to see the mounted filesystem.
         /// This passes the allow_other option to fuse_main().
         /// </summary>
-        ALLOW_OTHER = 0x00000040,        
+        ALLOW_OTHER = 0x00000040,
     }
     #endregion
 
@@ -2159,7 +2087,7 @@ namespace ManagedWimLib
         public CompressionType CompressionType
         {
             get => (CompressionType)CompressionTypeInt;
-            set => CompressionTypeInt = (int) value;
+            set => CompressionTypeInt = (int)value;
         }
         private int CompressionTypeInt;
         /// <summary>

@@ -21,13 +21,11 @@
     along with this file; if not, see http://www.gnu.org/licenses/.
 */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ManagedWimLib;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ManagedWimLib.Tests
 {
@@ -141,7 +139,7 @@ namespace ManagedWimLib.Tests
                 default:
                     throw new NotImplementedException();
             }
-            
+
         }
 
         public static void CheckFileSystem(SampleSet set, string dir)

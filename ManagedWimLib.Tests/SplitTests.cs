@@ -21,11 +21,11 @@
     along with this file; if not, see http://www.gnu.org/licenses/.
 */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ManagedWimLib.Tests
 {
@@ -78,7 +78,7 @@ namespace ManagedWimLib.Tests
                     }
                     return CallbackStatus.CONTINUE;
                 }
-               
+
                 using (Wim wim = Wim.CreateNewWim(CompressionType.LZX))
                 {
                     wim.AddImage(srcDir, "UnitTest", null, AddFlags.NO_ACLS);

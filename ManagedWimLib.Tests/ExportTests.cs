@@ -23,11 +23,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ManagedWimLib;
 using System.IO;
 
 namespace ManagedWimLib.Tests
@@ -59,7 +54,7 @@ namespace ManagedWimLib.Tests
                     _checked[i] = false;
                 CallbackStatus ProgressCallback(ProgressMsg msg, object info, object progctx)
                 {
-                    
+
                     switch (msg)
                     {
                         case ProgressMsg.WRITE_STREAMS:
@@ -100,7 +95,7 @@ namespace ManagedWimLib.Tests
                     }
 
                     for (int i = 0; i < _checked.Length; i++)
-                        _checked[i] = false;   
+                        _checked[i] = false;
                 }
 
                 using (Wim destWim = Wim.OpenWim(destWimPath, OpenFlags.DEFAULT))

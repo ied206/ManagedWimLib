@@ -21,10 +21,9 @@
     along with this file; if not, see http://www.gnu.org/licenses/.
 */
 
-using System;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using System.Linq;
 
 namespace ManagedWimLib.Tests
 {

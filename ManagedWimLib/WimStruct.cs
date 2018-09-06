@@ -29,7 +29,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ManagedWimLib
 {
@@ -79,15 +78,14 @@ namespace ManagedWimLib
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                if (Ptr != IntPtr.Zero)
-                {
-                    RegisterCallback(null);
-                    NativeMethods.Free(Ptr);
-                    Ptr = IntPtr.Zero;
-                }
-            }
+            if (!disposing)
+                return;
+            if (Ptr == IntPtr.Zero)
+                return;
+
+            RegisterCallback(null);
+            NativeMethods.Free(Ptr);
+            Ptr = IntPtr.Zero;
         }
         #endregion
 
@@ -96,7 +94,7 @@ namespace ManagedWimLib
         {
             if (NativeMethods.Loaded)
                 throw new InvalidOperationException(NativeMethods.MsgAlreadyInited);
-            
+
             if (dllPath == null) throw new ArgumentNullException(nameof(dllPath));
             if (!File.Exists(dllPath)) throw new FileNotFoundException("Specified dll does not exist");
 
@@ -118,7 +116,7 @@ namespace ManagedWimLib
                 // Set ErrorFile and PrintError
                 NativeMethods.ErrorFile = Path.GetTempFileName();
                 WimLibException.CheckWimLibError(NativeMethods.SetErrorFile(NativeMethods.ErrorFile));
-                Wim.SetPrintErrors(true);
+                SetPrintErrors(true);
 
                 ErrorCode ret = NativeMethods.GlobalInit(initFlags);
                 WimLibException.CheckWimLibError(ret);
@@ -135,9 +133,7 @@ namespace ManagedWimLib
             if (NativeMethods.Loaded)
             {
                 NativeMethods.GlobalCleanup();
-
                 NativeMethods.ResetFuntions();
-
                 NativeMethods.hModule.Close();
                 NativeMethods.hModule = null;
 

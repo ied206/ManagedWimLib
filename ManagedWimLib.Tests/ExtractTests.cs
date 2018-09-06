@@ -23,12 +23,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using ManagedWimLib;
-using System.IO;
 
 namespace ManagedWimLib.Tests
 {
@@ -249,7 +246,7 @@ namespace ManagedWimLib.Tests
             }
         }
         #endregion
-       
+
         #region ExtractList
         [TestMethod]
         [TestCategory("WimLib")]

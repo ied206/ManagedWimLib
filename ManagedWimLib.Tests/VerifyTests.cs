@@ -21,10 +21,9 @@
     along with this file; if not, see http://www.gnu.org/licenses/.
 */
 
-using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ManagedWimLib.Tests
 {
@@ -113,20 +112,20 @@ namespace ManagedWimLib.Tests
                 switch (msg)
                 {
                     case ProgressMsg.BEGIN_VERIFY_IMAGE:
-                    {
-                        ProgressInfo_VerifyImage m = (ProgressInfo_VerifyImage)info;
-                        Assert.IsNotNull(info);
+                        {
+                            ProgressInfo_VerifyImage m = (ProgressInfo_VerifyImage)info;
+                            Assert.IsNotNull(info);
 
-                        _checked[0] = true;
-                    }
+                            _checked[0] = true;
+                        }
                         break;
                     case ProgressMsg.END_VERIFY_IMAGE:
-                    {
-                        ProgressInfo_VerifyImage m = (ProgressInfo_VerifyImage)info;
-                        Assert.IsNotNull(info);
+                        {
+                            ProgressInfo_VerifyImage m = (ProgressInfo_VerifyImage)info;
+                            Assert.IsNotNull(info);
 
-                        _checked[1] = true;
-                    }
+                            _checked[1] = true;
+                        }
                         break;
                     case ProgressMsg.VERIFY_STREAMS:
                         {

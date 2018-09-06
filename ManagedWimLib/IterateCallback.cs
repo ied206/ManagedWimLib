@@ -22,14 +22,10 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ManagedWimLib
-{ 
+{
     #region IterateDirTreeCallback
     /// <summary>
     /// Type of a callback function to wimlib_iterate_dir_tree().  Must return 0 on success.
@@ -108,7 +104,7 @@ namespace ManagedWimLib
         private readonly object _userData;
 
         internal NativeMethods.NativeIterateLookupTableCallback NativeFunc { get; private set; }
-        
+
         public ManagedIterateLookupTableCallback(IterateLookupTableCallback callback, object userData)
         {
             _callback = callback;

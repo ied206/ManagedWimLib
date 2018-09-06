@@ -22,13 +22,8 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ManagedWimLib;
 using System.IO;
+using System.Linq;
 
 namespace ManagedWimLib.Tests
 {
@@ -104,7 +99,7 @@ namespace ManagedWimLib.Tests
 
             AddImage_Template("NONE.wim", CompressionType.NONE, AddFlags.BOOT);
             AddImage_Template("XPRESS.wim", CompressionType.XPRESS, AddFlags.BOOT);
-            AddImage_Template("LZX.wim", CompressionType.LZX,  AddFlags.BOOT);
+            AddImage_Template("LZX.wim", CompressionType.LZX, AddFlags.BOOT);
             AddImage_Template("LZMS.wim", CompressionType.LZMS, AddFlags.BOOT);
         }
 
@@ -249,13 +244,13 @@ namespace ManagedWimLib.Tests
                 using (Wim wim = Wim.CreateNewWim(compType))
                 {
                     wim.RegisterCallback(ProgressCallback);
-                    
+
                     CaptureSource[] srcs = new CaptureSource[]
                     {
                         new CaptureSource(srcDir1, @"\A"),
                         new CaptureSource(srcDir3, @"\Z"),
                     };
-                    
+
                     wim.AddImageMultiSource(srcs, "UnitTest", null, addFlags);
                     wim.Write(wimFile, Wim.AllImages, WriteFlags.DEFAULT, Wim.DefaultThreads);
 
