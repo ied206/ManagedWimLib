@@ -37,7 +37,7 @@ namespace ManagedWimLib
         private readonly IterateDirTreeCallback _callback;
         private readonly object _userData;
 
-        internal NativeMethods.NativeIterateDirTreeCallback NativeFunc { get; private set; }
+        internal NativeMethods.NativeIterateDirTreeCallback NativeFunc { get; }
 
         public ManagedIterateDirTreeCallback(IterateDirTreeCallback callback, object userData)
         {
@@ -53,8 +53,8 @@ namespace ManagedWimLib
             CallbackStatus ret = CallbackStatus.CONTINUE;
             if (_callback != null)
             {
-                DirEntryBase b = (DirEntryBase)Marshal.PtrToStructure(entry_ptr, typeof(DirEntryBase));
-                DirEntry dentry = new DirEntry()
+                DirEntryBase b = Marshal.PtrToStructure<DirEntryBase>(entry_ptr);
+                DirEntry dentry = new DirEntry
                 {
                     FileName = b.FileName,
                     DosName = b.DosName,
@@ -77,11 +77,11 @@ namespace ManagedWimLib
                     Streams = new StreamEntry[b.NumNamedStreams + 1],
                 };
 
-                IntPtr baseOffset = IntPtr.Add(entry_ptr, Marshal.SizeOf(typeof(DirEntryBase)));
+                IntPtr baseOffset = IntPtr.Add(entry_ptr, Marshal.SizeOf<DirEntryBase>());
                 for (int i = 0; i < dentry.Streams.Length; i++)
                 {
-                    IntPtr offset = IntPtr.Add(baseOffset, i * Marshal.SizeOf(typeof(StreamEntry)));
-                    dentry.Streams[i] = (StreamEntry)Marshal.PtrToStructure(offset, typeof(StreamEntry));
+                    IntPtr offset = IntPtr.Add(baseOffset, i * Marshal.SizeOf<StreamEntry>());
+                    dentry.Streams[i] = Marshal.PtrToStructure<StreamEntry>(offset);
                 }
 
                 ret = _callback(dentry, _userData);

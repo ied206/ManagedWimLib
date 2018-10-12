@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace ManagedWimLib.Tests
 {
@@ -38,20 +39,36 @@ namespace ManagedWimLib.Tests
         [AssemblyInitialize]
         public static void Init(TestContext context)
         {
-            BaseDir = Path.GetFullPath(Path.Combine(TestHelper.GetProgramAbsolutePath(), "..", ".."));
+            BaseDir = Path.GetFullPath(Path.Combine(TestHelper.GetProgramAbsolutePath(), "..", "..", ".."));
             SampleDir = Path.Combine(BaseDir, "Samples");
 
-            switch (IntPtr.Size)
+            string libPath = null;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                case 8:
-                    Wim.GlobalInit(Path.Combine("x64", "libwim-15.dll"));
-                    break;
-                case 4:
-                    Wim.GlobalInit(Path.Combine("x86", "libwim-15.dll"));
-                    break;
-                default:
-                    throw new PlatformNotSupportedException();
+                switch (RuntimeInformation.ProcessArchitecture)
+                {
+                    case Architecture.X86:
+                        libPath = Path.Combine("x86", "libwim-15.dll");
+                        break;
+                    case Architecture.X64:
+                        libPath = Path.Combine("x64", "libwim-15.dll");
+                        break;
+                }
             }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                switch (RuntimeInformation.ProcessArchitecture)
+                {
+                    case Architecture.X64:
+                        libPath = Path.Combine("x64", "libwim-15.dll");
+                        break;
+                }
+            }
+
+            if (libPath == null)
+                throw new PlatformNotSupportedException();
+
+            Wim.GlobalInit(libPath);
         }
 
         [AssemblyCleanup]

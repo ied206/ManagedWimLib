@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -90,23 +91,44 @@ namespace ManagedWimLib
         #endregion
 
         #region Global - (Static) GlobalInit, GlobalCleanup
-        public static void GlobalInit(string dllPath, InitFlags initFlags = InitFlags.DEFAULT)
+        public static void GlobalInit(string libPath, InitFlags initFlags = InitFlags.DEFAULT)
         {
             if (NativeMethods.Loaded)
                 throw new InvalidOperationException(NativeMethods.MsgAlreadyInited);
 
-            if (dllPath == null) throw new ArgumentNullException(nameof(dllPath));
-            if (!File.Exists(dllPath)) throw new FileNotFoundException("Specified dll does not exist");
-
-            NativeMethods.hModule = NativeMethods.LoadLibrary(dllPath);
-            if (NativeMethods.hModule.IsInvalid)
-                throw new ArgumentException($"Unable to load [{dllPath}]", new Win32Exception());
-
-            // Check if dll is valid (wimlib-15.dll)
-            if (NativeMethods.GetProcAddress(NativeMethods.hModule, "wimlib_open_wim") == IntPtr.Zero)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                GlobalCleanup();
-                throw new ArgumentException($"[{dllPath}] is not a valid wimlib library");
+                if (libPath == null || !File.Exists(libPath))
+                    throw new ArgumentException("Specified .dll file does not exist");
+
+                NativeMethods.hModule = NativeMethods.Win32.LoadLibrary(libPath);
+                if (NativeMethods.hModule == IntPtr.Zero)
+                    throw new ArgumentException($"Unable to load [{libPath}]", new Win32Exception());
+
+                // Check if dll is valid (wimlib-15.dll)
+                if (NativeMethods.Win32.GetProcAddress(NativeMethods.hModule, "wimlib_open_wim") == IntPtr.Zero)
+                {
+                    GlobalCleanup();
+                    throw new ArgumentException($"[{libPath}] is not a valid wimblib-15.dll");
+                }
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                if (libPath == null)
+                    libPath = "/usr/lib/x86_64-linux-gnu/libwim.so"; // Try to call system-installed wimlib
+                if (!File.Exists(libPath))
+                    throw new ArgumentException("Specified .so file does not exist");
+
+                NativeMethods.hModule = NativeMethods.Linux.dlopen(libPath, NativeMethods.Linux.RTLD_NOW | NativeMethods.Linux.RTLD_GLOBAL);
+                if (NativeMethods.hModule == IntPtr.Zero)
+                    throw new ArgumentException($"Unable to load [{libPath}], {NativeMethods.Linux.dlerror()}");
+
+                // Check if dll is valid libz.so
+                if (NativeMethods.Linux.dlsym(NativeMethods.hModule, "wimlib_open_wim") == IntPtr.Zero)
+                {
+                    GlobalCleanup();
+                    throw new ArgumentException($"[{libPath}] is not a valid libwim.so");
+                }
             }
 
             try
@@ -134,8 +156,17 @@ namespace ManagedWimLib
             {
                 NativeMethods.GlobalCleanup();
                 NativeMethods.ResetFuntions();
-                NativeMethods.hModule.Close();
-                NativeMethods.hModule = null;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    int ret = NativeMethods.Win32.FreeLibrary(NativeMethods.hModule);
+                    Debug.Assert(ret != 0);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    int ret = NativeMethods.Linux.dlclose(NativeMethods.hModule);
+                    Debug.Assert(ret == 0);
+                }
+                NativeMethods.hModule = IntPtr.Zero;
 
                 if (File.Exists(ErrorFile))
                     File.Delete(ErrorFile);
@@ -638,11 +669,11 @@ namespace ManagedWimLib
         public WimInfo GetWimInfo()
         {
             // This function always return 0, so no need to check exception
-            IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(WimInfo)));
+            IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<WimInfo>());
             try
             {
                 NativeMethods.GetWimInfo(Ptr, infoPtr);
-                return (WimInfo)Marshal.PtrToStructure(infoPtr, typeof(WimInfo));
+                return Marshal.PtrToStructure<WimInfo>(infoPtr);
             }
             finally
             {

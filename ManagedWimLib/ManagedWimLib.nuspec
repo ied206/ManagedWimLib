@@ -3,7 +3,7 @@
   <metadata>
     <id>ManagedWimLib</id>
     <title>ManagedWimLib</title>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <owners>ied206</owners>
     <authors>Eric Biggers, Hajin Jang</authors>
     <licenseUrl>https://github.com/ied206/ManagedWimLib/blob/master/LICENSE</licenseUrl> 
@@ -11,7 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# wrapper library for native wimlib.</description>
     <summary>C# wrapper library for native wimlib.</summary>
-    <releaseNotes>- Update wimlib binaries to 1.13.0-BETA5 from 1.13.0-BETA2</releaseNotes>
+    <releaseNotes>- TODO</releaseNotes>
     <copyright>Copyright (c) 2018 Hajin Jang</copyright>
     <tags>wimlib</tags>
     <dependencies>

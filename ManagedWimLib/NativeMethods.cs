@@ -21,41 +21,17 @@
     along with this file; if not, see http://www.gnu.org/licenses/.
 */
 
-using Microsoft.Win32.SafeHandles;
 using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
-using System.Security.Permissions;
 // ReSharper disable InconsistentNaming
 // ReSharper disable EnumUnderlyingTypeIsInt
+// ReSharper disable FieldCanBeMadeReadOnly.Local
+#pragma warning disable 414
 
 namespace ManagedWimLib
 {
-    #region SafeLibraryHandle
-    [SecurityPermission(SecurityAction.InheritanceDemand, UnmanagedCode = true)]
-    [SecurityPermission(SecurityAction.Demand, UnmanagedCode = true)]
-    public class SafeLibraryHandle : SafeHandleZeroOrMinusOneIsInvalid
-    {
-        #region Managed Methods
-        public SafeLibraryHandle() : base(true) { }
-
-        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
-        protected override bool ReleaseHandle()
-        {
-            return FreeLibrary(handle);
-        }
-        #endregion
-
-        #region Windows API
-        [DllImport("kernel32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool FreeLibrary(IntPtr hModule);
-        #endregion
-    }
-    #endregion
-
     #region NativeMethods
     internal static class NativeMethods
     {
@@ -67,142 +43,199 @@ namespace ManagedWimLib
         #endregion
 
         #region Fields
-        public static SafeLibraryHandle hModule = null;
-        public static bool Loaded => hModule != null;
+        internal enum LongBits
+        {
+            Long64 = 0, // Windows, Linux 32bit
+            Long32 = 1, // Linux 64bit
+        }
+
+        internal static IntPtr hModule;
+        internal static bool Loaded => hModule != IntPtr.Zero;
         public static string ErrorFile = null;
         public static bool PrintErrorsEnabled = false;
         #endregion
 
-        #region LoadFunctions, ResetFunctions
-        private static Delegate GetFuncPtr(string exportFunc, Type delegateType)
+        #region Windows kernel32 API
+        internal static class Win32
         {
-            IntPtr funcPtr = GetProcAddress(hModule, exportFunc);
-            if (funcPtr == null || funcPtr == IntPtr.Zero)
-                throw new ArgumentException($"Cannot import [{exportFunc}]", new Win32Exception());
-            return Marshal.GetDelegateForFunctionPointer(funcPtr, delegateType);
+            [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+            internal static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPTStr)] string lpFileName);
+
+            [DllImport("kernel32.dll", CharSet = CharSet.Ansi, SetLastError = true)]
+            internal static extern IntPtr GetProcAddress(IntPtr hModule, [MarshalAs(UnmanagedType.LPStr)] string procName);
+
+            [DllImport("kernel32.dll")]
+            internal static extern int FreeLibrary(IntPtr hModule);
+        }
+        #endregion
+
+        #region Linux libdl API
+        internal static class Linux
+        {
+#pragma warning disable IDE1006
+            internal const int RTLD_NOW = 0x0002;
+            internal const int RTLD_GLOBAL = 0x0100;
+
+            [DllImport("libdl.so.2", CallingConvention = CallingConvention.Cdecl)]
+            internal static extern IntPtr dlopen(string fileName, int flags);
+
+            [DllImport("libdl.so.2", CallingConvention = CallingConvention.Cdecl)]
+            internal static extern int dlclose(IntPtr handle);
+
+            [DllImport("libdl.so.2", CallingConvention = CallingConvention.Cdecl)]
+            internal static extern string dlerror();
+
+            [DllImport("libdl.so.2", CallingConvention = CallingConvention.Cdecl)]
+            internal static extern IntPtr dlsym(IntPtr handle, string symbol);
+#pragma warning restore IDE1006
+        }
+        #endregion
+
+        #region LoadFunctions, ResetFunctions
+        private static T GetFuncPtr<T>(string funcSymbol) where T : Delegate
+        {
+            IntPtr funcPtr;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                funcPtr = Win32.GetProcAddress(hModule, funcSymbol);
+                if (funcPtr == IntPtr.Zero)
+                    throw new ArgumentException($"Cannot import [{funcSymbol}]", new Win32Exception());
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                funcPtr = Linux.dlsym(hModule, funcSymbol);
+                if (funcPtr == IntPtr.Zero)
+                    throw new ArgumentException($"Cannot import [{funcSymbol}]", Linux.dlerror());
+            }
+            else
+            {
+                throw new PlatformNotSupportedException();
+            }
+
+            return Marshal.GetDelegateForFunctionPointer<T>(funcPtr);
         }
 
         internal static void LoadFuntions()
         {
             #region Global - GlobalInit, GlobalCleanup
-            GlobalInit = (wimlib_global_init)GetFuncPtr("wimlib_global_init", typeof(wimlib_global_init));
-            GlobalCleanup = (wimlib_global_cleanup)GetFuncPtr("wimlib_global_cleanup", typeof(wimlib_global_cleanup));
+            GlobalInit = GetFuncPtr<wimlib_global_init>("wimlib_global_init");
+            GlobalCleanup = GetFuncPtr<wimlib_global_cleanup>("wimlib_global_cleanup");
             #endregion
 
             #region Error - GetErrorString, SetErrorFile, SetPrintErrors
-            GetErrorString = (wimlib_get_error_string)GetFuncPtr("wimlib_get_error_string", typeof(wimlib_get_error_string));
-            SetErrorFile = (wimlib_set_error_file_by_name)GetFuncPtr("wimlib_set_error_file_by_name", typeof(wimlib_set_error_file_by_name));
-            SetPrintErrors = (wimlib_set_print_errors)GetFuncPtr("wimlib_set_print_errors", typeof(wimlib_set_print_errors));
+            GetErrorString = GetFuncPtr<wimlib_get_error_string>("wimlib_get_error_string");
+            SetErrorFile = GetFuncPtr<wimlib_set_error_file_by_name>("wimlib_set_error_file_by_name");
+            SetPrintErrors = GetFuncPtr<wimlib_set_print_errors>("wimlib_set_print_errors");
             #endregion
 
             #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
-            AddEmptyImage = (wimlib_add_empty_image)GetFuncPtr("wimlib_add_empty_image", typeof(wimlib_add_empty_image));
-            AddImage = (wimlib_add_image)GetFuncPtr("wimlib_add_image", typeof(wimlib_add_image));
-            AddImageMultiSource = (wimlib_add_image_multisource)GetFuncPtr("wimlib_add_image_multisource", typeof(wimlib_add_image_multisource));
-            AddTree = (wimlib_add_tree)GetFuncPtr("wimlib_add_tree", typeof(wimlib_add_tree));
+            AddEmptyImage = GetFuncPtr<wimlib_add_empty_image>("wimlib_add_empty_image");
+            AddImage = GetFuncPtr<wimlib_add_image>("wimlib_add_image");
+            AddImageMultiSource = GetFuncPtr<wimlib_add_image_multisource>("wimlib_add_image_multisource");
+            AddTree = GetFuncPtr<wimlib_add_tree>("wimlib_add_tree");
             #endregion
 
             #region Create - CreateWim
-            CreateNewWim = (wimlib_create_new_wim)GetFuncPtr("wimlib_create_new_wim", typeof(wimlib_create_new_wim));
+            CreateNewWim = GetFuncPtr<wimlib_create_new_wim>("wimlib_create_new_wim");
             #endregion
 
             #region Delete - DeleteImage, DeletePath
-            DeleteImage = (wimlib_delete_image)GetFuncPtr("wimlib_delete_image", typeof(wimlib_delete_image));
-            DeletePath = (wimlib_delete_path)GetFuncPtr("wimlib_delete_path", typeof(wimlib_delete_path));
+            DeleteImage = GetFuncPtr<wimlib_delete_image>("wimlib_delete_image");
+            DeletePath = GetFuncPtr<wimlib_delete_path>("wimlib_delete_path");
             #endregion
 
             #region Export - ExportImage
-            ExportImage = (wimlib_export_image)GetFuncPtr("wimlib_export_image", typeof(wimlib_export_image));
+            ExportImage = GetFuncPtr<wimlib_export_image>("wimlib_export_image");
             #endregion
 
             #region Extract - ExtractImage, ExtractPathList, ExtractPaths
-            ExtractImage = (wimlib_extract_image)GetFuncPtr("wimlib_extract_image", typeof(wimlib_extract_image));
-            ExtractPathList = (wimlib_extract_pathlist)GetFuncPtr("wimlib_extract_pathlist", typeof(wimlib_extract_pathlist));
-            ExtractPaths = (wimlib_extract_paths)GetFuncPtr("wimlib_extract_paths", typeof(wimlib_extract_paths));
+            ExtractImage = GetFuncPtr<wimlib_extract_image>("wimlib_extract_image");
+            ExtractPathList = GetFuncPtr<wimlib_extract_pathlist>("wimlib_extract_pathlist");
+            ExtractPaths = GetFuncPtr<wimlib_extract_paths>("wimlib_extract_paths");
             #endregion
 
             #region Free - Free
-            Free = (wimlib_free)GetFuncPtr("wimlib_free", typeof(wimlib_free));
+            Free = GetFuncPtr<wimlib_free>("wimlib_free");
             #endregion
 
             #region GetImageInfo - GetImageDescription, GetImageName, GetImageProperty
-            GetImageDescription = (wimlib_get_image_description)GetFuncPtr("wimlib_get_image_description", typeof(wimlib_get_image_description));
-            GetImageName = (wimlib_get_image_name)GetFuncPtr("wimlib_get_image_name", typeof(wimlib_get_image_name));
-            GetImageProperty = (wimlib_get_image_property)GetFuncPtr("wimlib_get_image_property", typeof(wimlib_get_image_property));
+            GetImageDescription = GetFuncPtr<wimlib_get_image_description>("wimlib_get_image_description");
+            GetImageName = GetFuncPtr<wimlib_get_image_name>("wimlib_get_image_name");
+            GetImageProperty = GetFuncPtr<wimlib_get_image_property>("wimlib_get_image_property");
             #endregion
 
             #region GetWimInfo - GetWimInfo, GetXmlData, IsImageNameInUse, ResolveImage
-            GetWimInfo = (wimlib_get_wim_info)GetFuncPtr("wimlib_get_wim_info", typeof(wimlib_get_wim_info));
-            GetXmlData = (wimlib_get_xml_data)GetFuncPtr("wimlib_get_xml_data", typeof(wimlib_get_xml_data));
-            IsImageNameInUse = (wimlib_image_name_in_use)GetFuncPtr("wimlib_image_name_in_use", typeof(wimlib_image_name_in_use));
-            ResolveImage = (wimlib_resolve_image)GetFuncPtr("wimlib_resolve_image", typeof(wimlib_resolve_image));
+            GetWimInfo = GetFuncPtr<wimlib_get_wim_info>("wimlib_get_wim_info");
+            GetXmlData = GetFuncPtr<wimlib_get_xml_data>("wimlib_get_xml_data");
+            IsImageNameInUse = GetFuncPtr<wimlib_image_name_in_use>("wimlib_image_name_in_use");
+            ResolveImage = GetFuncPtr<wimlib_resolve_image>("wimlib_resolve_image");
             #endregion
 
             #region GetVersion - GetVersion
-            GetVersionPtr = (wimlib_get_version)GetFuncPtr("wimlib_get_version", typeof(wimlib_get_version));
+            GetVersionPtr = GetFuncPtr<wimlib_get_version>("wimlib_get_version");
             #endregion
 
             #region Iterate - IterateDirTree, IterateLookupTable
-            IterateDirTree = (wimlib_iterate_dir_tree)GetFuncPtr("wimlib_iterate_dir_tree", typeof(wimlib_iterate_dir_tree));
-            IterateLookupTable = (wimlib_iterate_lookup_table)GetFuncPtr("wimlib_iterate_lookup_table", typeof(wimlib_iterate_lookup_table));
+            IterateDirTree = GetFuncPtr<wimlib_iterate_dir_tree>("wimlib_iterate_dir_tree");
+            IterateLookupTable = GetFuncPtr<wimlib_iterate_lookup_table>("wimlib_iterate_lookup_table");
             #endregion
 
             #region Join - Join, JoinWithProgress
-            Join = (wimlib_join)GetFuncPtr("wimlib_join", typeof(wimlib_join));
-            JoinWithProgress = (wimlib_join_with_progress)GetFuncPtr("wimlib_join_with_progress", typeof(wimlib_join_with_progress));
+            Join = GetFuncPtr<wimlib_join>("wimlib_join");
+            JoinWithProgress = GetFuncPtr<wimlib_join_with_progress>("wimlib_join_with_progress");
             #endregion
 
             #region Open - Open, OpenWithProgress
-            OpenWim = (wimlib_open_wim)GetFuncPtr("wimlib_open_wim", typeof(wimlib_open_wim));
-            OpenWimWithProgress = (wimlib_open_wim_with_progress)GetFuncPtr("wimlib_open_wim_with_progress", typeof(wimlib_open_wim_with_progress));
+            OpenWim = GetFuncPtr<wimlib_open_wim>("wimlib_open_wim");
+            OpenWimWithProgress = GetFuncPtr<wimlib_open_wim_with_progress>("wimlib_open_wim_with_progress");
             #endregion
 
             #region Reference - ReferenceTemplateImage, ReferenceResourceFiles, ReferenceResources
-            ReferenceResourceFiles = (wimlib_reference_resource_files)GetFuncPtr("wimlib_reference_resource_files", typeof(wimlib_reference_resource_files));
-            ReferenceResources = (wimlib_reference_resources)GetFuncPtr("wimlib_reference_resources", typeof(wimlib_reference_resources));
-            ReferenceTemplateImage = (wimlib_reference_template_image)GetFuncPtr("wimlib_reference_template_image", typeof(wimlib_reference_template_image));
+            ReferenceResourceFiles = GetFuncPtr<wimlib_reference_resource_files>("wimlib_reference_resource_files");
+            ReferenceResources = GetFuncPtr<wimlib_reference_resources>("wimlib_reference_resources");
+            ReferenceTemplateImage = GetFuncPtr<wimlib_reference_template_image>("wimlib_reference_template_image");
             #endregion
 
             #region Callback - RegsiterProgressFunction
-            RegisterProgressFunction = (wimlib_register_progress_function_delegate)GetFuncPtr("wimlib_register_progress_function", typeof(wimlib_register_progress_function_delegate));
+            RegisterProgressFunction = GetFuncPtr<wimlib_register_progress_function_delegate>("wimlib_register_progress_function");
             #endregion
 
             #region Rename - RenamePath
-            RenamePath = (wimlib_rename_path)GetFuncPtr("wimlib_rename_path", typeof(wimlib_rename_path));
+            RenamePath = GetFuncPtr<wimlib_rename_path>("wimlib_rename_path");
             #endregion
 
             #region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty, SetWimInfo
             // wimlib_set_image_descripton is misspelled from wimlib itself.
-            SetImageDescription = (wimlib_set_image_description)GetFuncPtr("wimlib_set_image_descripton", typeof(wimlib_set_image_description));
-            SetImageFlags = (wimlib_set_image_flags)GetFuncPtr("wimlib_set_image_flags", typeof(wimlib_set_image_flags));
-            SetImageName = (wimlib_set_image_name)GetFuncPtr("wimlib_set_image_name", typeof(wimlib_set_image_name));
-            SetImageProperty = (wimlib_set_image_property)GetFuncPtr("wimlib_set_image_property", typeof(wimlib_set_image_property));
-            SetWimInfo = (wimlib_set_wim_info)GetFuncPtr("wimlib_set_wim_info", typeof(wimlib_set_wim_info));
+            SetImageDescription = GetFuncPtr<wimlib_set_image_description>("wimlib_set_image_descripton");
+            SetImageFlags = GetFuncPtr<wimlib_set_image_flags>("wimlib_set_image_flags");
+            SetImageName = GetFuncPtr<wimlib_set_image_name>("wimlib_set_image_name");
+            SetImageProperty = GetFuncPtr<wimlib_set_image_property>("wimlib_set_image_property");
+            SetWimInfo = GetFuncPtr<wimlib_set_wim_info>("wimlib_set_wim_info");
             #endregion
 
             #region SetOutput - SetOutputChunkSize, SetOutputPackChunkSize, SetOutputCompressionType, SetOutputPackCompressionType
-            SetOutputChunkSize = (wimlib_set_output_chunk_size)GetFuncPtr("wimlib_set_output_chunk_size", typeof(wimlib_set_output_chunk_size));
-            SetOutputPackChunkSize = (wimlib_set_output_pack_chunk_size)GetFuncPtr("wimlib_set_output_pack_chunk_size", typeof(wimlib_set_output_pack_chunk_size));
-            SetOutputCompressionType = (wimlib_set_output_compression_type)GetFuncPtr("wimlib_set_output_compression_type", typeof(wimlib_set_output_compression_type));
-            SetOutputPackCompressionType = (wimlib_set_output_pack_compression_type)GetFuncPtr("wimlib_set_output_pack_compression_type", typeof(wimlib_set_output_pack_compression_type));
+            SetOutputChunkSize = GetFuncPtr<wimlib_set_output_chunk_size>("wimlib_set_output_chunk_size");
+            SetOutputPackChunkSize = GetFuncPtr<wimlib_set_output_pack_chunk_size>("wimlib_set_output_pack_chunk_size");
+            SetOutputCompressionType = GetFuncPtr<wimlib_set_output_compression_type>("wimlib_set_output_compression_type");
+            SetOutputPackCompressionType = GetFuncPtr<wimlib_set_output_pack_compression_type>("wimlib_set_output_pack_compression_type");
             #endregion
 
             #region Split - Split
-            Split = (wimlib_split)GetFuncPtr("wimlib_split", typeof(wimlib_split));
+            Split = GetFuncPtr<wimlib_split>("wimlib_split");
             #endregion
 
             #region Verify - VerifyWim
-            VerifyWim = (wimlib_verify_wim)GetFuncPtr("wimlib_verify_wim", typeof(wimlib_verify_wim));
+            VerifyWim = GetFuncPtr<wimlib_verify_wim>("wimlib_verify_wim");
             #endregion
 
             #region Update - UpdateImage
-            UpdateImage32 = (wimlib_update_image_32)GetFuncPtr("wimlib_update_image", typeof(wimlib_update_image_32));
-            UpdateImage64 = (wimlib_update_image_64)GetFuncPtr("wimlib_update_image", typeof(wimlib_update_image_64));
+            UpdateImage32 = GetFuncPtr<wimlib_update_image_32>("wimlib_update_image");
+            UpdateImage64 = GetFuncPtr<wimlib_update_image_64>("wimlib_update_image");
             #endregion
 
             #region Write - Write, Overwrite
-            Write = (wimlib_write)GetFuncPtr("wimlib_write", typeof(wimlib_write));
-            Overwrite = (wimlib_overwrite)GetFuncPtr("wimlib_overwrite", typeof(wimlib_overwrite));
+            Write = GetFuncPtr<wimlib_write>("wimlib_write");
+            Overwrite = GetFuncPtr<wimlib_overwrite>("wimlib_overwrite");
             #endregion
         }
 
@@ -330,14 +363,6 @@ namespace ManagedWimLib
         }
         #endregion
 
-        #region Windows API
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        internal static extern SafeLibraryHandle LoadLibrary([MarshalAs(UnmanagedType.LPTStr)] string lpFileName);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Ansi, SetLastError = true)]
-        internal static extern IntPtr GetProcAddress(SafeLibraryHandle hModule, [MarshalAs(UnmanagedType.LPStr)] string procName);
-        #endregion
-
         #region WimLib Function Pointer
         #region GlobalInit, GlobalCleanup
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -410,7 +435,7 @@ namespace ManagedWimLib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_add_image_multisource(
             IntPtr wim,
-            [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)] CaptureSource[] sources,
+            [MarshalAs(UnmanagedType.LPArray)] CaptureSource[] sources,
             IntPtr num_sources, // size_t
             [MarshalAs(UnmanagedType.LPWStr)] string name,
             [MarshalAs(UnmanagedType.LPWStr)] string config_file,
@@ -791,7 +816,7 @@ namespace ManagedWimLib
         internal delegate ErrorCode wimlib_update_image_32(
             IntPtr wim,
             int image,
-            [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)] UpdateCommand32[] cmds,
+            [MarshalAs(UnmanagedType.LPArray)] UpdateCommand32[] cmds,
             uint num_cmds,
             UpdateFlags update_flags);
         internal static wimlib_update_image_32 UpdateImage32;
@@ -800,7 +825,7 @@ namespace ManagedWimLib
         internal delegate ErrorCode wimlib_update_image_64(
             IntPtr wim,
             int image,
-            [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)] UpdateCommand64[] cmds,
+            [MarshalAs(UnmanagedType.LPArray)] UpdateCommand64[] cmds,
             ulong num_cmds,
             UpdateFlags update_flags);
         internal static wimlib_update_image_64 UpdateImage64;
@@ -842,6 +867,7 @@ namespace ManagedWimLib
     }
     #endregion
 
+    #region Native Enums and Structs
     #region Enum CompressionType
     /// <summary>
     /// Specifies a compression type.
@@ -2031,16 +2057,15 @@ namespace ManagedWimLib
         /// </summary>
         [MarshalAs(UnmanagedType.LPWStr)]
         public string WimTargetPath;
-#pragma warning disable 0414
-#pragma warning disable IDE0044 // 읽기 전용 한정자 추가
-        private uint reserved;
-#pragma warning restore IDE0044 // 읽기 전용 한정자 추가
+#pragma warning disable IDE0044
+        private uint _reserved;
+#pragma warning restore IDE0044
 
         public CaptureSource(string fsSourcePath, string wimTargetPath)
         {
             FsSourcePath = fsSourcePath;
             WimTargetPath = wimTargetPath;
-            reserved = 0;
+            _reserved = 0;
         }
     };
     #endregion
@@ -2098,22 +2123,22 @@ namespace ManagedWimLib
         /// Bit 0 - 9 : Information Flags
         /// Bit 10 - 31 : Reserved
         /// </summary>
-        private uint bitFlag;
+        private uint _bitFlag;
         /// <summary>
         /// 1 iff this WIM file has an integrity table.
         /// </summary>
         public bool HasIntegrityTable
         {
-            get => NativeMethods.GetBitField(bitFlag, 0);
-            set => NativeMethods.SetBitField(ref bitFlag, 0, value);
+            get => NativeMethods.GetBitField(_bitFlag, 0);
+            set => NativeMethods.SetBitField(ref _bitFlag, 0, value);
         }
         /// <summary>
         /// 1 iff this info struct is for a WimStruct that has a backing file.
         /// </summary>
         public bool OpenedFromFile
         {
-            get => NativeMethods.GetBitField(bitFlag, 1);
-            set => NativeMethods.SetBitField(ref bitFlag, 1, value);
+            get => NativeMethods.GetBitField(_bitFlag, 1);
+            set => NativeMethods.SetBitField(ref _bitFlag, 1, value);
         }
         /// <summary>
         /// 1 iff this WIM file is considered readonly for any reason
@@ -2121,69 +2146,69 @@ namespace ManagedWimLib
         /// </summary>
         public bool IsReadonly
         {
-            get => NativeMethods.GetBitField(bitFlag, 2);
-            set => NativeMethods.SetBitField(ref bitFlag, 2, value);
+            get => NativeMethods.GetBitField(_bitFlag, 2);
+            set => NativeMethods.SetBitField(ref _bitFlag, 2, value);
         }
         /// <summary>
         /// 1 iff the "reparse point fix" flag is set in this WIM's header
         /// </summary>
         public bool HasRpfix
         {
-            get => NativeMethods.GetBitField(bitFlag, 3);
-            set => NativeMethods.SetBitField(ref bitFlag, 3, value);
+            get => NativeMethods.GetBitField(_bitFlag, 3);
+            set => NativeMethods.SetBitField(ref _bitFlag, 3, value);
         }
         /// <summary>
         /// 1 iff the "readonly" flag is set in this WIM's header
         /// </summary>
         public bool IsMarkedReadonly
         {
-            get => NativeMethods.GetBitField(bitFlag, 4);
-            set => NativeMethods.SetBitField(ref bitFlag, 4, value);
+            get => NativeMethods.GetBitField(_bitFlag, 4);
+            set => NativeMethods.SetBitField(ref _bitFlag, 4, value);
         }
         /// <summary>
         /// 1 iff the "spanned" flag is set in this WIM's header
         /// </summary>
         public bool Spanned
         {
-            get => NativeMethods.GetBitField(bitFlag, 5);
-            set => NativeMethods.SetBitField(ref bitFlag, 5, value);
+            get => NativeMethods.GetBitField(_bitFlag, 5);
+            set => NativeMethods.SetBitField(ref _bitFlag, 5, value);
         }
         /// <summary>
         /// 1 iff the "write in progress" flag is set in this WIM's header
         /// </summary>
         public bool WriteInProgress
         {
-            get => NativeMethods.GetBitField(bitFlag, 6);
-            set => NativeMethods.SetBitField(ref bitFlag, 6, value);
+            get => NativeMethods.GetBitField(_bitFlag, 6);
+            set => NativeMethods.SetBitField(ref _bitFlag, 6, value);
         }
         /// <summary>
         /// 1 iff the "metadata only" flag is set in this WIM's header
         /// </summary>
         public bool MetadataOnly
         {
-            get => NativeMethods.GetBitField(bitFlag, 7);
-            set => NativeMethods.SetBitField(ref bitFlag, 7, value);
+            get => NativeMethods.GetBitField(_bitFlag, 7);
+            set => NativeMethods.SetBitField(ref _bitFlag, 7, value);
         }
         /// <summary>
         /// 1 iff the "resource only" flag is set in this WIM's header
         /// </summary>
         public bool ResourceOnly
         {
-            get => NativeMethods.GetBitField(bitFlag, 8);
-            set => NativeMethods.SetBitField(ref bitFlag, 8, value);
+            get => NativeMethods.GetBitField(_bitFlag, 8);
+            set => NativeMethods.SetBitField(ref _bitFlag, 8, value);
         }
         /// <summary>
         /// 1 iff this WIM file is pipable (see WriteFlags.PIPABLE).
         /// </summary>
         public bool Pipable
         {
-            get => NativeMethods.GetBitField(bitFlag, 9);
-            set => NativeMethods.SetBitField(ref bitFlag, 9, value);
+            get => NativeMethods.GetBitField(_bitFlag, 9);
+            set => NativeMethods.SetBitField(ref _bitFlag, 9, value);
         }
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 9)]
-#pragma warning disable IDE0044 // 읽기 전용 한정자 추가
-        private uint[] reserved;
-#pragma warning restore IDE0044 // 읽기 전용 한정자 추가
+#pragma warning disable IDE0044
+        private uint[] _reserved;
+#pragma warning restore IDE0044
     }
     #endregion
 
@@ -2203,7 +2228,7 @@ namespace ManagedWimLib
         /// Rename a file or directory tree in the image.
         /// </summary>
         RENAME = 2,
-    };
+    }
 
     #region UpdateCommand
     public class UpdateCommand
@@ -2255,7 +2280,7 @@ namespace ManagedWimLib
         /// <summary>
         /// Reserved; set to 0. 
         /// </summary>
-        private int RenameFlags = 0;
+        private int _renameFlags = 0;
         #endregion
 
         #region Properties - Add, Delete, Rename
@@ -2306,7 +2331,7 @@ namespace ManagedWimLib
                 Op = UpdateOp.RENAME;
                 RenWimSourcePath = value.WimSourcePath;
                 RenWimTargetPath = value.WimTargetPath;
-                RenameFlags = 0;
+                _renameFlags = 0;
             }
         }
         #endregion
@@ -2314,7 +2339,7 @@ namespace ManagedWimLib
         #region Factory Methods
         public static UpdateCommand SetAdd(string fsSourcePath, string wimTargetPath, string configFile, AddFlags addFlags)
         {
-            return new UpdateCommand()
+            return new UpdateCommand
             {
                 Op = UpdateOp.ADD,
                 AddFsSourcePath = fsSourcePath,
@@ -2326,7 +2351,7 @@ namespace ManagedWimLib
 
         public static UpdateCommand SetAdd(UpdateAdd add)
         {
-            return new UpdateCommand()
+            return new UpdateCommand
             {
                 Op = UpdateOp.ADD,
                 AddFsSourcePath = add.FsSourcePath,
@@ -2338,7 +2363,7 @@ namespace ManagedWimLib
 
         public static UpdateCommand SetDelete(string wimPath, DeleteFlags deleteFlags)
         {
-            return new UpdateCommand()
+            return new UpdateCommand
             {
                 Op = UpdateOp.DELETE,
                 DelWimPath = wimPath,
@@ -2348,7 +2373,7 @@ namespace ManagedWimLib
 
         public static UpdateCommand SetDelete(UpdateDelete del)
         {
-            return new UpdateCommand()
+            return new UpdateCommand
             {
                 Op = UpdateOp.DELETE,
                 DelWimPath = del.WimPath,
@@ -2358,23 +2383,23 @@ namespace ManagedWimLib
 
         public static UpdateCommand SetRename(string wimSourcePath, string wimTargetPath)
         {
-            return new UpdateCommand()
+            return new UpdateCommand
             {
                 Op = UpdateOp.RENAME,
                 RenWimSourcePath = wimSourcePath,
                 RenWimTargetPath = wimTargetPath,
-                RenameFlags = 0,
+                _renameFlags = 0,
             };
         }
 
         public static UpdateCommand SetRename(UpdateRename ren)
         {
-            return new UpdateCommand()
+            return new UpdateCommand
             {
                 Op = UpdateOp.RENAME,
                 RenWimSourcePath = ren.WimSourcePath,
                 RenWimTargetPath = ren.WimTargetPath,
-                RenameFlags = 0,
+                _renameFlags = 0,
             };
         }
         #endregion
@@ -2833,24 +2858,20 @@ namespace ManagedWimLib
         {
             get
             {
-                if (SecurityDescriptorPtr != IntPtr.Zero)
-                {
-                    byte[] buf = new byte[SecurityDescriptorSize];
-                    Marshal.Copy(SecurityDescriptorPtr, buf, 0, (int)SecurityDescriptorSizeVal.ToUInt32());
-                    return buf;
-                }
-                else
-                {
+                if (SecurityDescriptorPtr == IntPtr.Zero)
                     return null;
-                }
+
+                byte[] buf = new byte[SecurityDescriptorSize];
+                Marshal.Copy(SecurityDescriptorPtr, buf, 0, (int)_securityDescriptorSizeVal.ToUInt32());
+                return buf;
             }
         }
         public IntPtr SecurityDescriptorPtr;
         /// <summary>
         /// Size of the above security descriptor, in bytes. 
         /// </summary>
-        public ulong SecurityDescriptorSize => SecurityDescriptorSizeVal.ToUInt64();
-        private UIntPtr SecurityDescriptorSizeVal; // size_t
+        public ulong SecurityDescriptorSize => _securityDescriptorSizeVal.ToUInt64();
+        private UIntPtr _securityDescriptorSizeVal; // size_t
         /// <summary>
         /// File attributes, such as whether the file is a directory or not.
         /// These are the "standard" Windows FILE_ATTRIBUTE_* values.
@@ -2884,18 +2905,18 @@ namespace ManagedWimLib
         /// <summary>
         /// Time this file was created.
         /// </summary>
-        public DateTime CreationTime => CreationTimeVal.ToDateTime(CreationTimeHigh);
-        private WimTimeSpec CreationTimeVal;
+        public DateTime CreationTime => _creationTimeVal.ToDateTime(_creationTimeHigh);
+        private WimTimeSpec _creationTimeVal;
         /// <summary>
         /// Time this file was last written to.
         /// </summary>
-        public DateTime LastWriteTime => LastWriteTimeVal.ToDateTime(LastWriteTimeHigh);
-        private WimTimeSpec LastWriteTimeVal;
+        public DateTime LastWriteTime => _lastWriteTimeVal.ToDateTime(_lastWriteTimeHigh);
+        private WimTimeSpec _lastWriteTimeVal;
         /// <summary>
         /// Time this file was last accessed.
         /// </summary>
-        public DateTime LastAccessTime => LastAccessTimeVal.ToDateTime(LastAccessTimeHigh);
-        private WimTimeSpec LastAccessTimeVal;
+        public DateTime LastAccessTime => _lastAccessTimeVal.ToDateTime(_lastAccessTimeHigh);
+        private WimTimeSpec _lastAccessTimeVal;
         /// <summary>
         /// The UNIX user ID of this file.
         /// This is a wimlib extension.
@@ -2931,14 +2952,14 @@ namespace ManagedWimLib
         /// </summary>
         public WimObjectId ObjectId;
 
-#pragma warning disable IDE0044 // 읽기 전용 한정자 추가
-        private int CreationTimeHigh;
-        private int LastWriteTimeHigh;
-        private int LastAccessTimeHigh;
-        private int Reserved2;
+#pragma warning disable IDE0044
+        private int _creationTimeHigh;
+        private int _lastWriteTimeHigh;
+        private int _lastAccessTimeHigh;
+        private int _reserved2;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-        private ulong[] Reserved;
-#pragma warning restore IDE0044 // 읽기 전용 한정자 추가
+        private ulong[] _reserved;
+#pragma warning restore IDE0044
     }
 
     /// <summary>
@@ -3107,8 +3128,8 @@ namespace ManagedWimLib
         /// <summary>
         /// Seconds since start of UNIX epoch (January 1, 1970)
         /// </summary>
-        public long UnixEpoch => UnixEpochVal.ToInt64();
-        private IntPtr UnixEpochVal; // int64_t in 64bit, int32_t in 32bit
+        public long UnixEpoch => _unixEpochVal.ToInt64();
+        private IntPtr _unixEpochVal; // int64_t in 64bit, int32_t in 32bit
         /// <summary>
         /// Nanoseconds (0-999999999)
         /// </summary>
@@ -3196,29 +3217,29 @@ namespace ManagedWimLib
         /// Bit 7 - 31 : Reserved
         /// </summary>
 #pragma warning disable 649
-#pragma warning disable IDE0044 // 읽기 전용 한정자 추가
-        private uint bitFlag;
-#pragma warning restore IDE0044 // 읽기 전용 한정자 추가
+#pragma warning disable IDE0044
+        private uint _bitFlag;
+#pragma warning restore IDE0044
 #pragma warning restore 649
         /// <summary>
         /// 1 iff this blob is located in a non-solid compressed WIM resource.
         /// </summary>
-        public bool IsCompressed => NativeMethods.GetBitField(bitFlag, 0);
+        public bool IsCompressed => NativeMethods.GetBitField(_bitFlag, 0);
         /// <summary>
         /// 1 iff this blob contains the metadata for an image. 
         /// </summary>
-        public bool IsMetadata => NativeMethods.GetBitField(bitFlag, 1);
-        public bool IsFree => NativeMethods.GetBitField(bitFlag, 2);
-        public bool IsSpanned => NativeMethods.GetBitField(bitFlag, 3);
+        public bool IsMetadata => NativeMethods.GetBitField(_bitFlag, 1);
+        public bool IsFree => NativeMethods.GetBitField(_bitFlag, 2);
+        public bool IsSpanned => NativeMethods.GetBitField(_bitFlag, 3);
         /// <summary>
         /// 1 iff a blob with this hash was not found in the blob lookup table of the WimStruct.
         /// This normally implies a missing call to Wim.ReferenceResourceFiles() or Wim.ReferenceResources().
         /// </summary>
-        public bool IsMissing => NativeMethods.GetBitField(bitFlag, 4);
+        public bool IsMissing => NativeMethods.GetBitField(_bitFlag, 4);
         /// <summary>
         /// 1 iff this blob is located in a solid resource.
         /// </summary>
-        public bool Packed => NativeMethods.GetBitField(bitFlag, 5);
+        public bool Packed => NativeMethods.GetBitField(_bitFlag, 5);
         /// <summary>
         /// If this blob is located in a solid WIM resource, then this is the offset of that solid resource within the WIM file containing it.
         /// </summary>
@@ -3233,9 +3254,9 @@ namespace ManagedWimLib
         public ulong RawResourceUncompressedSize;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)]
 #pragma warning disable 169
-#pragma warning disable IDE0044 // 읽기 전용 한정자 추가
-        private ulong[] reserved;
-#pragma warning restore IDE0044 // 읽기 전용 한정자 추가
+#pragma warning disable IDE0044
+        private ulong[] _reserved;
+#pragma warning restore IDE0044
 #pragma warning restore 169
     }
     #endregion
@@ -3265,9 +3286,11 @@ namespace ManagedWimLib
         /// </summary>
         public ResourceEntry Resource;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-#pragma warning disable IDE0044 // 읽기 전용 한정자 추가
-        private ulong[] Reserved;
-#pragma warning restore IDE0044 // 읽기 전용 한정자 추가
+
+#pragma warning disable IDE0044
+        private ulong[] _reserved;
+#pragma warning restore IDE0044
     }
+    #endregion
     #endregion
 }

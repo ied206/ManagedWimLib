@@ -23,6 +23,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+// ReSharper disable FieldCanBeMadeReadOnly.Local
 
 namespace ManagedWimLib
 {
@@ -36,11 +37,11 @@ namespace ManagedWimLib
         private readonly ProgressCallback _callback;
         private readonly object _userData;
 
-        internal NativeMethods.NativeProgressFunc NativeFunc { get; private set; }
+        internal NativeMethods.NativeProgressFunc NativeFunc { get; }
 
         public ManagedProgressCallback(ProgressCallback callback, object userData)
         {
-            _callback = callback ?? throw new ArgumentNullException("callback");
+            _callback = callback ?? throw new ArgumentNullException(nameof(callback));
             _userData = userData;
 
             // Avoid GC by keeping ref here
@@ -56,12 +57,12 @@ namespace ManagedWimLib
                 switch (msgType)
                 {
                     case ProgressMsg.WRITE_STREAMS:
-                        pInfo = (ProgressInfo_WriteStreams)Marshal.PtrToStructure(info, typeof(ProgressInfo_WriteStreams));
+                        pInfo = Marshal.PtrToStructure<ProgressInfo_WriteStreams>(info);
                         break;
                     case ProgressMsg.SCAN_BEGIN:
                     case ProgressMsg.SCAN_DENTRY:
                     case ProgressMsg.SCAN_END:
-                        pInfo = (ProgressInfo_Scan)Marshal.PtrToStructure(info, typeof(ProgressInfo_Scan));
+                        pInfo = Marshal.PtrToStructure<ProgressInfo_Scan>(info);
                         break;
                     case ProgressMsg.EXTRACT_SPWM_PART_BEGIN:
                     case ProgressMsg.EXTRACT_IMAGE_BEGIN:
@@ -71,48 +72,48 @@ namespace ManagedWimLib
                     case ProgressMsg.EXTRACT_METADATA:
                     case ProgressMsg.EXTRACT_TREE_END:
                     case ProgressMsg.EXTRACT_IMAGE_END:
-                        pInfo = (ProgressInfo_Extract)Marshal.PtrToStructure(info, typeof(ProgressInfo_Extract));
+                        pInfo = Marshal.PtrToStructure<ProgressInfo_Extract>(info);
                         break;
                     case ProgressMsg.RENAME:
-                        pInfo = (ProgressInfo_Rename)Marshal.PtrToStructure(info, typeof(ProgressInfo_Rename));
+                        pInfo = Marshal.PtrToStructure<ProgressInfo_Rename>(info);
                         break;
                     case ProgressMsg.UPDATE_BEGIN_COMMAND:
                     case ProgressMsg.UPDATE_END_COMMAND:
-                        ProgressInfo_UpdateBase _base = (ProgressInfo_UpdateBase)Marshal.PtrToStructure(info, typeof(ProgressInfo_UpdateBase));
+                        ProgressInfo_UpdateBase _base = Marshal.PtrToStructure<ProgressInfo_UpdateBase>(info);
                         pInfo = _base.ToManaged();
                         break;
                     case ProgressMsg.VERIFY_INTEGRITY:
                     case ProgressMsg.CALC_INTEGRITY:
-                        pInfo = (ProgressInfo_Integrity)Marshal.PtrToStructure(info, typeof(ProgressInfo_Integrity));
+                        pInfo = Marshal.PtrToStructure<ProgressInfo_Integrity>(info);
                         break;
                     case ProgressMsg.SPLIT_BEGIN_PART:
                     case ProgressMsg.SPLIT_END_PART:
-                        pInfo = (ProgressInfo_Split)Marshal.PtrToStructure(info, typeof(ProgressInfo_Split));
+                        pInfo = Marshal.PtrToStructure<ProgressInfo_Split>(info);
                         break;
                     case ProgressMsg.REPLACE_FILE_IN_WIM:
-                        pInfo = (ProgressInfo_Replace)Marshal.PtrToStructure(info, typeof(ProgressInfo_Replace));
+                        pInfo = Marshal.PtrToStructure<ProgressInfo_Replace>(info);
                         break;
                     case ProgressMsg.WIMBOOT_EXCLUDE:
-                        pInfo = (ProgressInfo_WimBootExclude)Marshal.PtrToStructure(info, typeof(ProgressInfo_WimBootExclude));
+                        pInfo = Marshal.PtrToStructure<ProgressInfo_WimBootExclude>(info);
                         break;
                     case ProgressMsg.UNMOUNT_BEGIN:
-                        pInfo = (ProgressInfo_Unmount)Marshal.PtrToStructure(info, typeof(ProgressInfo_Unmount));
+                        pInfo = Marshal.PtrToStructure<ProgressInfo_Unmount>(info);
                         break;
                     case ProgressMsg.DONE_WITH_FILE:
-                        pInfo = (ProgressInfo_DoneWithFile)Marshal.PtrToStructure(info, typeof(ProgressInfo_DoneWithFile));
+                        pInfo = Marshal.PtrToStructure<ProgressInfo_DoneWithFile>(info);
                         break;
                     case ProgressMsg.BEGIN_VERIFY_IMAGE:
                     case ProgressMsg.END_VERIFY_IMAGE:
-                        pInfo = (ProgressInfo_VerifyImage)Marshal.PtrToStructure(info, typeof(ProgressInfo_VerifyImage));
+                        pInfo = Marshal.PtrToStructure<ProgressInfo_VerifyImage>(info);
                         break;
                     case ProgressMsg.VERIFY_STREAMS:
-                        pInfo = (ProgressInfo_VerifyStreams)Marshal.PtrToStructure(info, typeof(ProgressInfo_VerifyStreams));
+                        pInfo = Marshal.PtrToStructure<ProgressInfo_VerifyStreams>(info);
                         break;
                     case ProgressMsg.TEST_FILE_EXCLUSION:
-                        pInfo = (ProgressInfo_TestFileExclusion)Marshal.PtrToStructure(info, typeof(ProgressInfo_TestFileExclusion));
+                        pInfo = Marshal.PtrToStructure<ProgressInfo_TestFileExclusion>(info);
                         break;
                     case ProgressMsg.HANDLE_ERROR:
-                        pInfo = (ProgressInfo_HandleError)Marshal.PtrToStructure(info, typeof(ProgressInfo_HandleError));
+                        pInfo = Marshal.PtrToStructure<ProgressInfo_HandleError>(info);
                         break;
                 }
 
@@ -302,7 +303,9 @@ namespace ManagedWimLib
         /// Reserved.
         /// </summary>
         [MarshalAs(UnmanagedType.LPWStr)]
-        private string Reserved;
+#pragma warning disable IDE0044
+        private string _reserved;
+#pragma warning restore IDE0044
         /// <summary>
         /// The number of bytes of file data that will be extracted. 
         /// </summary>
@@ -407,9 +410,11 @@ namespace ManagedWimLib
         /// <summary>
         /// Name of the temporary file that the WIM was written to.
         /// </summary>
-        private IntPtr CommandPtr;
-        private UpdateCommand32 Cmd32 => (UpdateCommand32)Marshal.PtrToStructure(CommandPtr, typeof(UpdateCommand32));
-        private UpdateCommand64 Cmd64 => (UpdateCommand64)Marshal.PtrToStructure(CommandPtr, typeof(UpdateCommand64));
+#pragma warning disable IDE0044
+        private IntPtr _cmdPtr;
+#pragma warning restore IDE0044
+        private UpdateCommand32 Cmd32 => Marshal.PtrToStructure< UpdateCommand32>(_cmdPtr);
+        private UpdateCommand64 Cmd64 => Marshal.PtrToStructure< UpdateCommand64>(_cmdPtr);
         public UpdateCommand Command
         {
             get
@@ -436,7 +441,7 @@ namespace ManagedWimLib
 
         public ProgressInfo_Update ToManaged()
         {
-            return new ProgressInfo_Update()
+            return new ProgressInfo_Update
             {
                 Command = this.Command,
                 CompletedCommands = this.CompletedCommands,
