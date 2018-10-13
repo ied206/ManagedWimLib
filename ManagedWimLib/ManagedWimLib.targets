@@ -31,7 +31,7 @@
     <WimLibInteropFiles Condition="'$(WimLibExcludePrecompiled)' != 'true' And 
                                   '$(MSBuildThisFileDirectory)' != '' And
                                    HasTrailingSlash('$(MSBuildThisFileDirectory)')"
-                        Include="$(MSBuildThisFileDirectory)Precompiled\**\libwim-15.dll" />
+                        Include="$(MSBuildThisFileDirectory)Precompiled\**\libwim*" />
   </ItemGroup>
 
   <!--

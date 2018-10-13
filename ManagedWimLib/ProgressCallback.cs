@@ -24,6 +24,9 @@
 using System;
 using System.Runtime.InteropServices;
 // ReSharper disable FieldCanBeMadeReadOnly.Local
+// ReSharper disable InconsistentNaming
+// ReSharper disable FieldCanBeMadeReadOnly.Global
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace ManagedWimLib
 {
@@ -128,11 +131,12 @@ namespace ManagedWimLib
     #endregion
 
     #region ProgressInfo
+    #region struct ProgressInfo_WriteStreams
     /// <summary>
     /// Valid on the message WRITE_STREAMS.  
     /// This is the primary message for tracking the progress of writing a WIM file.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct ProgressInfo_WriteStreams
     {
         /// <summary>
@@ -177,7 +181,9 @@ namespace ManagedWimLib
         /// </summary>
         public uint CompletedParts;
     }
+    #endregion
 
+    #region ProgressInfo_Scan
     /// <summary>
     /// Valid on messages SCAN_BEGIN, SCAN_DENTRY, and SCAN_END.
     /// </summary>
@@ -255,7 +261,8 @@ namespace ManagedWimLib
         /// </summary>
         public ulong NumBytesScanned;
     }
-
+    #endregion
+    
     /// <summary>
     /// Valid on messages
     /// EXTRACT_SPWM_PART_BEGIN,

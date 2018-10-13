@@ -48,12 +48,12 @@ namespace ManagedWimLib
             NativeFunc = NativeCallback;
         }
 
-        private CallbackStatus NativeCallback(IntPtr entry_ptr, IntPtr user_ctx)
+        private CallbackStatus NativeCallback(IntPtr entryPtr, IntPtr userCtx)
         {
             CallbackStatus ret = CallbackStatus.CONTINUE;
             if (_callback != null)
             {
-                DirEntryBase b = Marshal.PtrToStructure<DirEntryBase>(entry_ptr);
+                DirEntryBase b = Marshal.PtrToStructure<DirEntryBase>(entryPtr);
                 DirEntry dentry = new DirEntry
                 {
                     FileName = b.FileName,
@@ -77,7 +77,7 @@ namespace ManagedWimLib
                     Streams = new StreamEntry[b.NumNamedStreams + 1],
                 };
 
-                IntPtr baseOffset = IntPtr.Add(entry_ptr, Marshal.SizeOf<DirEntryBase>());
+                IntPtr baseOffset = IntPtr.Add(entryPtr, Marshal.SizeOf<DirEntryBase>());
                 for (int i = 0; i < dentry.Streams.Length; i++)
                 {
                     IntPtr offset = IntPtr.Add(baseOffset, i * Marshal.SizeOf<StreamEntry>());
@@ -96,7 +96,7 @@ namespace ManagedWimLib
     /// <summary>
     /// Type of a callback function to wimlib_iterate_lookup_table().  Must return 0 on success.
     /// </summary>
-    public delegate CallbackStatus IterateLookupTableCallback(ResourceEntry resoure, object user_ctx);
+    public delegate CallbackStatus IterateLookupTableCallback(ResourceEntry resoure, object userCtx);
 
     public class ManagedIterateLookupTableCallback
     {
@@ -114,7 +114,7 @@ namespace ManagedWimLib
             NativeFunc = NativeCallback;
         }
 
-        private CallbackStatus NativeCallback(ResourceEntry resource, IntPtr user_ctx)
+        private CallbackStatus NativeCallback(ResourceEntry resource, IntPtr userCtx)
         {
             CallbackStatus ret = CallbackStatus.CONTINUE;
             if (_callback != null)
@@ -124,22 +124,6 @@ namespace ManagedWimLib
 
             return ret;
         }
-
-        /*
-        private CallbackStatus NativeCallback(IntPtr entry_ptr, IntPtr user_ctx)
-        {
-            CallbackStatus ret = CallbackStatus.CONTINUE;
-            if (_callback != null)
-            {
-                ResourceEntry resource = (ResourceEntry)Marshal.PtrToStructure(entry_ptr, typeof(ResourceEntry));
-                ret = _callback(resource, _userData);
-            }
-
-            return ret;
-        }
-        */
     }
     #endregion
-
-
 }

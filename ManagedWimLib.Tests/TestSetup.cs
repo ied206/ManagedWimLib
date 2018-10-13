@@ -60,7 +60,7 @@ namespace ManagedWimLib.Tests
                 switch (RuntimeInformation.ProcessArchitecture)
                 {
                     case Architecture.X64:
-                        libPath = Path.Combine("x64", "libwim-15.dll");
+                        libPath = Path.Combine("x64", "libwim.so");
                         break;
                 }
             }
@@ -102,6 +102,18 @@ namespace ManagedWimLib.Tests
             return path;
         }
 
+        private static readonly object TempDirLock = new object();
+        public static string GetTempDir()
+        {
+            lock (TempDirLock)
+            {
+                string path = Path.GetTempFileName();
+                File.Delete(path);
+                Directory.CreateDirectory(path);
+                return path;
+            }
+        }
+        
         #region File Check
         public static void CheckWimPath(SampleSet set, string wimFile)
         {

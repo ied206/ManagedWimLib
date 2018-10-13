@@ -40,11 +40,9 @@ namespace ManagedWimLib.Tests
 
         public void AddEmptyImage_Template(CompressionType compType, string wimFileName, AddFlags addFlags = AddFlags.DEFAULT)
         {
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             try
             {
-                Directory.CreateDirectory(destDir);
-
                 bool[] _checked = new bool[2];
                 for (int i = 0; i < _checked.Length; i++)
                     _checked[i] = false;
@@ -106,12 +104,10 @@ namespace ManagedWimLib.Tests
         public void AddImage_Template(string wimFileName, CompressionType compType, AddFlags addFlags = AddFlags.DEFAULT)
         {
             string srcDir = Path.Combine(TestSetup.SampleDir, "Src01");
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             string wimFile = Path.Combine(destDir, wimFileName);
             try
             {
-                Directory.CreateDirectory(destDir);
-
                 bool[] _checked = new bool[5];
                 for (int i = 0; i < _checked.Length; i++)
                     _checked[i] = false;
@@ -190,11 +186,9 @@ namespace ManagedWimLib.Tests
 
         public void AddImageMultiSource_Template(CompressionType compType, string wimFileName, AddFlags addFlags = AddFlags.DEFAULT)
         {
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             try
             {
-                Directory.CreateDirectory(destDir);
-
                 bool[] _checked = new bool[5];
                 for (int i = 0; i < _checked.Length; i++)
                     _checked[i] = false;
