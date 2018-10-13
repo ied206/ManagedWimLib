@@ -2,7 +2,7 @@
 
 ## Initialization
 
-ManagedWimLib requires binary of wimlib to work.<br>
+ManagedWimLib requires binary of wimlib to work.  
 Internally it is done by loading functions dynamically (using `LoadLibrary` and `GetProcAddress`).
 
  `Wim.GlobalInit()` should be explicitly called before using `ManagedWimLib`.
@@ -20,7 +20,7 @@ else // This app is running on 32bit .Net Framework
 
 ### Embedded precompiled binary
 
-ManagedWimLib comes with `libwim-15.dll`, precompiled binaries of `wimlib 1.13.0-BETA5`.<br>
+ManagedWimLib comes with `libwim-15.dll`, precompiled binaries of `wimlib 1.13.0-BETA5`.  
 They will be copied into `$(OutDir)\x86\libwim-15.dll` and `$(OutDir)\x64\libwim-15.dll` automatically at build.
 
 ### Custom binary

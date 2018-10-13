@@ -44,7 +44,7 @@
                         '@(WimLibInteropFiles)' != ''">
     <None Include="@(WimLibInteropFiles)">
       <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

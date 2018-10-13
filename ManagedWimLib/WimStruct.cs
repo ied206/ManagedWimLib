@@ -165,7 +165,7 @@ namespace ManagedWimLib
             if (!NativeMethods.Loaded)
                 throw new InvalidOperationException(NativeMethods.MsgInitFirstError);
 
-            IntPtr ptr = NativeMethods.GetErrorString(ErrorCode.INVALID_IMAGE);
+            IntPtr ptr = NativeMethods.GetErrorString(code);
             return Marshal.PtrToStringUni(ptr);
         }
 

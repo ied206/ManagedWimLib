@@ -144,6 +144,4 @@ namespace ManagedWimLib
         */
     }
     #endregion
-
-
 }
