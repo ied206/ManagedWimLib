@@ -1,6 +1,6 @@
 # ManagedWimLib
 
-C# wrapper library for native [wimlib](https://wimlib.net).
+C# pinvoke library for [wimlib](https://wimlib.net).
 
 wimlib is a library handles Windows Imaging (WIM) archives, written by Eric Biggers.
 

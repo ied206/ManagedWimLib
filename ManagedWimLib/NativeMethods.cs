@@ -2684,12 +2684,21 @@ namespace ManagedWimLib
         #region Free
         public void Free()
         {
-            FreePtr(ref AddFsSourcePathPtr);
-            FreePtr(ref AddWimTargetPathPtr);
-            FreePtr(ref AddConfigFilePtr);
-            FreePtr(ref DelWimPathPtr);
-            FreePtr(ref RenWimSourcePathPtr);
-            FreePtr(ref RenWimTargetPathPtr);
+            switch (Op)
+            {
+                case UpdateOp.ADD:
+                    FreePtr(ref AddFsSourcePathPtr);
+                    FreePtr(ref AddWimTargetPathPtr);
+                    FreePtr(ref AddConfigFilePtr);
+                    break;
+                case UpdateOp.DELETE:
+                    FreePtr(ref DelWimPathPtr);
+                    break;
+                case UpdateOp.RENAME:
+                    FreePtr(ref RenWimSourcePathPtr);
+                    FreePtr(ref RenWimTargetPathPtr);
+                    break;
+            }
         }
 
         internal void FreePtr(ref IntPtr ptr)
@@ -2823,12 +2832,21 @@ namespace ManagedWimLib
         #region Free
         public void Free()
         {
-            FreePtr(ref AddFsSourcePathPtr);
-            FreePtr(ref AddWimTargetPathPtr);
-            FreePtr(ref AddConfigFilePtr);
-            FreePtr(ref DelWimPathPtr);
-            FreePtr(ref RenWimSourcePathPtr);
-            FreePtr(ref RenWimTargetPathPtr);
+            switch (Op)
+            {
+                case UpdateOp.ADD:
+                    FreePtr(ref AddFsSourcePathPtr);
+                    FreePtr(ref AddWimTargetPathPtr);
+                    FreePtr(ref AddConfigFilePtr);
+                    break;
+                case UpdateOp.DELETE:
+                    FreePtr(ref DelWimPathPtr);
+                    break;
+                case UpdateOp.RENAME:
+                    FreePtr(ref RenWimSourcePathPtr);
+                    FreePtr(ref RenWimTargetPathPtr);
+                    break;
+            }
         }
 
         internal void FreePtr(ref IntPtr ptr)
