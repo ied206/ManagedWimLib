@@ -8,21 +8,35 @@
     <authors>Eric Biggers, Hajin Jang</authors>
     <licenseUrl>https://github.com/ied206/ManagedWimLib/blob/master/LICENSE</licenseUrl> 
     <projectUrl>https://github.com/ied206/ManagedWimLib</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/ied206/ManagedWimLib/master/Image/Logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>C# wrapper library for native wimlib.</description>
+    <description>C# wrapper library for native wimlib.
+Targets .Net Standard 1.3 and 2.0, supports Windows and Linux.</description>
     <summary>C# wrapper library for native wimlib.</summary>
-    <releaseNotes>- TODO</releaseNotes>
+    <releaseNotes>- .Net Standard 1.3 support
+- Add Linux support
+- Add Wim.MountImage(), Wim.UnmountImage()</releaseNotes>
     <copyright>Copyright (c) 2018 Hajin Jang</copyright>
-    <tags>wimlib</tags>
+    <tags>wim wimlib pinvoke interop</tags>
     <dependencies>
-      <group targetFramework="net45"></group>
+      <group targetFramework="netstandard1.3"></group>
+      <group targetFramework="netstandard2.0"></group>
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\ManagedWimLib.dll" target="lib\net45" />
-    <file src="bin\Release\ManagedWimLib.pdb" target="lib\net45" />
-    <file src="Precompiled\x86\libwim-15.dll" target="build\net45\Precompiled\x86" />
-    <file src="Precompiled\x64\libwim-15.dll" target="build\net45\Precompiled\x64" />
-    <file src="ManagedWimLib.targets" target="build\net45\ManagedWimLib.targets" />
+    <!-- .Net Standard 1.3 -->
+    <file src="bin\Release\netstandard1.3\ManagedWimLib.dll" target="lib\netstandard1.3" />
+    <file src="bin\Release\netstandard1.3\ManagedWimLib.pdb" target="lib\netstandard1.3" />
+    <file src="Precompiled\x86\libwim-15.dll" target="build\netstandard1.3\Precompiled\x86" />
+    <file src="Precompiled\x64\libwim-15.dll" target="build\netstandard1.3\Precompiled\x64" />
+    <file src="Precompiled\x64\libwim.so" target="build\netstandard1.3\Precompiled\x64" />
+    <file src="ManagedWimLib.targets" target="build\netstandard1.3\ManagedWimLib.targets" />
+    <!-- .Net Standard 2.0 -->
+    <file src="bin\Release\netstandard2.0\ManagedWimLib.dll" target="lib\netstandard2.0" />
+    <file src="bin\Release\netstandard2.0\ManagedWimLib.pdb" target="lib\netstandard2.0" />
+    <file src="Precompiled\x86\libwim-15.dll" target="build\netstandard2.0\Precompiled\x86" />
+    <file src="Precompiled\x64\libwim-15.dll" target="build\netstandard2.0\Precompiled\x64" />
+    <file src="Precompiled\x64\libwim.so" target="build\netstandard2.0\Precompiled\x64" />
+    <file src="ManagedWimLib.targets" target="build\netstandard2.0\ManagedWimLib.targets" />
   </files>
 </package>

@@ -1,8 +1,14 @@
 # ManagedWimLib
 
-C# wrapper library for native [wimlib](https://wimlib.net).
+<div style="text-align: left">
+    <img src="./Image/Logo.svg" height="128">
+</div>
+
+C# wrapper library for native [wimlib](https://wimlib.net). 
 
 wimlib is a library handles Windows Imaging (WIM) archives, written by Eric Biggers.
+
+
 
 | Branch    | Build Status   |
 |-----------|----------------|
@@ -14,6 +20,22 @@ wimlib is a library handles Windows Imaging (WIM) archives, written by Eric Bigg
 ManagedWimLib can be installed via [nuget](https://www.nuget.org/packages/ManagedWimLib).
 
 [![NuGet](https://buildstats.info/nuget/ManagedWimLib)](https://www.nuget.org/packages/ManagedWimLib)
+
+## Support
+
+### Targeted .Net platforms
+
+- .Net Standard 1.3 (.Net Framework 4.6+, .Net Core 1.0+)
+- .Net Standard 2.0 (.Net Framework 4.6.1+, .Net Core 2.0+)
+
+### Supported OS platforms
+
+- Windows x86, x64
+- Linux x64
+
+### Supported wimlib version
+
+- 1.13.0-BETA5 (Included)
 
 ## Usage
 

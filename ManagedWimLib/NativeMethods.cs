@@ -1702,19 +1702,9 @@ namespace ManagedWimLib
             MountFlags mount_flags,
             string staging_dir)
         {
-            if (UseUtf16)
-            {
-                return Utf16.MountImage(wim, image, dir, mount_flags, staging_dir);
-            }
-            else
-            {
-                return Utf8.MountImage(wim, image, dir, mount_flags, staging_dir);
-            }
-            /*
             return UseUtf16
                 ? Utf16.MountImage(wim, image, dir, mount_flags, staging_dir)
                 : Utf8.MountImage(wim, image, dir, mount_flags, staging_dir);
-                */
         }
         #endregion
 

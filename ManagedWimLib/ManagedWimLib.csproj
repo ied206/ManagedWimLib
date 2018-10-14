@@ -3,6 +3,20 @@
     <TargetFrameworks>netstandard1.3;netstandard2.0</TargetFrameworks>
     <Title>ManagedWimLib</Title>
     <LangVersion>latest</LangVersion>
+    <Authors>Eric Biggers, Hajin Jang</Authors>
+    <Description>C# wrapper library for native wimlib.
+Targets .Net Standard, supports Windows and Linux.</Description>
+    <Copyright>Copyright (c) 2018 Hajin Jang</Copyright>
+    <Company>Joveler</Company>
+    <PackageReleaseNotes>- .Net Standard support
+- Add Linux support
+- Add Wim.MountImage(), Wim.UnmountImage()</PackageReleaseNotes>
+    <PackageLicenseUrl>https://github.com/ied206/ManagedWimLib/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
+    <RepositoryUrl></RepositoryUrl>
+    <PackageTags>wim wimlib pinvoke interop</PackageTags>
+    <PackageIconUrl>https://raw.githubusercontent.com/ied206/ManagedWimLib/master/Image/Logo.png</PackageIconUrl>
+    <Version>1.2.0</Version>
   </PropertyGroup>
   <Import Project="$(MSBuildProjectDirectory)\ManagedWimLib.targets" />
 </Project>
