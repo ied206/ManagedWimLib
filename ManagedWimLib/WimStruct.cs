@@ -28,6 +28,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -100,6 +101,7 @@ namespace ManagedWimLib
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 NativeMethods.UseUtf16 = true;
+                NativeMethods.LongBitType = NativeMethods.LongBits.Long32;
                 
                 if (libPath == null || !File.Exists(libPath))
                     throw new ArgumentException("Specified .dll file does not exist");
@@ -118,6 +120,17 @@ namespace ManagedWimLib
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 NativeMethods.UseUtf16 = false;
+                switch (RuntimeInformation.ProcessArchitecture)
+                {
+                    case Architecture.Arm:
+                    case Architecture.X86:
+                        NativeMethods.LongBitType = NativeMethods.LongBits.Long32;
+                        break;
+                    case Architecture.Arm64:
+                    case Architecture.X64:
+                        NativeMethods.LongBitType = NativeMethods.LongBits.Long64;
+                        break;
+                }
                 
                 if (libPath == null)
                     libPath = "/usr/lib/x86_64-linux-gnu/libwim.so"; // Try to call system-installed wimlib
@@ -1415,9 +1428,10 @@ namespace ManagedWimLib
         public void UpdateImage(int image, IEnumerable<UpdateCommand> cmds, UpdateFlags updateFlags)
         {
             ErrorCode ret;
-            switch (IntPtr.Size)
+            switch (RuntimeInformation.ProcessArchitecture)
             {
-                case 4:
+                case Architecture.X86:
+                case Architecture.Arm:
                     UpdateCommand32[] cmds32 = cmds.Select(x => x.ToNativeStruct32()).ToArray();
                     try
                     {
@@ -1425,11 +1439,12 @@ namespace ManagedWimLib
                     }
                     finally
                     {
-                        foreach (var cmd32 in cmds32)
+                        foreach (UpdateCommand32 cmd32 in cmds32)
                             cmd32.Free();
                     }
                     break;
-                case 8:
+                case Architecture.X64:
+                case Architecture.Arm64:
                     UpdateCommand64[] cmds64 = cmds.Select(x => x.ToNativeStruct64()).ToArray();
                     try
                     {
@@ -1437,7 +1452,7 @@ namespace ManagedWimLib
                     }
                     finally
                     {
-                        foreach (var cmd64 in cmds64)
+                        foreach (UpdateCommand64 cmd64 in cmds64)
                             cmd64.Free();
                     }
                     break;

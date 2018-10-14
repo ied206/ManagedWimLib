@@ -35,6 +35,7 @@ using System.Text;
 // ReSharper disable InconsistentNaming
 // ReSharper disable EnumUnderlyingTypeIsInt
 // ReSharper disable FieldCanBeMadeReadOnly.Local
+// ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
 #pragma warning disable 169
 #pragma warning disable 414
 #pragma warning disable 649
@@ -52,7 +53,7 @@ namespace ManagedWimLib
         public const string MsgPrintErrorsDisabled = "Error is not being logged, unable to read last error.";
         #endregion
 
-        #region Fields
+        #region Fields and Properties
         internal enum LongBits
         {
             Long64 = 0, // Windows, Linux 32bit
@@ -61,15 +62,20 @@ namespace ManagedWimLib
 
         internal static IntPtr hModule;
         internal static bool Loaded => hModule != IntPtr.Zero;
-        public static string ErrorFile = null;
-        public static bool PrintErrorsEnabled = false;
+        
         public static bool UseUtf16;
         public static Encoding Encoding => UseUtf16 ? Encoding.Unicode : new UTF8Encoding(false);
+        internal static LongBits LongBitType { get; set; }
+        
+        public static string ErrorFile = null;
+        public static bool PrintErrorsEnabled = false;
         #endregion
         
         #region MarshalString
         public static string MarshalPtrToString(IntPtr ptr)
         {
+            if (ptr == IntPtr.Zero)
+                return string.Empty;
             return UseUtf16 ? Marshal.PtrToStringUni(ptr) : Marshal.PtrToStringAnsi(ptr);
         }
 
@@ -150,7 +156,8 @@ namespace ManagedWimLib
                 #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
                 Utf16.AddEmptyImage = GetFuncPtr<Utf16.wimlib_add_empty_image>("wimlib_add_empty_image");
                 Utf16.AddImage = GetFuncPtr<Utf16.wimlib_add_image>("wimlib_add_image");
-                Utf16.AddImageMultiSource = GetFuncPtr<Utf16.wimlib_add_image_multisource>("wimlib_add_image_multisource");
+                Utf16.AddImageMultiSourceL32 = GetFuncPtr<Utf16.wimlib_add_image_multisource_l32>("wimlib_add_image_multisource");
+                Utf16.AddImageMultiSourceL64 = GetFuncPtr<Utf16.wimlib_add_image_multisource_l64>("wimlib_add_image_multisource");
                 Utf16.AddTree = GetFuncPtr<Utf16.wimlib_add_tree>("wimlib_add_tree");
                 #endregion
                 
@@ -224,7 +231,8 @@ namespace ManagedWimLib
                 #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
                 Utf8.AddEmptyImage = GetFuncPtr<Utf8.wimlib_add_empty_image>("wimlib_add_empty_image");
                 Utf8.AddImage = GetFuncPtr<Utf8.wimlib_add_image>("wimlib_add_image");
-                Utf8.AddImageMultiSource = GetFuncPtr<Utf8.wimlib_add_image_multisource>("wimlib_add_image_multisource");
+                Utf8.AddImageMultiSourceL32 = GetFuncPtr<Utf8.wimlib_add_image_multisource_l32>("wimlib_add_image_multisource");
+                Utf8.AddImageMultiSourceL64 = GetFuncPtr<Utf8.wimlib_add_image_multisource_l64>("wimlib_add_image_multisource");
                 Utf8.AddTree = GetFuncPtr<Utf8.wimlib_add_tree>("wimlib_add_tree");
                 #endregion
                 
@@ -381,11 +389,13 @@ namespace ManagedWimLib
             #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
             Utf16.AddEmptyImage = null;
             Utf16.AddImage = null;
-            Utf16.AddImageMultiSource = null;
+            Utf16.AddImageMultiSourceL32 = null;
+            Utf16.AddImageMultiSourceL64 = null;
             Utf16.AddTree = null;
             Utf8.AddEmptyImage = null;
             Utf8.AddImage = null;
-            Utf8.AddImageMultiSource = null;
+            Utf8.AddImageMultiSourceL32 = null;
+            Utf8.AddImageMultiSourceL64 = null;
             Utf8.AddTree = null;
             #endregion
 
@@ -546,14 +556,24 @@ namespace ManagedWimLib
             internal static wimlib_add_image AddImage;
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-            internal delegate ErrorCode wimlib_add_image_multisource(
+            internal delegate ErrorCode wimlib_add_image_multisource_l32(
                 IntPtr wim,
-                [MarshalAs(UnmanagedType.LPArray)] CaptureSourceBase[] sources,
+                [MarshalAs(UnmanagedType.LPArray)] CaptureSourceBaseL32[] sources,
                 IntPtr num_sources, // size_t
                 [MarshalAs(StrType)] string name,
                 [MarshalAs(StrType)] string config_file,
                 AddFlags add_flags);
-            internal static wimlib_add_image_multisource AddImageMultiSource;
+            internal static wimlib_add_image_multisource_l32 AddImageMultiSourceL32;
+            
+            [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+            internal delegate ErrorCode wimlib_add_image_multisource_l64(
+                IntPtr wim,
+                [MarshalAs(UnmanagedType.LPArray)] CaptureSourceBaseL64[] sources,
+                IntPtr num_sources, // size_t
+                [MarshalAs(StrType)] string name,
+                [MarshalAs(StrType)] string config_file,
+                AddFlags add_flags);
+            internal static wimlib_add_image_multisource_l64 AddImageMultiSourceL64;
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_add_tree(
@@ -764,14 +784,15 @@ namespace ManagedWimLib
             internal static wimlib_write Write;
             #endregion
             
-            #region Struct CaptureSource
+            #region Struct CaptureSourceBase
             /// <summary>
             /// An array of these structures is passed to Wim.AddImageMultiSource() to specify the sources from which to create a WIM image. 
             /// </summary>
+            /// <remarks>
+            /// For LLP64 platforms (Windows)
+            /// </remarks>
             [StructLayout(LayoutKind.Sequential, CharSet = StructCharSet)]
-            [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local")]
-            [SuppressMessage("ReSharper", "PrivateFieldCanBeConvertedToLocalVariable")]
-            public struct CaptureSourceBase
+            public struct CaptureSourceBaseL32
             {
                 /// <summary>
                 /// Absolute or relative path to a file or directory on the external filesystem to be included in the image.
@@ -785,9 +806,40 @@ namespace ManagedWimLib
                 /// <summary>
                 /// Reserved; set to 0.
                 /// </summary>
-                private uint _reserved; // Need adjust to LLP64 and LP64
+                private int _reserved;
 
-                public CaptureSourceBase(string fsSourcePath, string wimTargetPath)
+                public CaptureSourceBaseL32(string fsSourcePath, string wimTargetPath)
+                {
+                    FsSourcePath = fsSourcePath;
+                    WimTargetPath = wimTargetPath;
+                    _reserved = 0;
+                }
+            };
+            
+            /// <summary>
+            /// An array of these structures is passed to Wim.AddImageMultiSource() to specify the sources from which to create a WIM image. 
+            /// </summary>
+            /// <remarks>
+            /// For LP64 platforms (64bit POSIX)
+            /// </remarks>
+            [StructLayout(LayoutKind.Sequential, CharSet = StructCharSet)]
+            public struct CaptureSourceBaseL64
+            {
+                /// <summary>
+                /// Absolute or relative path to a file or directory on the external filesystem to be included in the image.
+                /// </summary>
+                public string FsSourcePath;
+                /// <summary>
+                /// Destination path in the image.
+                /// To specify the root directory of the image, use @"\". 
+                /// </summary>
+                public string WimTargetPath;
+                /// <summary>
+                /// Reserved; set to 0.
+                /// </summary>
+                private long _reserved;
+
+                public CaptureSourceBaseL64(string fsSourcePath, string wimTargetPath)
                 {
                     FsSourcePath = fsSourcePath;
                     WimTargetPath = wimTargetPath;
@@ -828,14 +880,24 @@ namespace ManagedWimLib
             internal static wimlib_add_image AddImage;
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-            internal delegate ErrorCode wimlib_add_image_multisource(
+            internal delegate ErrorCode wimlib_add_image_multisource_l32(
                 IntPtr wim,
-                [MarshalAs(UnmanagedType.LPArray)] CaptureSourceBase[] sources,
+                [MarshalAs(UnmanagedType.LPArray)] CaptureSourceBaseL32[] sources,
                 IntPtr num_sources, // size_t
                 [MarshalAs(StrType)] string name,
                 [MarshalAs(StrType)] string config_file,
                 AddFlags add_flags);
-            internal static wimlib_add_image_multisource AddImageMultiSource;
+            internal static wimlib_add_image_multisource_l32 AddImageMultiSourceL32;
+            
+            [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+            internal delegate ErrorCode wimlib_add_image_multisource_l64(
+                IntPtr wim,
+                [MarshalAs(UnmanagedType.LPArray)] CaptureSourceBaseL64[] sources,
+                IntPtr num_sources, // size_t
+                [MarshalAs(StrType)] string name,
+                [MarshalAs(StrType)] string config_file,
+                AddFlags add_flags);
+            internal static wimlib_add_image_multisource_l64 AddImageMultiSourceL64;
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_add_tree(
@@ -1046,14 +1108,15 @@ namespace ManagedWimLib
             internal static wimlib_write Write;
             #endregion
             
-            #region Struct CaptureSourceBases
+            #region Struct CaptureSourceBase
             /// <summary>
             /// An array of these structures is passed to Wim.AddImageMultiSource() to specify the sources from which to create a WIM image. 
             /// </summary>
+            /// <remarks>
+            /// For LLP64 platforms (Windows)
+            /// </remarks>
             [StructLayout(LayoutKind.Sequential, CharSet = StructCharSet)]
-            [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local")]
-            [SuppressMessage("ReSharper", "PrivateFieldCanBeConvertedToLocalVariable")]
-            public struct CaptureSourceBase
+            public struct CaptureSourceBaseL32
             {
                 /// <summary>
                 /// Absolute or relative path to a file or directory on the external filesystem to be included in the image.
@@ -1064,11 +1127,43 @@ namespace ManagedWimLib
                 /// To specify the root directory of the image, use @"\". 
                 /// </summary>
                 public string WimTargetPath;
-#pragma warning disable IDE0044
-                private uint _reserved;
-#pragma warning restore IDE0044
+                /// <summary>
+                /// Reserved; set to 0.
+                /// </summary>
+                private int _reserved;
 
-                public CaptureSourceBase(string fsSourcePath, string wimTargetPath)
+                public CaptureSourceBaseL32(string fsSourcePath, string wimTargetPath)
+                {
+                    FsSourcePath = fsSourcePath;
+                    WimTargetPath = wimTargetPath;
+                    _reserved = 0;
+                }
+            };
+            
+            /// <summary>
+            /// An array of these structures is passed to Wim.AddImageMultiSource() to specify the sources from which to create a WIM image. 
+            /// </summary>
+            /// <remarks>
+            /// For LP64 platforms (64bit POSIX)
+            /// </remarks>
+            [StructLayout(LayoutKind.Sequential, CharSet = StructCharSet)]
+            public struct CaptureSourceBaseL64
+            {
+                /// <summary>
+                /// Absolute or relative path to a file or directory on the external filesystem to be included in the image.
+                /// </summary>
+                public string FsSourcePath;
+                /// <summary>
+                /// Destination path in the image.
+                /// To specify the root directory of the image, use Wim.RootPath. 
+                /// </summary>
+                public string WimTargetPath;
+                /// <summary>
+                /// Reserved; set to 0.
+                /// </summary>
+                private long _reserved;
+
+                public CaptureSourceBaseL64(string fsSourcePath, string wimTargetPath)
                 {
                     FsSourcePath = fsSourcePath;
                     WimTargetPath = wimTargetPath;
@@ -1162,33 +1257,67 @@ namespace ManagedWimLib
         {
             if (UseUtf16)
             {
-                Utf16.CaptureSourceBase[] captureSources = new Utf16.CaptureSourceBase[sources.Length];
-                for (int i = 0; i < sources.Length; i++)
+                switch (LongBitType)
                 {
-                    CaptureSource src = sources[i];
-                    captureSources[i] = new Utf16.CaptureSourceBase
-                    {
-                        FsSourcePath = src.FsSourcePath,
-                        WimTargetPath = src.WimTargetPath,
-                    };
+                    case LongBits.Long32:
+                        Utf16.CaptureSourceBaseL32[] capSrcsL32 = new Utf16.CaptureSourceBaseL32[sources.Length];
+                        for (int i = 0; i < sources.Length; i++)
+                        {
+                            CaptureSource src = sources[i];
+                            capSrcsL32[i] = new Utf16.CaptureSourceBaseL32
+                            {
+                                FsSourcePath = src.FsSourcePath,
+                                WimTargetPath = src.WimTargetPath,
+                            };
+                        }
+                        return Utf16.AddImageMultiSourceL32(wim, capSrcsL32, num_sources, name, config_file, add_flags);
+                    case LongBits.Long64:
+                        Utf16.CaptureSourceBaseL64[] capSrcsL64 = new Utf16.CaptureSourceBaseL64[sources.Length];
+                        for (int i = 0; i < sources.Length; i++)
+                        {
+                            CaptureSource src = sources[i];
+                            capSrcsL64[i] = new Utf16.CaptureSourceBaseL64
+                            {
+                                FsSourcePath = src.FsSourcePath,
+                                WimTargetPath = src.WimTargetPath,
+                            };
+                        }
+                        return Utf16.AddImageMultiSourceL64(wim, capSrcsL64, num_sources, name, config_file, add_flags);
+                    default:
+                        throw new PlatformNotSupportedException();
                 }
-
-                return Utf16.AddImageMultiSource(wim, captureSources, num_sources, name, config_file, add_flags);
             }
             else
             {
-                Utf8.CaptureSourceBase[] captureSources = new Utf8.CaptureSourceBase[sources.Length];
-                for (int i = 0; i < sources.Length; i++)
+                switch (LongBitType)
                 {
-                    CaptureSource src = sources[i];
-                    captureSources[i] = new Utf8.CaptureSourceBase
-                    {
-                        FsSourcePath = src.FsSourcePath,
-                        WimTargetPath = src.WimTargetPath,
-                    };
+                    case LongBits.Long32:
+                        Utf8.CaptureSourceBaseL32[] capSrcsL32 = new Utf8.CaptureSourceBaseL32[sources.Length];
+                        for (int i = 0; i < sources.Length; i++)
+                        {
+                            CaptureSource src = sources[i];
+                            capSrcsL32[i] = new Utf8.CaptureSourceBaseL32
+                            {
+                                FsSourcePath = src.FsSourcePath,
+                                WimTargetPath = src.WimTargetPath,
+                            };
+                        }
+                        return Utf8.AddImageMultiSourceL32(wim, capSrcsL32, num_sources, name, config_file, add_flags);
+                    case LongBits.Long64:
+                        Utf8.CaptureSourceBaseL64[] capSrcsL64 = new Utf8.CaptureSourceBaseL64[sources.Length];
+                        for (int i = 0; i < sources.Length; i++)
+                        {
+                            CaptureSource src = sources[i];
+                            capSrcsL64[i] = new Utf8.CaptureSourceBaseL64
+                            {
+                                FsSourcePath = src.FsSourcePath,
+                                WimTargetPath = src.WimTargetPath,
+                            };
+                        }
+                        return Utf8.AddImageMultiSourceL64(wim, capSrcsL64, num_sources, name, config_file, add_flags);
+                    default:
+                        throw new PlatformNotSupportedException();
                 }
-                
-                return Utf8.AddImageMultiSource(wim, captureSources, num_sources, name, config_file, add_flags);
             }
         }
 
@@ -1624,7 +1753,7 @@ namespace ManagedWimLib
         #endregion
 
         #region Update - UpdateImage
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_update_image_32(
             IntPtr wim,
             int image,
@@ -1633,7 +1762,7 @@ namespace ManagedWimLib
             UpdateFlags update_flags);
         internal static wimlib_update_image_32 UpdateImage32;
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_update_image_64(
             IntPtr wim,
             int image,
@@ -3362,31 +3491,31 @@ namespace ManagedWimLib
         /// Filesystem path to the file or directory tree to add.
         /// </summary>
         [FieldOffset(4)]
-        private IntPtr AddFsSourcePathPtr;
+        private IntPtr _addFsSourcePathPtr;
         public string AddFsSourcePath
         {
-            get => NativeMethods.MarshalPtrToString(AddFsSourcePathPtr);
-            set => UpdatePtr(ref AddFsSourcePathPtr, value);
+            get => NativeMethods.MarshalPtrToString(_addFsSourcePathPtr);
+            set => UpdatePtr(ref _addFsSourcePathPtr, value);
         }
         /// <summary>
         /// Destination path in the image.  To specify the root directory of the image, use Wim.RootPath.
         /// </summary>
         [FieldOffset(8)]
-        private IntPtr AddWimTargetPathPtr;
+        private IntPtr _addWimTargetPathPtr;
         public string AddWimTargetPath
         {
-            get => NativeMethods.MarshalPtrToString(AddWimTargetPathPtr);
-            set => UpdatePtr(ref AddWimTargetPathPtr, value);
+            get => NativeMethods.MarshalPtrToString(_addWimTargetPathPtr);
+            set => UpdatePtr(ref _addWimTargetPathPtr, value);
         }
         /// <summary>
         /// Path to capture configuration file to use, or null if not specified.
         /// </summary>
         [FieldOffset(12)]
-        private IntPtr AddConfigFilePtr;
+        private IntPtr _addConfigFilePtr;
         public string AddConfigFile
         {
-            get => NativeMethods.MarshalPtrToString(AddConfigFilePtr);
-            set => UpdatePtr(ref AddConfigFilePtr, value);
+            get => NativeMethods.MarshalPtrToString(_addConfigFilePtr);
+            set => UpdatePtr(ref _addConfigFilePtr, value);
         }
         /// <summary>
         /// Bitwise OR of AddFlags.
@@ -3400,11 +3529,11 @@ namespace ManagedWimLib
         /// The path to the file or directory within the image to delete.
         /// </summary>
         [FieldOffset(4)]
-        private IntPtr DelWimPathPtr;
+        private IntPtr _delWimPathPtr;
         public string DelWimPath
         {
-            get => NativeMethods.MarshalPtrToString(DelWimPathPtr);
-            set => UpdatePtr(ref DelWimPathPtr, value);
+            get => NativeMethods.MarshalPtrToString(_delWimPathPtr);
+            set => UpdatePtr(ref _delWimPathPtr, value);
         }
         /// <summary>
         /// Bitwise OR of DeleteFlags.
@@ -3418,50 +3547,57 @@ namespace ManagedWimLib
         /// The path to the source file or directory within the image.
         /// </summary>
         [FieldOffset(4)]
-        private IntPtr RenWimSourcePathPtr;
+        private IntPtr _renWimSourcePathPtr;
         public string RenWimSourcePath
         {
-            get => NativeMethods.MarshalPtrToString(RenWimSourcePathPtr);
-            set => UpdatePtr(ref RenWimSourcePathPtr, value);
+            get => NativeMethods.MarshalPtrToString(_renWimSourcePathPtr);
+            set => UpdatePtr(ref _renWimSourcePathPtr, value);
         }
         /// <summary>
         /// The path to the destination file or directory within the image.
         /// </summary>
         [FieldOffset(8)]
-        private IntPtr RenWimTargetPathPtr;
+        private IntPtr _renWimTargetPathPtr;
         public string RenWimTargetPath
         {
-            get => NativeMethods.MarshalPtrToString(RenWimTargetPathPtr);
-            set => UpdatePtr(ref RenWimTargetPathPtr, value);
+            get => NativeMethods.MarshalPtrToString(_renWimTargetPathPtr);
+            set => UpdatePtr(ref _renWimTargetPathPtr, value);
         }
         /// <summary>
         /// Reserved; set to 0. 
         /// </summary>
         [FieldOffset(12)]
-#pragma warning disable IDE0044
         private int _renameFlags;
-#pragma warning restore IDE0044
         #endregion
 
         #region Free
         public void Free()
         {
-            FreePtr(ref AddFsSourcePathPtr);
-            FreePtr(ref AddWimTargetPathPtr);
-            FreePtr(ref AddConfigFilePtr);
-            FreePtr(ref DelWimPathPtr);
-            FreePtr(ref RenWimSourcePathPtr);
-            FreePtr(ref RenWimTargetPathPtr);
+            switch (Op)
+            {
+                case UpdateOp.ADD:
+                    FreePtr(ref _addFsSourcePathPtr);
+                    FreePtr(ref _addWimTargetPathPtr);
+                    FreePtr(ref _addConfigFilePtr);
+                    break;
+                case UpdateOp.DELETE:
+                    FreePtr(ref _delWimPathPtr);
+                    break;
+                case UpdateOp.RENAME:
+                    FreePtr(ref _renWimSourcePathPtr);
+                    FreePtr(ref _renWimTargetPathPtr);
+                    break;
+            }
         }
 
-        internal void FreePtr(ref IntPtr ptr)
+        internal static void FreePtr(ref IntPtr ptr)
         {
             if (ptr != IntPtr.Zero)
                 Marshal.FreeHGlobal(ptr);
             ptr = IntPtr.Zero;
         }
 
-        internal void UpdatePtr(ref IntPtr ptr, string str)
+        internal static void UpdatePtr(ref IntPtr ptr, string str)
         {
             FreePtr(ref ptr);
             ptr = NativeMethods.MarshalStringToPtr(str);
@@ -3488,7 +3624,7 @@ namespace ManagedWimLib
     #endregion
 
     #region UpdateCommand64
-    [StructLayout(LayoutKind.Explicit, CharSet = CharSet.Unicode)]
+    [StructLayout(LayoutKind.Explicit)]
     public struct UpdateCommand64
     {
         [FieldOffset(0)]
@@ -3499,31 +3635,31 @@ namespace ManagedWimLib
         /// Filesystem path to the file or directory tree to add.
         /// </summary>
         [FieldOffset(8)]
-        private IntPtr AddFsSourcePathPtr;
+        private IntPtr _addFsSourcePathPtr;
         public string AddFsSourcePath
         {
-            get => NativeMethods.MarshalPtrToString(AddFsSourcePathPtr);
-            set => UpdatePtr(ref AddFsSourcePathPtr, value);
+            get => NativeMethods.MarshalPtrToString(_addFsSourcePathPtr);
+            set => UpdatePtr(ref _addFsSourcePathPtr, value);
         }
         /// <summary>
         /// Destination path in the image.  To specify the root directory of the image, use Wim.RootPath.
         /// </summary>
         [FieldOffset(16)]
-        private IntPtr AddWimTargetPathPtr;
+        private IntPtr _addWimTargetPathPtr;
         public string AddWimTargetPath
         {
-            get => NativeMethods.MarshalPtrToString(AddWimTargetPathPtr);
-            set => UpdatePtr(ref AddWimTargetPathPtr, value);
+            get => NativeMethods.MarshalPtrToString(_addWimTargetPathPtr);
+            set => UpdatePtr(ref _addWimTargetPathPtr, value);
         }
         /// <summary>
         /// Path to capture configuration file to use, or null if not specified.
         /// </summary>
         [FieldOffset(24)]
-        private IntPtr AddConfigFilePtr;
+        private IntPtr _addConfigFilePtr;
         public string AddConfigFile
         {
-            get => NativeMethods.MarshalPtrToString(AddConfigFilePtr);
-            set => UpdatePtr(ref AddConfigFilePtr, value);
+            get => NativeMethods.MarshalPtrToString(_addConfigFilePtr);
+            set => UpdatePtr(ref _addConfigFilePtr, value);
         }
         /// <summary>
         /// Bitwise OR of AddFlags.
@@ -3537,11 +3673,11 @@ namespace ManagedWimLib
         /// The path to the file or directory within the image to delete.
         /// </summary>
         [FieldOffset(8)]
-        private IntPtr DelWimPathPtr;
+        private IntPtr _delWimPathPtr;
         public string DelWimPath
         {
-            get => NativeMethods.MarshalPtrToString(DelWimPathPtr);
-            set => UpdatePtr(ref DelWimPathPtr, value);
+            get => NativeMethods.MarshalPtrToString(_delWimPathPtr);
+            set => UpdatePtr(ref _delWimPathPtr, value);
         }
         /// <summary>
         /// Bitwise OR of DeleteFlags.
@@ -3555,21 +3691,21 @@ namespace ManagedWimLib
         /// The path to the source file or directory within the image.
         /// </summary>
         [FieldOffset(8)]
-        private IntPtr RenWimSourcePathPtr;
+        private IntPtr _renWimSourcePathPtr;
         public string RenWimSourcePath
         {
-            get => NativeMethods.MarshalPtrToString(RenWimSourcePathPtr);
-            set => UpdatePtr(ref RenWimSourcePathPtr, value);
+            get => NativeMethods.MarshalPtrToString(_renWimSourcePathPtr);
+            set => UpdatePtr(ref _renWimSourcePathPtr, value);
         }
         /// <summary>
         /// The path to the destination file or directory within the image.
         /// </summary>
         [FieldOffset(16)]
-        private IntPtr RenWimTargetPathPtr;
+        private IntPtr _renWimTargetPathPtr;
         public string RenWimTargetPath
         {
-            get => NativeMethods.MarshalPtrToString(RenWimTargetPathPtr);
-            set => UpdatePtr(ref RenWimTargetPathPtr, value);
+            get => NativeMethods.MarshalPtrToString(_renWimTargetPathPtr);
+            set => UpdatePtr(ref _renWimTargetPathPtr, value);
         }
         /// <summary>
         /// Reserved; set to 0. 
@@ -3581,22 +3717,31 @@ namespace ManagedWimLib
         #region Free
         public void Free()
         {
-            FreePtr(ref AddFsSourcePathPtr);
-            FreePtr(ref AddWimTargetPathPtr);
-            FreePtr(ref AddConfigFilePtr);
-            FreePtr(ref DelWimPathPtr);
-            FreePtr(ref RenWimSourcePathPtr);
-            FreePtr(ref RenWimTargetPathPtr);
+            switch (Op)
+            {
+                case UpdateOp.ADD:
+                    FreePtr(ref _addFsSourcePathPtr);
+                    FreePtr(ref _addWimTargetPathPtr);
+                    FreePtr(ref _addConfigFilePtr);
+                    break;
+                case UpdateOp.DELETE:
+                    FreePtr(ref _delWimPathPtr);
+                    break;
+                case UpdateOp.RENAME:
+                    FreePtr(ref _renWimSourcePathPtr);
+                    FreePtr(ref _renWimTargetPathPtr);
+                    break;
+            }
         }
 
-        internal void FreePtr(ref IntPtr ptr)
+        internal static void FreePtr(ref IntPtr ptr)
         {
             if (ptr != IntPtr.Zero)
                 Marshal.FreeHGlobal(ptr);
             ptr = IntPtr.Zero;
         }
 
-        internal void UpdatePtr(ref IntPtr ptr, string str)
+        internal static void UpdatePtr(ref IntPtr ptr, string str)
         {
             FreePtr(ref ptr);
             ptr = NativeMethods.MarshalStringToPtr(str);
