@@ -869,8 +869,7 @@ namespace ManagedWimLib
                 throw new InvalidOperationException(NativeMethods.MsgInitFirstError);
 
             ErrorCode ret = NativeMethods.OpenWim(wimFile, openFlags, out IntPtr wimPtr);
-            if (ret != ErrorCode.SUCCESS)
-                throw new WimLibException(ret);
+            WimLibException.CheckWimLibError(ret);
 
             return new Wim(wimPtr);
         }
@@ -913,6 +912,54 @@ namespace ManagedWimLib
             };
         }
         #endregion
+        
+        #region Mount - MountImage (Linux Only)
+        /// <summary>
+        /// Mount an image from a WIM file on a directory read-only or read-write.
+        ///
+        /// The ability to mount WIM images is implemented using FUSE.
+        /// Depending on how FUSE is set up on your system, this function
+        /// may work as normal users in addition to the root user.
+        /// 
+        /// Calling this function daemonizes the process, unless MountFlags.DEBUG
+        /// was specified or an early error occurs.
+        /// </summary>
+        /// <remarks>
+        /// 
+        ///
+        /// Mounting WIM images is not supported if wimlib was configured --without-fuse.
+        /// This includes Windows builds of wimlib; ErrorCde.UNSUPPORTED will be returned in such cases.
+        ///
+        /// It is safe to mount multiple images from the same WIM file read-only at the
+        /// same time, but only if different Wim instances' are used.
+        /// It is not safe to mount multiple images from the same WIM file read-write at the same time.
+        ///
+        /// To unmount the image, call UnmountImage. This may be done in a different process.
+        /// </remarks>
+        /// <param name="image">
+        /// The 1-based index of the image to mount.
+        /// This image cannot have been previously modified in memory.
+        /// </param>
+        /// <param name="dir">
+        /// The path to an existing empty directory on which to mount the image.
+        /// </param>
+        /// <param name="mountFlags">
+        /// Bitwise OR of MountFlags.
+        /// Use MountFlags.READWRITE to request a read-write mount instead of a read-only mount
+        /// </param>
+        /// <param name="stagingDir">
+        /// If non-NULL, the name of a directory in which a temporary directory for storing modified or
+        /// added files will be created. Ignored if MountFlags.READWRITE is not specified in mountFlags.
+        /// If left NULL, the staging directory is created in the same directory as the backing WIM file.
+        /// The staging directory is automatically deleted when the image is unmounted.
+        /// </param>
+        /// <exception cref="WimLibException">wimlib did not return ErrorCode.SUCCESS.</exception>
+        public void MountImage(int image, string dir, MountFlags mountFlags, string stagingDir)
+        {
+            ErrorCode ret = NativeMethods.MountImage(_ptr, image, dir, mountFlags, stagingDir); 
+            WimLibException.CheckWimLibError(ret);
+        }
+        #endregion
 
         #region Reference - ReferenceResourceFiles, ReferenceResources, ReferenceTemplateImage
         /// <summary>
@@ -930,7 +977,7 @@ namespace ManagedWimLib
         /// That is, using this function you can specify zero or more globs, each of which expands to one or more literal paths.
         /// </param>
         /// <param name="refFlags">
-        /// Bitwise OR of RefFlags.GLOB_ENABLE and/or RefFlags.GLOB_ERR_ON_NOMATCH.
+        /// Bitwise OR of RefFlags. GLOB_ENABLE and/or RefFlags.GLOB_ERR_ON_NOMATCH.
         /// </param>
         /// <param name="openFlags">
         /// Additional open flags, such as OpenFalgs.CHECK_INTEGRITY, to pass to internal calls to Wim.OpenWim() on the reference files.
@@ -1371,6 +1418,61 @@ namespace ManagedWimLib
         }
         #endregion
 
+        #region Unmount - (Static) UnmountImage (Linux Only)
+        /// <summary>
+        /// Unmount a WIM image that was mounted using Wim.MountImage().
+        /// </summary>
+        /// <remarks>
+        /// When unmounting a read-write mounted image, the default behavior is to discard changes to the image.
+        /// Use UnmountFlags.FLAG_COMMIT to cause the image to be committed.
+        ///
+        /// Note: you can also unmount the image by using the umount() system call, or by using the umount or fusermount programs.
+        /// However, you need to call this function if you want changes to be committed.
+        /// </remarks>
+        /// <param name="dir">The directory on which the WIM image is mounted.</param>
+        /// <param name="unmountFlags">Bitwise OR of UnmountFlags.</param>
+        /// <exception cref="WimLibException">wimlib did not return ErrorCode.SUCCESS.</exception>
+        public static void UnmountImage(string dir, UnmountFlags unmountFlags)
+        {
+            if (!NativeMethods.Loaded)
+                throw new InvalidOperationException(NativeMethods.MsgInitFirstError);
+            
+            ErrorCode ret = NativeMethods.UnmountImage(dir, unmountFlags); 
+            WimLibException.CheckWimLibError(ret);
+        }
+        
+        /// <summary>
+        /// Same as Wim.UnmountImage(), but allows specifying a progress function.
+        /// The progress function will receive a ProgressMsg.UNMOUNT_BEGIN  message.
+        /// In addition, if changes are committed from a read-write mount,
+        /// the progress function will receive ProgressMsg.WRITE_STREAMS messages.
+        /// </summary>
+        /// <remarks>
+        /// When unmounting a read-write mounted image, the default behavior is to discard changes to the image.
+        /// Use UnmountFlags.FLAG_COMMIT to cause the image to be committed.
+        ///
+        /// Note: you can also unmount the image by using the umount() system call, or by using the umount or fusermount programs.
+        /// However, you need to call this function if you want changes to be committed.
+        /// </remarks>
+        /// <param name="dir">The directory on which the WIM image is mounted.</param>
+        /// <param name="unmountFlags">Bitwise OR of UnmountFlags.</param>
+        /// <param name="callback">Callback function to receive progress report</param>
+        /// <param name="userData">Data to be passed to callback function</param>
+        /// <exception cref="WimLibException">wimlib did not return ErrorCode.SUCCESS.</exception>
+        public static void UnmountImage(string dir, UnmountFlags unmountFlags, ProgressCallback callback, object userData = null)
+        {
+            if (!NativeMethods.Loaded)
+                throw new InvalidOperationException(NativeMethods.MsgInitFirstError);
+            if (callback == null)
+                throw new ArgumentNullException(nameof(callback));
+
+            ManagedProgressCallback mCallback = new ManagedProgressCallback(callback, userData);
+            
+            ErrorCode ret = NativeMethods.UnmountImageWithProgress(dir, unmountFlags, mCallback.NativeFunc, IntPtr.Zero); 
+            WimLibException.CheckWimLibError(ret);
+        }
+        #endregion
+        
         #region Update - UpdateImage
         /// <summary>
         /// Update a WIM image by adding, deleting, and/or renaming files or directories.
