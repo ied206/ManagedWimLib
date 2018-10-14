@@ -23,7 +23,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -62,15 +61,15 @@ namespace ManagedWimLib
 
         internal static IntPtr hModule;
         internal static bool Loaded => hModule != IntPtr.Zero;
-        
+
         public static bool UseUtf16;
         public static Encoding Encoding => UseUtf16 ? Encoding.Unicode : new UTF8Encoding(false);
         internal static LongBits LongBitType { get; set; }
-        
+
         public static string ErrorFile = null;
         public static bool PrintErrorsEnabled = false;
         #endregion
-        
+
         #region MarshalString
         public static string MarshalPtrToString(IntPtr ptr)
         {
@@ -84,7 +83,7 @@ namespace ManagedWimLib
             return UseUtf16 ? Marshal.StringToHGlobalUni(str) : Marshal.StringToHGlobalAnsi(str);
         }
         #endregion
-        
+
         #region Windows kernel32 API
         internal static class Win32
         {
@@ -152,7 +151,7 @@ namespace ManagedWimLib
                 #region Error - SetErrorFile
                 Utf16.SetErrorFile = GetFuncPtr<Utf16.wimlib_set_error_file_by_name>("wimlib_set_error_file_by_name");
                 #endregion
-                
+
                 #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
                 Utf16.AddEmptyImage = GetFuncPtr<Utf16.wimlib_add_empty_image>("wimlib_add_empty_image");
                 Utf16.AddImage = GetFuncPtr<Utf16.wimlib_add_image>("wimlib_add_image");
@@ -160,21 +159,21 @@ namespace ManagedWimLib
                 Utf16.AddImageMultiSourceL64 = GetFuncPtr<Utf16.wimlib_add_image_multisource_l64>("wimlib_add_image_multisource");
                 Utf16.AddTree = GetFuncPtr<Utf16.wimlib_add_tree>("wimlib_add_tree");
                 #endregion
-                
+
                 #region Delete - DeletePath
                 Utf16.DeletePath = GetFuncPtr<Utf16.wimlib_delete_path>("wimlib_delete_path");
                 #endregion
-                
+
                 #region Export - ExportImage
                 Utf16.ExportImage = GetFuncPtr<Utf16.wimlib_export_image>("wimlib_export_image");
                 #endregion
-                
+
                 #region Extract - ExtractImage, ExtractPathList, ExtractPaths
                 Utf16.ExtractImage = GetFuncPtr<Utf16.wimlib_extract_image>("wimlib_extract_image");
                 Utf16.ExtractPathList = GetFuncPtr<Utf16.wimlib_extract_pathlist>("wimlib_extract_pathlist");
                 Utf16.ExtractPaths = GetFuncPtr<Utf16.wimlib_extract_paths>("wimlib_extract_paths");
                 #endregion
-                
+
                 #region GetImageInfo - GetImageProperty
                 Utf16.GetImageProperty = GetFuncPtr<Utf16.wimlib_get_image_property>("wimlib_get_image_property");
                 #endregion
@@ -183,11 +182,11 @@ namespace ManagedWimLib
                 Utf16.IsImageNameInUse = GetFuncPtr<Utf16.wimlib_image_name_in_use>("wimlib_image_name_in_use");
                 Utf16.ResolveImage = GetFuncPtr<Utf16.wimlib_resolve_image>("wimlib_resolve_image");
                 #endregion
-                
+
                 #region Iterate - IterateDirTree
                 Utf16.IterateDirTree = GetFuncPtr<Utf16.wimlib_iterate_dir_tree>("wimlib_iterate_dir_tree");
                 #endregion
-                
+
                 #region Join - Join, JoinWithProgress
                 Utf16.Join = GetFuncPtr<Utf16.wimlib_join>("wimlib_join");
                 Utf16.JoinWithProgress = GetFuncPtr<Utf16.wimlib_join_with_progress>("wimlib_join_with_progress");
@@ -197,19 +196,19 @@ namespace ManagedWimLib
                 Utf16.OpenWim = GetFuncPtr<Utf16.wimlib_open_wim>("wimlib_open_wim");
                 Utf16.OpenWimWithProgress = GetFuncPtr<Utf16.wimlib_open_wim_with_progress>("wimlib_open_wim_with_progress");
                 #endregion
-                
+
                 #region Mount - MountImage (Linux Only)
                 Utf16.MountImage = GetFuncPtr<Utf16.wimlib_mount_image>("wimlib_mount_image");
                 #endregion
-                
+
                 #region Reference - ReferenceTemplateImage
                 Utf16.ReferenceResourceFiles = GetFuncPtr<Utf16.wimlib_reference_resource_files>("wimlib_reference_resource_files");
                 #endregion
-                
+
                 #region Rename - RenamePath
                 Utf16.RenamePath = GetFuncPtr<Utf16.wimlib_rename_path>("wimlib_rename_path");
                 #endregion
-                
+
                 #region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty
                 // wimlib_set_image_descripton is misspelled from wimlib itself.
                 Utf16.SetImageDescription = GetFuncPtr<Utf16.wimlib_set_image_description>("wimlib_set_image_descripton");
@@ -217,16 +216,16 @@ namespace ManagedWimLib
                 Utf16.SetImageName = GetFuncPtr<Utf16.wimlib_set_image_name>("wimlib_set_image_name");
                 Utf16.SetImageProperty = GetFuncPtr<Utf16.wimlib_set_image_property>("wimlib_set_image_property");
                 #endregion
-                
+
                 #region Split - Split
                 Utf16.Split = GetFuncPtr<Utf16.wimlib_split>("wimlib_split");
                 #endregion
-                
+
                 #region Unmount - UnmountImage, UnmountImageWithProgress (Linux Only)
                 Utf16.UnmountImage = GetFuncPtr<Utf16.wimlib_unmount_image>("wimlib_unmount_image");
                 Utf16.UnmountImageWithProgress = GetFuncPtr<Utf16.wimlib_unmount_image_with_progress>("wimlib_unmount_image_with_progress");
                 #endregion
-                
+
                 #region Write - Write
                 Utf16.Write = GetFuncPtr<Utf16.wimlib_write>("wimlib_write");
                 #endregion
@@ -236,7 +235,7 @@ namespace ManagedWimLib
                 #region Error - SetErrorFile
                 Utf8.SetErrorFile = GetFuncPtr<Utf8.wimlib_set_error_file_by_name>("wimlib_set_error_file_by_name");
                 #endregion
-                
+
                 #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
                 Utf8.AddEmptyImage = GetFuncPtr<Utf8.wimlib_add_empty_image>("wimlib_add_empty_image");
                 Utf8.AddImage = GetFuncPtr<Utf8.wimlib_add_image>("wimlib_add_image");
@@ -244,21 +243,21 @@ namespace ManagedWimLib
                 Utf8.AddImageMultiSourceL64 = GetFuncPtr<Utf8.wimlib_add_image_multisource_l64>("wimlib_add_image_multisource");
                 Utf8.AddTree = GetFuncPtr<Utf8.wimlib_add_tree>("wimlib_add_tree");
                 #endregion
-                
+
                 #region Delete - DeletePath
                 Utf8.DeletePath = GetFuncPtr<Utf8.wimlib_delete_path>("wimlib_delete_path");
                 #endregion
-                
+
                 #region Export - ExportImage
                 Utf8.ExportImage = GetFuncPtr<Utf8.wimlib_export_image>("wimlib_export_image");
                 #endregion
-                
+
                 #region Extract - ExtractImage, ExtractPathList, ExtractPaths
                 Utf8.ExtractImage = GetFuncPtr<Utf8.wimlib_extract_image>("wimlib_extract_image");
                 Utf8.ExtractPathList = GetFuncPtr<Utf8.wimlib_extract_pathlist>("wimlib_extract_pathlist");
                 Utf8.ExtractPaths = GetFuncPtr<Utf8.wimlib_extract_paths>("wimlib_extract_paths");
                 #endregion
-                
+
                 #region GetImageInfo - GetImageProperty
                 Utf8.GetImageProperty = GetFuncPtr<Utf8.wimlib_get_image_property>("wimlib_get_image_property");
                 #endregion
@@ -267,11 +266,11 @@ namespace ManagedWimLib
                 Utf8.IsImageNameInUse = GetFuncPtr<Utf8.wimlib_image_name_in_use>("wimlib_image_name_in_use");
                 Utf8.ResolveImage = GetFuncPtr<Utf8.wimlib_resolve_image>("wimlib_resolve_image");
                 #endregion
-                
+
                 #region Iterate - IterateDirTree
                 Utf8.IterateDirTree = GetFuncPtr<Utf8.wimlib_iterate_dir_tree>("wimlib_iterate_dir_tree");
                 #endregion
-                
+
                 #region Join - Join, JoinWithProgress
                 Utf8.Join = GetFuncPtr<Utf8.wimlib_join>("wimlib_join");
                 Utf8.JoinWithProgress = GetFuncPtr<Utf8.wimlib_join_with_progress>("wimlib_join_with_progress");
@@ -281,19 +280,19 @@ namespace ManagedWimLib
                 Utf8.OpenWim = GetFuncPtr<Utf8.wimlib_open_wim>("wimlib_open_wim");
                 Utf8.OpenWimWithProgress = GetFuncPtr<Utf8.wimlib_open_wim_with_progress>("wimlib_open_wim_with_progress");
                 #endregion
-                
+
                 #region Mount - MountImage (Linux Only)
                 Utf8.MountImage = GetFuncPtr<Utf8.wimlib_mount_image>("wimlib_mount_image");
                 #endregion
-                
+
                 #region Reference - ReferenceTemplateImage
                 Utf8.ReferenceResourceFiles = GetFuncPtr<Utf8.wimlib_reference_resource_files>("wimlib_reference_resource_files");
                 #endregion
-                
+
                 #region Rename - RenamePath
                 Utf8.RenamePath = GetFuncPtr<Utf8.wimlib_rename_path>("wimlib_rename_path");
                 #endregion
-                
+
                 #region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty
                 // wimlib_set_image_descripton is misspelled from wimlib itself.
                 Utf8.SetImageDescription = GetFuncPtr<Utf8.wimlib_set_image_description>("wimlib_set_image_descripton");
@@ -301,21 +300,21 @@ namespace ManagedWimLib
                 Utf8.SetImageName = GetFuncPtr<Utf8.wimlib_set_image_name>("wimlib_set_image_name");
                 Utf8.SetImageProperty = GetFuncPtr<Utf8.wimlib_set_image_property>("wimlib_set_image_property");
                 #endregion
-                
+
                 #region Split - Split
                 Utf8.Split = GetFuncPtr<Utf8.wimlib_split>("wimlib_split");
                 #endregion
-                
+
                 #region Unmount - UnmountImage, UnmountImageWithProgress (Linux Only)
                 Utf8.UnmountImage = GetFuncPtr<Utf8.wimlib_unmount_image>("wimlib_unmount_image");
                 Utf8.UnmountImageWithProgress = GetFuncPtr<Utf8.wimlib_unmount_image_with_progress>("wimlib_unmount_image_with_progress");
                 #endregion
-                
+
                 #region Write - Write
                 Utf8.Write = GetFuncPtr<Utf8.wimlib_write>("wimlib_write");
                 #endregion
             }
-            
+
             #region Global - GlobalInit, GlobalCleanup
             GlobalInit = GetFuncPtr<wimlib_global_init>("wimlib_global_init");
             GlobalCleanup = GetFuncPtr<wimlib_global_cleanup>("wimlib_global_cleanup");
@@ -484,7 +483,7 @@ namespace ManagedWimLib
             Utf8.OpenWim = null;
             Utf8.OpenWimWithProgress = null;
             #endregion
-            
+
             #region Mount - MountImage (Linux Only)
             Utf16.MountImage = null;
             Utf8.MountImage = null;
@@ -533,7 +532,7 @@ namespace ManagedWimLib
             #region Verify - VerifyWim
             VerifyWim = null;
             #endregion
-            
+
             #region Unmount - UnmountImage, UnmountImageWithProgress (Linux Only)
             Utf16.UnmountImage = null;
             Utf16.UnmountImageWithProgress = null;
@@ -560,14 +559,14 @@ namespace ManagedWimLib
         {
             internal const UnmanagedType StrType = UnmanagedType.LPWStr;
             internal const CharSet StructCharSet = CharSet.Unicode;
-            
+
             #region Error - SetErrorFile
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_set_error_file_by_name(
                 [MarshalAs(StrType)] string path);
             internal static wimlib_set_error_file_by_name SetErrorFile;
             #endregion
-            
+
             #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_add_empty_image(
@@ -594,7 +593,7 @@ namespace ManagedWimLib
                 [MarshalAs(StrType)] string config_file,
                 AddFlags add_flags);
             internal static wimlib_add_image_multisource_l32 AddImageMultiSourceL32;
-            
+
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_add_image_multisource_l64(
                 IntPtr wim,
@@ -614,7 +613,7 @@ namespace ManagedWimLib
                 AddFlags add_flags);
             internal static wimlib_add_tree AddTree;
             #endregion
-            
+
             #region Delete - DeletePath
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_delete_path(
@@ -624,7 +623,7 @@ namespace ManagedWimLib
                 DeleteFlags delete_flags);
             internal static wimlib_delete_path DeletePath;
             #endregion
-            
+
             #region Export - ExportImage
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_export_image(
@@ -636,7 +635,7 @@ namespace ManagedWimLib
                 ExportFlags export_flags);
             internal static wimlib_export_image ExportImage;
             #endregion
-            
+
             #region Extract - ExtractImage, ExtractPaths, ExtractPathList
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_extract_image(
@@ -665,7 +664,7 @@ namespace ManagedWimLib
                 ExtractFlags extract_flags);
             internal static wimlib_extract_paths ExtractPaths;
             #endregion
-            
+
             #region GetImageInfo - GetImageProperty
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate IntPtr wimlib_get_image_property(
@@ -674,7 +673,7 @@ namespace ManagedWimLib
                 [MarshalAs(StrType)] string property_name);
             internal static wimlib_get_image_property GetImageProperty;
             #endregion
-            
+
             #region GetWimInfo - IsImageNameInUse, ResolveImage
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate bool wimlib_image_name_in_use(
@@ -688,7 +687,7 @@ namespace ManagedWimLib
                 [MarshalAs(StrType)] string image_name_or_num);
             internal static wimlib_resolve_image ResolveImage;
             #endregion
-            
+
             #region Iterate - IterateDirTree
             [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
             internal delegate ErrorCode wimlib_iterate_dir_tree(
@@ -700,7 +699,7 @@ namespace ManagedWimLib
                 IntPtr user_ctx);
             internal static wimlib_iterate_dir_tree IterateDirTree;
             #endregion
-            
+
             #region Join - Join, JoinWithProgress
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_join(
@@ -722,7 +721,7 @@ namespace ManagedWimLib
                 IntPtr progctx);
             internal static wimlib_join_with_progress JoinWithProgress;
             #endregion
-            
+
             #region Open - OpenWim, OpenWithProgress
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_open_wim(
@@ -740,7 +739,7 @@ namespace ManagedWimLib
                 IntPtr progctx);
             internal static wimlib_open_wim_with_progress OpenWimWithProgress;
             #endregion
-            
+
             #region Mount - MountImage (Linux Only)
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_mount_image(
@@ -750,8 +749,8 @@ namespace ManagedWimLib
                 MountFlags mount_flags,
                 [MarshalAs(StrType)] string staging_dir);
             internal static wimlib_mount_image MountImage;
-            #endregion            
-            
+            #endregion
+
             #region Reference - ReferenceResourceFiles
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_reference_resource_files(
@@ -762,7 +761,7 @@ namespace ManagedWimLib
                 OpenFlags open_flags);
             internal static wimlib_reference_resource_files ReferenceResourceFiles;
             #endregion
-            
+
             #region Rename - RenamePath
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_rename_path(
@@ -772,7 +771,7 @@ namespace ManagedWimLib
                 [MarshalAs(StrType)] string dest_path);
             internal static wimlib_rename_path RenamePath;
             #endregion
-            
+
             #region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_set_image_description(
@@ -803,7 +802,7 @@ namespace ManagedWimLib
                 [MarshalAs(StrType)] string property_value);
             internal static wimlib_set_image_property SetImageProperty;
             #endregion
-            
+
             #region Split - Split
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_split(
@@ -813,14 +812,14 @@ namespace ManagedWimLib
                 WriteFlags write_flags);
             internal static wimlib_split Split;
             #endregion
-            
+
             #region Unmount - UnmountImage, UnmountImageWithProgress (Linux Only)
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_unmount_image(
                 [MarshalAs(StrType)] string dir,
                 UnmountFlags unmount_flags);
             internal static wimlib_unmount_image UnmountImage;
-            
+
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_unmount_image_with_progress(
                 [MarshalAs(StrType)] string dir,
@@ -829,7 +828,7 @@ namespace ManagedWimLib
                 IntPtr progctx);
             internal static wimlib_unmount_image_with_progress UnmountImageWithProgress;
             #endregion
-            
+
             #region Write - Write
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_write(
@@ -840,7 +839,7 @@ namespace ManagedWimLib
                 uint num_threads);
             internal static wimlib_write Write;
             #endregion
-            
+
             #region Struct CaptureSourceBase
             /// <summary>
             /// An array of these structures is passed to Wim.AddImageMultiSource() to specify the sources from which to create a WIM image. 
@@ -872,7 +871,7 @@ namespace ManagedWimLib
                     _reserved = 0;
                 }
             };
-            
+
             /// <summary>
             /// An array of these structures is passed to Wim.AddImageMultiSource() to specify the sources from which to create a WIM image. 
             /// </summary>
@@ -905,20 +904,20 @@ namespace ManagedWimLib
             };
             #endregion
         }
-        
+
         [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
         internal static class Utf8
         {
             internal const UnmanagedType StrType = UnmanagedType.LPStr;
             internal const CharSet StructCharSet = CharSet.Ansi;
-            
+
             #region Error - SetErrorFile
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_set_error_file_by_name(
                 [MarshalAs(StrType)] string path);
             internal static wimlib_set_error_file_by_name SetErrorFile;
             #endregion
-            
+
             #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_add_empty_image(
@@ -945,7 +944,7 @@ namespace ManagedWimLib
                 [MarshalAs(StrType)] string config_file,
                 AddFlags add_flags);
             internal static wimlib_add_image_multisource_l32 AddImageMultiSourceL32;
-            
+
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_add_image_multisource_l64(
                 IntPtr wim,
@@ -965,7 +964,7 @@ namespace ManagedWimLib
                 AddFlags add_flags);
             internal static wimlib_add_tree AddTree;
             #endregion
-            
+
             #region Delete - DeletePath
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_delete_path(
@@ -975,7 +974,7 @@ namespace ManagedWimLib
                 DeleteFlags delete_flags);
             internal static wimlib_delete_path DeletePath;
             #endregion
-            
+
             #region Export - ExportImage
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_export_image(
@@ -987,7 +986,7 @@ namespace ManagedWimLib
                 ExportFlags export_flags);
             internal static wimlib_export_image ExportImage;
             #endregion
-            
+
             #region Extract - ExtractImage, ExtractPaths, ExtractPathList
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_extract_image(
@@ -1016,7 +1015,7 @@ namespace ManagedWimLib
                 ExtractFlags extract_flags);
             internal static wimlib_extract_paths ExtractPaths;
             #endregion
-            
+
             #region GetImageInfo - GetImageProperty
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate IntPtr wimlib_get_image_property(
@@ -1025,7 +1024,7 @@ namespace ManagedWimLib
                 [MarshalAs(StrType)] string property_name);
             internal static wimlib_get_image_property GetImageProperty;
             #endregion
-            
+
             #region GetWimInfo - IsImageNameInUse, ResolveImage
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate bool wimlib_image_name_in_use(
@@ -1039,7 +1038,7 @@ namespace ManagedWimLib
                 [MarshalAs(StrType)] string image_name_or_num);
             internal static wimlib_resolve_image ResolveImage;
             #endregion
-            
+
             #region Iterate - IterateDirTree
             [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
             internal delegate ErrorCode wimlib_iterate_dir_tree(
@@ -1051,7 +1050,7 @@ namespace ManagedWimLib
                 IntPtr user_ctx);
             internal static wimlib_iterate_dir_tree IterateDirTree;
             #endregion
-            
+
             #region Join - Join, JoinWithProgress
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_join(
@@ -1073,7 +1072,7 @@ namespace ManagedWimLib
                 IntPtr progctx);
             internal static wimlib_join_with_progress JoinWithProgress;
             #endregion
-            
+
             #region Open - OpenWim, OpenWithProgress
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_open_wim(
@@ -1091,7 +1090,7 @@ namespace ManagedWimLib
                 IntPtr progctx);
             internal static wimlib_open_wim_with_progress OpenWimWithProgress;
             #endregion
-            
+
             #region Mount - MountImage (Linux Only)
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_mount_image(
@@ -1102,7 +1101,7 @@ namespace ManagedWimLib
                 [MarshalAs(StrType)] string staging_dir);
             internal static wimlib_mount_image MountImage;
             #endregion
-            
+
             #region Reference - ReferenceResourceFiles
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_reference_resource_files(
@@ -1113,7 +1112,7 @@ namespace ManagedWimLib
                 OpenFlags open_flags);
             internal static wimlib_reference_resource_files ReferenceResourceFiles;
             #endregion
-            
+
             #region Rename - RenamePath
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_rename_path(
@@ -1123,7 +1122,7 @@ namespace ManagedWimLib
                 [MarshalAs(StrType)] string dest_path);
             internal static wimlib_rename_path RenamePath;
             #endregion
-            
+
             #region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_set_image_description(
@@ -1154,7 +1153,7 @@ namespace ManagedWimLib
                 [MarshalAs(StrType)] string property_value);
             internal static wimlib_set_image_property SetImageProperty;
             #endregion
-            
+
             #region Split - Split
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_split(
@@ -1164,14 +1163,14 @@ namespace ManagedWimLib
                 WriteFlags write_flags);
             internal static wimlib_split Split;
             #endregion
-            
+
             #region Unmount - UnmountImage, UnmountImageWithProgress (Linux Only)
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_unmount_image(
                 [MarshalAs(StrType)] string dir,
                 UnmountFlags unmount_flags);
             internal static wimlib_unmount_image UnmountImage;
-            
+
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_unmount_image_with_progress(
                 [MarshalAs(StrType)] string dir,
@@ -1180,7 +1179,7 @@ namespace ManagedWimLib
                 IntPtr progctx);
             internal static wimlib_unmount_image_with_progress UnmountImageWithProgress;
             #endregion
-            
+
             #region Write - Write
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_write(
@@ -1191,7 +1190,7 @@ namespace ManagedWimLib
                 uint num_threads);
             internal static wimlib_write Write;
             #endregion
-            
+
             #region Struct CaptureSourceBase
             /// <summary>
             /// An array of these structures is passed to Wim.AddImageMultiSource() to specify the sources from which to create a WIM image. 
@@ -1223,7 +1222,7 @@ namespace ManagedWimLib
                     _reserved = 0;
                 }
             };
-            
+
             /// <summary>
             /// An array of these structures is passed to Wim.AddImageMultiSource() to specify the sources from which to create a WIM image. 
             /// </summary>
@@ -1256,7 +1255,7 @@ namespace ManagedWimLib
             };
             #endregion
         }
-        
+
         #region GlobalInit, GlobalCleanup
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_global_init(InitFlags initFlags);
@@ -1310,32 +1309,32 @@ namespace ManagedWimLib
 
         #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
         internal static ErrorCode AddEmptyImage(
-            IntPtr wim, 
-            string name, 
+            IntPtr wim,
+            string name,
             out int new_idx_ret)
         {
-            return UseUtf16 
+            return UseUtf16
                 ? Utf16.AddEmptyImage(wim, name, out new_idx_ret)
                 : Utf8.AddEmptyImage(wim, name, out new_idx_ret);
         }
-        
+
         internal static ErrorCode AddImage(
-            IntPtr wim, 
-            string source, 
-            string name, 
-            string config_file, 
+            IntPtr wim,
+            string source,
+            string name,
+            string config_file,
             AddFlags add_flags)
         {
-            return UseUtf16  
-                ? Utf16.AddImage(wim, source, name, config_file, add_flags) 
+            return UseUtf16
+                ? Utf16.AddImage(wim, source, name, config_file, add_flags)
                 : Utf8.AddImage(wim, source, name, config_file, add_flags);
         }
 
         internal static ErrorCode AddImageMultiSource(
-            IntPtr wim, 
-            CaptureSource[] sources, 
+            IntPtr wim,
+            CaptureSource[] sources,
             IntPtr num_sources, // size_t
-            string name, 
+            string name,
             string config_file,
             AddFlags add_flags)
         {
@@ -1406,9 +1405,9 @@ namespace ManagedWimLib
         }
 
         internal static ErrorCode AddTree(
-            IntPtr wim, 
-            int image, 
-            string fs_source_path, 
+            IntPtr wim,
+            int image,
+            string fs_source_path,
             string wim_target_path,
             AddFlags add_flags)
         {
@@ -1434,12 +1433,12 @@ namespace ManagedWimLib
         internal static wimlib_delete_image DeleteImage;
 
         internal static ErrorCode DeletePath(
-            IntPtr wim, 
-            int image, 
-            string path, 
+            IntPtr wim,
+            int image,
+            string path,
             DeleteFlags delete_flags)
         {
-            return UseUtf16 
+            return UseUtf16
                 ? Utf16.DeletePath(wim, image, path, delete_flags)
                 : Utf8.DeletePath(wim, image, path, delete_flags);
         }
@@ -1454,12 +1453,12 @@ namespace ManagedWimLib
             string dest_description,
             ExportFlags export_flags)
         {
-            return UseUtf16 
+            return UseUtf16
                 ? Utf16.ExportImage(src_wim, src_image, dest_wim, dest_name, dest_description, export_flags)
                 : Utf8.ExportImage(src_wim, src_image, dest_wim, dest_name, dest_description, export_flags);
         }
         #endregion
-        
+
         #region Extract - ExtractImage, ExtractPaths, ExtractPathList
         internal static ErrorCode ExtractImage(
             IntPtr wim,
@@ -1467,7 +1466,7 @@ namespace ManagedWimLib
             string target,
             ExtractFlags extract_flags)
         {
-            return UseUtf16 
+            return UseUtf16
                 ? Utf16.ExtractImage(wim, image, target, extract_flags)
                 : Utf8.ExtractImage(wim, image, target, extract_flags);
         }
@@ -1479,7 +1478,7 @@ namespace ManagedWimLib
             string path_list_file,
             ExtractFlags extract_flags)
         {
-            return UseUtf16 
+            return UseUtf16
                 ? Utf16.ExtractPathList(wim, image, target, path_list_file, extract_flags)
                 : Utf8.ExtractPathList(wim, image, target, path_list_file, extract_flags);
         }
@@ -1492,7 +1491,7 @@ namespace ManagedWimLib
             IntPtr num_paths, // size_t
             ExtractFlags extract_flags)
         {
-            return UseUtf16 
+            return UseUtf16
                 ? Utf16.ExtractPaths(wim, image, target, paths, num_paths, extract_flags)
                 : Utf8.ExtractPaths(wim, image, target, paths, num_paths, extract_flags);
         }
@@ -1626,7 +1625,7 @@ namespace ManagedWimLib
         {
             return UseUtf16
                 ? Utf16.IterateDirTree(wim, image, path, flags, cb, user_ctx)
-                : Utf8.IterateDirTree(wim, image, path, flags, cb, user_ctx);   
+                : Utf8.IterateDirTree(wim, image, path, flags, cb, user_ctx);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
@@ -1653,7 +1652,7 @@ namespace ManagedWimLib
         {
             return UseUtf16
                 ? Utf16.Join(swms, num_swms, output_path, swms_open_flags, write_flags)
-                : Utf8.Join(swms, num_swms, output_path, swms_open_flags, write_flags);   
+                : Utf8.Join(swms, num_swms, output_path, swms_open_flags, write_flags);
         }
 
         internal static ErrorCode JoinWithProgress(
@@ -1667,7 +1666,7 @@ namespace ManagedWimLib
         {
             return UseUtf16
                 ? Utf16.JoinWithProgress(swms, num_swms, output_path, swms_open_flags, write_flags, progfunc, progctx)
-                : Utf8.JoinWithProgress(swms, num_swms, output_path, swms_open_flags, write_flags, progfunc, progctx);   
+                : Utf8.JoinWithProgress(swms, num_swms, output_path, swms_open_flags, write_flags, progfunc, progctx);
         }
         #endregion
 
@@ -1694,7 +1693,7 @@ namespace ManagedWimLib
                 : Utf8.OpenWimWithProgress(wim_file, open_flags, out wim_ret, progfunc, progctx);
         }
         #endregion
-        
+
         #region Mount - MountImage (Linux Only)
         internal static ErrorCode MountImage(
             IntPtr wim,
@@ -1869,7 +1868,7 @@ namespace ManagedWimLib
                 ? Utf16.UnmountImage(dir, unmount_flags)
                 : Utf8.UnmountImage(dir, unmount_flags);
         }
-        
+
         internal static ErrorCode UnmountImageWithProgress(
             string dir,
             UnmountFlags unmount_flags,
@@ -1881,7 +1880,7 @@ namespace ManagedWimLib
                 : Utf8.UnmountImageWithProgress(dir, unmount_flags, progfunc, progctx);
         }
         #endregion
-        
+
         #region Update - UpdateImage
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_update_image_32(

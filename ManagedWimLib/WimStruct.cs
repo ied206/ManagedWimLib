@@ -28,9 +28,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace ManagedWimLib
 {
@@ -52,7 +50,7 @@ namespace ManagedWimLib
         #region Properties
         public static bool Loaded => NativeMethods.Loaded;
         public static string ErrorFile => NativeMethods.ErrorFile;
-        
+
         public static string PathSeparator => NativeMethods.UseUtf16 ? @"\" : @"/";
         public static string RootPath => NativeMethods.UseUtf16 ? @"\" : @"/";
         #endregion
@@ -102,7 +100,7 @@ namespace ManagedWimLib
             {
                 NativeMethods.UseUtf16 = true;
                 NativeMethods.LongBitType = NativeMethods.LongBits.Long32;
-                
+
                 if (libPath == null || !File.Exists(libPath))
                     throw new ArgumentException("Specified .dll file does not exist");
 
@@ -131,7 +129,7 @@ namespace ManagedWimLib
                         NativeMethods.LongBitType = NativeMethods.LongBits.Long64;
                         break;
                 }
-                
+
                 if (libPath == null)
                     libPath = "/usr/lib/x86_64-linux-gnu/libwim.so"; // Try to call system-installed wimlib
                 if (!File.Exists(libPath))
@@ -912,7 +910,7 @@ namespace ManagedWimLib
             };
         }
         #endregion
-        
+
         #region Mount - MountImage (Linux Only)
         /// <summary>
         /// Mount an image from a WIM file on a directory read-only or read-write.
@@ -956,7 +954,7 @@ namespace ManagedWimLib
         /// <exception cref="WimLibException">wimlib did not return ErrorCode.SUCCESS.</exception>
         public void MountImage(int image, string dir, MountFlags mountFlags, string stagingDir)
         {
-            ErrorCode ret = NativeMethods.MountImage(_ptr, image, dir, mountFlags, stagingDir); 
+            ErrorCode ret = NativeMethods.MountImage(_ptr, image, dir, mountFlags, stagingDir);
             WimLibException.CheckWimLibError(ret);
         }
         #endregion
@@ -1436,11 +1434,11 @@ namespace ManagedWimLib
         {
             if (!NativeMethods.Loaded)
                 throw new InvalidOperationException(NativeMethods.MsgInitFirstError);
-            
-            ErrorCode ret = NativeMethods.UnmountImage(dir, unmountFlags); 
+
+            ErrorCode ret = NativeMethods.UnmountImage(dir, unmountFlags);
             WimLibException.CheckWimLibError(ret);
         }
-        
+
         /// <summary>
         /// Same as Wim.UnmountImage(), but allows specifying a progress function.
         /// The progress function will receive a ProgressMsg.UNMOUNT_BEGIN  message.
@@ -1467,12 +1465,12 @@ namespace ManagedWimLib
                 throw new ArgumentNullException(nameof(callback));
 
             ManagedProgressCallback mCallback = new ManagedProgressCallback(callback, userData);
-            
-            ErrorCode ret = NativeMethods.UnmountImageWithProgress(dir, unmountFlags, mCallback.NativeFunc, IntPtr.Zero); 
+
+            ErrorCode ret = NativeMethods.UnmountImageWithProgress(dir, unmountFlags, mCallback.NativeFunc, IntPtr.Zero);
             WimLibException.CheckWimLibError(ret);
         }
         #endregion
-        
+
         #region Update - UpdateImage
         /// <summary>
         /// Update a WIM image by adding, deleting, and/or renaming files or directories.

@@ -53,7 +53,7 @@ namespace ManagedWimLib
             CallbackStatus ret = CallbackStatus.CONTINUE;
             if (_callback == null)
                 return ret;
-            
+
             DirEntryBase b = Marshal.PtrToStructure<DirEntryBase>(entryPtr);
             DirEntry dentry = new DirEntry
             {
@@ -118,7 +118,7 @@ namespace ManagedWimLib
         {
             if (_callback == null)
                 return CallbackStatus.CONTINUE;
-            
+
             return _callback(resource, _userData);
         }
     }

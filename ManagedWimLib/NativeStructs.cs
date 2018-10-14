@@ -1216,7 +1216,7 @@ namespace ManagedWimLib
             WimTargetPath = wimTargetPath;
         }
     };
-    
+
     #region Struct WimInfo
     [StructLayout(LayoutKind.Sequential)]
     [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local")]

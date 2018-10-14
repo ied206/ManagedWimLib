@@ -262,7 +262,7 @@ namespace ManagedWimLib
         public ulong NumBytesScanned;
     }
     #endregion
-    
+
     #region struct ProgressInfo_Extract
     /// <summary>
     /// Valid on messages
@@ -678,7 +678,7 @@ namespace ManagedWimLib
         public bool WillExclude;
     }
     #endregion
-    
+
     #region struct ProgressInfo_HandleError
     /// <summary>
     /// Valid on messages HANDLE_ERROR. 

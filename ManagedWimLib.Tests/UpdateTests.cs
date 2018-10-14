@@ -70,7 +70,7 @@ namespace ManagedWimLib.Tests
                     {
                         ProgressInfo_Update m = (ProgressInfo_Update)info;
                         Assert.IsNotNull(m);
-                        
+
                         tested.Set();
 
                         UpdateCommand cmd = m.Command;
@@ -98,7 +98,7 @@ namespace ManagedWimLib.Tests
                     }
                     break;
             }
-            
+
             return CallbackStatus.CONTINUE;
         }
 

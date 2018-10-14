@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace ManagedWimLib.Tests
 {
@@ -115,7 +114,7 @@ namespace ManagedWimLib.Tests
                 return path;
             }
         }
-        
+
         public static string NormalizePath(string str)
         {
             char[] newStr = new char[str.Length];
@@ -134,7 +133,7 @@ namespace ManagedWimLib.Tests
             }
             return new string(newStr);
         }
-        
+
         public static string[] NormalizePaths(IEnumerable<string> strs)
         {
             return strs.Select(NormalizePath).ToArray();
@@ -145,7 +144,7 @@ namespace ManagedWimLib.Tests
             return tuples.Select(x => new Tuple<string, bool>(NormalizePath(x.Item1), x.Item2)).ToArray();
         }
         #endregion
-        
+
         #region File Check
         public static void CheckWimPath(SampleSet set, string wimFile)
         {
