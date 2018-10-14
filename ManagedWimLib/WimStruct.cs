@@ -41,8 +41,6 @@ namespace ManagedWimLib
         public const int NoImage = 0;
         public const int AllImages = -1;
         public const int DefaultThreads = 0;
-        public const string PathSeparator = @"\";
-        public const string RootPath = @"\";
         #endregion
 
         #region Field
@@ -53,6 +51,9 @@ namespace ManagedWimLib
         #region Properties
         public static bool Loaded => NativeMethods.Loaded;
         public static string ErrorFile => NativeMethods.ErrorFile;
+        
+        public static string PathSeparator => NativeMethods.UseUtf16 ? @"\" : @"/";
+        public static string RootPath => NativeMethods.UseUtf16 ? @"\" : @"/";
         #endregion
 
         #region Constructor (private)

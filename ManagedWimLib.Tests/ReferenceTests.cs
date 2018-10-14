@@ -192,7 +192,7 @@ namespace ManagedWimLib.Tests
         public void ReferenceResourceFiles_Template(string[] splitWimNames, RefFlags refFlags = RefFlags.DEFAULT, bool failure = false)
         {
             string[] splitWims = splitWimNames.Select(x => Path.Combine(TestSetup.SampleDir, x)).ToArray();
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             try
             {
                 Directory.CreateDirectory(destDir);

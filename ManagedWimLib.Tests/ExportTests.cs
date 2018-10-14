@@ -43,7 +43,7 @@ namespace ManagedWimLib.Tests
         public void ExportImage_Template(string wimFileName, int imageIndex, string destImageName)
         {
             string srcWimPath = Path.Combine(TestSetup.SampleDir, wimFileName);
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             string destWimPath = Path.Combine(destDir, wimFileName);
             try
             {

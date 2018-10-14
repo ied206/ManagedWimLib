@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace ManagedWimLib.Tests
 {
@@ -92,8 +93,9 @@ namespace ManagedWimLib.Tests
         Src03,
     }
 
-    public class TestHelper
+    public static class TestHelper
     {
+        #region File and Path
         public static string GetProgramAbsolutePath()
         {
             string path = AppDomain.CurrentDomain.BaseDirectory;
@@ -113,6 +115,36 @@ namespace ManagedWimLib.Tests
                 return path;
             }
         }
+        
+        public static string NormalizePath(string str)
+        {
+            char[] newStr = new char[str.Length];
+            for (int i = 0; i < newStr.Length; i++)
+            {
+                switch (str[i])
+                {
+                    case '\\':
+                    case '/':
+                        newStr[i] = Path.DirectorySeparatorChar;
+                        break;
+                    default:
+                        newStr[i] = str[i];
+                        break;
+                }
+            }
+            return new string(newStr);
+        }
+        
+        public static string[] NormalizePaths(IEnumerable<string> strs)
+        {
+            return strs.Select(NormalizePath).ToArray();
+        }
+
+        public static Tuple<string, bool>[] NormalizePaths(IEnumerable<Tuple<string, bool>> tuples)
+        {
+            return tuples.Select(x => new Tuple<string, bool>(NormalizePath(x.Item1), x.Item2)).ToArray();
+        }
+        #endregion
         
         #region File Check
         public static void CheckWimPath(SampleSet set, string wimFile)
@@ -318,7 +350,9 @@ namespace ManagedWimLib.Tests
                     throw new NotImplementedException();
             }
 
-            foreach (var tup in checkList)
+            checkList = NormalizePaths(checkList);
+            paths = NormalizePaths(paths).ToList();
+            foreach (Tuple<string, bool> tup in checkList)
                 Assert.IsTrue(paths.Contains(tup, new CheckWimPathComparer()));
         }
 

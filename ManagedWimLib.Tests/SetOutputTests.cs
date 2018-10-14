@@ -229,7 +229,7 @@ namespace ManagedWimLib.Tests
 
         public void SetOutputCompressionType_Template(string wimFileName, CompressionType compType)
         {
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             try
             {
                 Directory.CreateDirectory(destDir);
@@ -244,7 +244,7 @@ namespace ManagedWimLib.Tests
                         case ProgressMsg.SCAN_BEGIN:
                             {
                                 ProgressInfo_Scan m = (ProgressInfo_Scan)info;
-                                Assert.IsNotNull(info);
+                                Assert.IsNotNull(m);
 
                                 _checked[0] = true;
                             }
@@ -252,7 +252,7 @@ namespace ManagedWimLib.Tests
                         case ProgressMsg.SCAN_END:
                             {
                                 ProgressInfo_Scan m = (ProgressInfo_Scan)info;
-                                Assert.IsNotNull(info);
+                                Assert.IsNotNull(m);
 
                                 _checked[1] = true;
                             }
@@ -318,7 +318,7 @@ namespace ManagedWimLib.Tests
 
         public void SetOutputPackCompressionType_Template(string wimFileName, CompressionType compType)
         {
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             try
             {
                 Directory.CreateDirectory(destDir);
@@ -333,7 +333,7 @@ namespace ManagedWimLib.Tests
                         case ProgressMsg.SCAN_BEGIN:
                             {
                                 ProgressInfo_Scan m = (ProgressInfo_Scan)info;
-                                Assert.IsNotNull(info);
+                                Assert.IsNotNull(m);
 
                                 _checked[0] = true;
                             }
@@ -341,7 +341,7 @@ namespace ManagedWimLib.Tests
                         case ProgressMsg.SCAN_END:
                             {
                                 ProgressInfo_Scan m = (ProgressInfo_Scan)info;
-                                Assert.IsNotNull(info);
+                                Assert.IsNotNull(m);
 
                                 _checked[1] = true;
                             }

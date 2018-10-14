@@ -51,41 +51,41 @@ namespace ManagedWimLib
         private CallbackStatus NativeCallback(IntPtr entryPtr, IntPtr userCtx)
         {
             CallbackStatus ret = CallbackStatus.CONTINUE;
-            if (_callback != null)
+            if (_callback == null)
+                return ret;
+            
+            DirEntryBase b = Marshal.PtrToStructure<DirEntryBase>(entryPtr);
+            DirEntry dentry = new DirEntry
             {
-                DirEntryBase b = Marshal.PtrToStructure<DirEntryBase>(entryPtr);
-                DirEntry dentry = new DirEntry
-                {
-                    FileName = b.FileName,
-                    DosName = b.DosName,
-                    FullPath = b.FullPath,
-                    Depth = b.Depth,
-                    SecurityDescriptor = b.SecurityDescriptor,
-                    Attributes = b.Attributes,
-                    ReparseTag = b.ReparseTag,
-                    NumLinks = b.NumLinks,
-                    NumNamedStreams = b.NumNamedStreams,
-                    HardLinkGroupId = b.HardLinkGroupId,
-                    CreationTime = b.CreationTime,
-                    LastWriteTime = b.LastWriteTime,
-                    LastAccessTime = b.LastAccessTime,
-                    UnixUserId = b.UnixUserId,
-                    UnixGroupId = b.UnixGroupId,
-                    UnixMode = b.UnixMode,
-                    UnixRootDevice = b.UnixRootDevice,
-                    ObjectId = b.ObjectId,
-                    Streams = new StreamEntry[b.NumNamedStreams + 1],
-                };
+                FileName = b.FileName,
+                DosName = b.DosName,
+                FullPath = b.FullPath,
+                Depth = b.Depth,
+                SecurityDescriptor = b.SecurityDescriptor,
+                Attributes = b.Attributes,
+                ReparseTag = b.ReparseTag,
+                NumLinks = b.NumLinks,
+                NumNamedStreams = b.NumNamedStreams,
+                HardLinkGroupId = b.HardLinkGroupId,
+                CreationTime = b.CreationTime,
+                LastWriteTime = b.LastWriteTime,
+                LastAccessTime = b.LastAccessTime,
+                UnixUserId = b.UnixUserId,
+                UnixGroupId = b.UnixGroupId,
+                UnixMode = b.UnixMode,
+                UnixRootDevice = b.UnixRootDevice,
+                ObjectId = b.ObjectId,
+                Streams = new StreamEntry[b.NumNamedStreams + 1],
+            };
 
-                IntPtr baseOffset = IntPtr.Add(entryPtr, Marshal.SizeOf<DirEntryBase>());
-                for (int i = 0; i < dentry.Streams.Length; i++)
-                {
-                    IntPtr offset = IntPtr.Add(baseOffset, i * Marshal.SizeOf<StreamEntry>());
-                    dentry.Streams[i] = Marshal.PtrToStructure<StreamEntry>(offset);
-                }
-
-                ret = _callback(dentry, _userData);
+            IntPtr baseOffset = IntPtr.Add(entryPtr, Marshal.SizeOf<DirEntryBase>());
+            for (int i = 0; i < dentry.Streams.Length; i++)
+            {
+                IntPtr offset = IntPtr.Add(baseOffset, i * Marshal.SizeOf<StreamEntry>());
+                dentry.Streams[i] = Marshal.PtrToStructure<StreamEntry>(offset);
             }
+
+            ret = _callback(dentry, _userData);
 
             return ret;
         }
@@ -103,7 +103,7 @@ namespace ManagedWimLib
         private readonly IterateLookupTableCallback _callback;
         private readonly object _userData;
 
-        internal NativeMethods.NativeIterateLookupTableCallback NativeFunc { get; private set; }
+        internal NativeMethods.NativeIterateLookupTableCallback NativeFunc { get; }
 
         public ManagedIterateLookupTableCallback(IterateLookupTableCallback callback, object userData)
         {
@@ -116,13 +116,10 @@ namespace ManagedWimLib
 
         private CallbackStatus NativeCallback(ResourceEntry resource, IntPtr userCtx)
         {
-            CallbackStatus ret = CallbackStatus.CONTINUE;
-            if (_callback != null)
-            {
-                ret = _callback(resource, _userData);
-            }
-
-            return ret;
+            if (_callback == null)
+                return CallbackStatus.CONTINUE;
+            
+            return _callback(resource, _userData);
         }
     }
     #endregion

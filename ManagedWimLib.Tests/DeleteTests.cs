@@ -44,7 +44,7 @@ namespace ManagedWimLib.Tests
         public void DeleteImage_Template(string wimFileName, int deleteIndex, string deleteImageName)
         {
             string srcWim = Path.Combine(TestSetup.SampleDir, wimFileName);
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             string destWim = Path.Combine(destDir, wimFileName);
             try
             {
@@ -127,7 +127,7 @@ namespace ManagedWimLib.Tests
         public void DeletePath_Template(string wimFileName, string deletePath)
         {
             string srcWim = Path.Combine(TestSetup.SampleDir, wimFileName);
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             string destWim = Path.Combine(destDir, wimFileName);
             try
             {

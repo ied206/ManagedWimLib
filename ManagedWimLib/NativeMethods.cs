@@ -32,11 +32,13 @@ using System.Text;
 // ReSharper disable UnusedMember.Global
 // ReSharper disable StringLiteralTypo
 // ReSharper disable ClassNeverInstantiated.Global
-
 // ReSharper disable InconsistentNaming
 // ReSharper disable EnumUnderlyingTypeIsInt
 // ReSharper disable FieldCanBeMadeReadOnly.Local
+#pragma warning disable 169
 #pragma warning disable 414
+#pragma warning disable 649
+#pragma warning disable IDE0044
 
 namespace ManagedWimLib
 {
@@ -516,8 +518,8 @@ namespace ManagedWimLib
         [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
         internal static class Utf16
         {
-            private const UnmanagedType StrType = UnmanagedType.LPWStr;
-            private const CharSet StructCharSet = CharSet.Unicode;
+            internal const UnmanagedType StrType = UnmanagedType.LPWStr;
+            internal const CharSet StructCharSet = CharSet.Unicode;
             
             #region Error - SetErrorFile
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -780,9 +782,10 @@ namespace ManagedWimLib
                 /// To specify the root directory of the image, use @"\". 
                 /// </summary>
                 public string WimTargetPath;
-#pragma warning disable IDE0044
-                private uint _reserved;
-#pragma warning restore IDE0044
+                /// <summary>
+                /// Reserved; set to 0.
+                /// </summary>
+                private uint _reserved; // Need adjust to LLP64 and LP64
 
                 public CaptureSourceBase(string fsSourcePath, string wimTargetPath)
                 {
@@ -797,8 +800,8 @@ namespace ManagedWimLib
         [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
         internal static class Utf8
         {
-            private const UnmanagedType StrType = UnmanagedType.LPStr;
-            private const CharSet StructCharSet = CharSet.Ansi;
+            internal const UnmanagedType StrType = UnmanagedType.LPStr;
+            internal const CharSet StructCharSet = CharSet.Ansi;
             
             #region Error - SetErrorFile
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -3572,9 +3575,7 @@ namespace ManagedWimLib
         /// Reserved; set to 0. 
         /// </summary>
         [FieldOffset(24)]
-#pragma warning disable IDE0044
         private int _renameFlags;
-#pragma warning restore IDE0044
         #endregion
 
         #region Free
@@ -3634,19 +3635,19 @@ namespace ManagedWimLib
         /// <summary>
         /// Name of the file, or null if this file is unnamed. Only the root directory of an image will be unnamed.
         /// </summary>
-        [MarshalAs(UnmanagedType.LPWStr)]
-        public string FileName;
+        public string FileName => NativeMethods.MarshalPtrToString(_fileNamePtr);
+        private IntPtr _fileNamePtr;
         /// <summary>
         /// 8.3 name (or "DOS name", or "short name") of this file; or null if this file has no such name.
         /// </summary>
-        [MarshalAs(UnmanagedType.LPWStr)]
-        public string DosName;
+        public string DosName => NativeMethods.MarshalPtrToString(_dosNamePtr);
+        private IntPtr _dosNamePtr;
         /// <summary>
         /// Full path to this file within the image.
         /// Path separators will be Wim.PathSeparator.
         /// </summary>
-        [MarshalAs(UnmanagedType.LPWStr)]
-        public string FullPath;
+        public string FullPath => NativeMethods.MarshalPtrToString(_fullPathPtr);
+        private IntPtr _fullPathPtr;
         /// <summary>
         /// Depth of this directory entry, where 0 is the root, 1 is the root's children, ..., etc.
         /// </summary>
@@ -3754,14 +3755,12 @@ namespace ManagedWimLib
         /// </summary>
         public WimObjectId ObjectId;
 
-#pragma warning disable IDE0044
         private int _creationTimeHigh;
         private int _lastWriteTimeHigh;
         private int _lastAccessTimeHigh;
         private int _reserved2;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
         private ulong[] _reserved;
-#pragma warning restore IDE0044
     }
 
     /// <summary>
@@ -3769,7 +3768,10 @@ namespace ManagedWimLib
     /// Roughly, the information about a "file" in the WIM image --- but really a directory entry ("dentry") because hard links are allowed.
     /// The HardLinkGroupId field can be used to distinguish actual file inodes.
     /// </summary>
-    public class DirEntry
+    /// <remarks>
+    /// Wrapper of DirEntryBase
+    /// </remarks>
+    public struct DirEntry
     {
         /// <summary>
         /// Name of the file, or null if this file is unnamed. Only the root directory of an image will be unnamed.
@@ -4016,11 +4018,7 @@ namespace ManagedWimLib
         /// Bit 0 - 6 : Bool Flags
         /// Bit 7 - 31 : Reserved
         /// </summary>
-#pragma warning disable 649
-#pragma warning disable IDE0044
         private uint _bitFlag;
-#pragma warning restore IDE0044
-#pragma warning restore 649
         /// <summary>
         /// 1 iff this blob is located in a non-solid compressed WIM resource.
         /// </summary>
@@ -4053,11 +4051,7 @@ namespace ManagedWimLib
         /// </summary>
         public ulong RawResourceUncompressedSize;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)]
-#pragma warning disable 169
-#pragma warning disable IDE0044
         private ulong[] _reserved;
-#pragma warning restore IDE0044
-#pragma warning restore 169
     }
     #endregion
 

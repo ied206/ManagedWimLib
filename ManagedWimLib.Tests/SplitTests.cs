@@ -43,7 +43,7 @@ namespace ManagedWimLib.Tests
         public void Split_Template(string testSet, ulong partSize)
         {
             string srcDir = Path.Combine(TestSetup.SampleDir, testSet);
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             string wimFile = Path.Combine(destDir, "LZX.wim");
             string splitWimFile = Path.Combine(destDir, "Split.swm");
             string splitWildcard = Path.Combine(destDir, "Split*.swm");
@@ -62,7 +62,7 @@ namespace ManagedWimLib.Tests
                         case ProgressMsg.SPLIT_BEGIN_PART:
                             {
                                 ProgressInfo_Split m = (ProgressInfo_Split)info;
-                                Assert.IsNotNull(info);
+                                Assert.IsNotNull(m);
 
                                 _checked[0] = true;
                             }
@@ -70,7 +70,7 @@ namespace ManagedWimLib.Tests
                         case ProgressMsg.SPLIT_END_PART:
                             {
                                 ProgressInfo_Split m = (ProgressInfo_Split)info;
-                                Assert.IsNotNull(info);
+                                Assert.IsNotNull(m);
 
                                 _checked[1] = true;
                             }

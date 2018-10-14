@@ -24,6 +24,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Global
 
 namespace ManagedWimLib.Tests
 {
