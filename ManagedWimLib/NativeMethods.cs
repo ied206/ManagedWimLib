@@ -134,7 +134,7 @@ namespace ManagedWimLib
             {
                 funcPtr = Linux.dlsym(hModule, funcSymbol);
                 if (funcPtr == IntPtr.Zero)
-                    throw new InvalidOperationException($"Cannot import [{funcSymbol}]", Linux.dlerror());
+                    throw new InvalidOperationException($"Cannot import [{funcSymbol}], {Linux.dlerror()}");
             }
             else
             {
