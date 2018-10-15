@@ -21,39 +21,28 @@
     along with this file; if not, see http://www.gnu.org/licenses/.
 */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Text;
 
-namespace ManagedWimLib
+namespace ManagedWimLib.Tests
 {
-    #region WimLibException
-    public class WimLibException : Exception
+    [TestClass]
+    public class GetVersionTests
     {
-        public ErrorCode ErrorCode;
-
-        public WimLibException(ErrorCode errorCode)
-            : base(ForgeErrorMessages(errorCode, true))
+        #region GetVersion
+        [TestMethod]
+        [TestCategory("WimLib")]
+        public void GetImageInfo()
         {
-            ErrorCode = errorCode;
+            Version ver = Wim.GetVersion();
+            Assert.AreEqual(new Version(1, 12, 0), ver);
+
+            Tuple<ushort, ushort, ushort> tuple = Wim.GetVersionTuple();
+            Assert.AreEqual(new Tuple<ushort, ushort, ushort>(1, 12, 0), tuple);
+
+            string str = Wim.GetVersionString();
+            Assert.IsTrue(str.Equals("1.13.0-BETA5", StringComparison.Ordinal));
         }
-
-        internal static string ForgeErrorMessages(ErrorCode errorCode, bool full)
-        {
-            StringBuilder b = new StringBuilder();
-
-            if (full)
-                b.Append($"[{errorCode}] ");
-
-            b.Append(Wim.GetLastError() ?? Wim.GetErrorString(errorCode));
-
-            return b.ToString();
-        }
-
-        public static void CheckWimLibError(ErrorCode ret)
-        {
-            if (ret != ErrorCode.SUCCESS)
-                throw new WimLibException(ret);
-        }
+        #endregion
     }
-    #endregion
 }

@@ -1,6 +1,10 @@
 # ManagedWimLib
 
-C# pinvoke library for [wimlib](https://wimlib.net).
+<div style="text-align: left">
+    <img src="./Image/Logo.svg" height="128">
+</div>
+
+C# pinvoke library for native [wimlib](https://wimlib.net).
 
 wimlib is a library handles Windows Imaging (WIM) archives, written by Eric Biggers.
 
@@ -15,6 +19,24 @@ ManagedWimLib can be installed via [nuget](https://www.nuget.org/packages/Manage
 
 [![NuGet](https://buildstats.info/nuget/ManagedWimLib)](https://www.nuget.org/packages/ManagedWimLib)
 
+## Support
+
+### Targeted .Net platforms
+
+- .Net Standard 1.3 (.Net Framework 4.6+, .Net Core 1.0+)
+- .Net Standard 2.0 (.Net Framework 4.6.1+, .Net Core 2.0+)
+
+If you need .Net Framework 4.5 support, use Windows only [1.1.x branch](https://www.nuget.org/packages/ManagedWimLib/1.1.2).
+
+### Supported OS platforms
+
+- Windows x86, x64
+- Linux x64
+
+### Supported wimlib version
+
+- 1.13.0-BETA5 (Included)
+
 ## Usage
 
 See [USAGE.md](./USAGE.md).
@@ -22,3 +44,7 @@ See [USAGE.md](./USAGE.md).
 ## License
 
 Licensed under LGPLv3.
+See [LICENSE](./LICENSE) for details.
+
+Logo is licensed under CC BY 3.0 US.
+[disc](https://thenounproject.com/term/disc/772617) by Ralf Schmitzer from the Noun Project

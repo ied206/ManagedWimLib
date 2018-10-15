@@ -21,10 +21,9 @@
     along with this file; if not, see http://www.gnu.org/licenses/.
 */
 
-using System;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using System.Linq;
 
 namespace ManagedWimLib.Tests
 {
@@ -42,7 +41,7 @@ namespace ManagedWimLib.Tests
         public void Join_Template(string[] splitWimNames)
         {
             string[] splitWims = splitWimNames.Select(x => Path.Combine(TestSetup.SampleDir, x)).ToArray();
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             string destWim = Path.Combine(destDir, "Dest.wim");
             try
             {
@@ -71,7 +70,7 @@ namespace ManagedWimLib.Tests
         public void JoinProgress_Template(string[] splitWimNames)
         {
             string[] splitWims = splitWimNames.Select(x => Path.Combine(TestSetup.SampleDir, x)).ToArray();
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             string destWim = Path.Combine(destDir, "Dest.wim");
             try
             {

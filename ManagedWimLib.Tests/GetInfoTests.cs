@@ -21,12 +21,10 @@
     along with this file; if not, see http://www.gnu.org/licenses/.
 */
 
-using System;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ManagedWimLib;
+using System;
 using System.IO;
-using System.Threading;
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Global
 
 namespace ManagedWimLib.Tests
 {

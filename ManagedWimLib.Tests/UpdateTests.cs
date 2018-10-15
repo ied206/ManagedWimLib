@@ -21,13 +21,11 @@
     along with this file; if not, see http://www.gnu.org/licenses/.
 */
 
-using System;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ManagedWimLib;
-using System.IO;
-using System.Threading;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace ManagedWimLib.Tests
 {
@@ -41,24 +39,19 @@ namespace ManagedWimLib.Tests
         {
             string sampleDir = Path.Combine(TestSetup.SampleDir);
 
-            void RunUpdateTest(string wimFile, UpdateCommand[] cmds)
-            {
-                Update_Template(wimFile, cmds);
-            }
-
-            RunUpdateTest("XPRESS.wim", new UpdateCommand[2]
+            Update_Template("XPRESS.wim", new UpdateCommand[2]
             {
                 UpdateCommand.SetAdd(Path.Combine(sampleDir, "Append01", "Z.txt"), "ADD", null, AddFlags.DEFAULT),
                 UpdateCommand.SetAdd(Path.Combine(sampleDir, "Src03", "가"), "유니코드", null, AddFlags.DEFAULT),
             });
 
-            RunUpdateTest("LZX.wim", new UpdateCommand[2]
+            Update_Template("LZX.wim", new UpdateCommand[2]
             {
                 UpdateCommand.SetDelete("ACDE.txt", DeleteFlags.DEFAULT),
                 UpdateCommand.SetDelete("ABCD", DeleteFlags.RECURSIVE),
             });
 
-            RunUpdateTest("LZMS.wim", new UpdateCommand[2]
+            Update_Template("LZMS.wim", new UpdateCommand[2]
             {
                 UpdateCommand.SetRename("ACDE.txt", "FILE"),
                 UpdateCommand.SetRename("ABCD", "DIR"),
@@ -76,8 +69,8 @@ namespace ManagedWimLib.Tests
                 case ProgressMsg.UPDATE_END_COMMAND:
                     {
                         ProgressInfo_Update m = (ProgressInfo_Update)info;
-
                         Assert.IsNotNull(m);
+
                         tested.Set();
 
                         UpdateCommand cmd = m.Command;
@@ -85,34 +78,33 @@ namespace ManagedWimLib.Tests
                         {
                             case UpdateOp.ADD:
                                 {
-                                    var add = cmd.Add;
+                                    UpdateCommand.UpdateAdd add = cmd.Add;
                                     Console.WriteLine($"ADD [{add.FsSourcePath}] -> [{add.WimTargetPath}]");
                                 }
                                 break;
                             case UpdateOp.DELETE:
                                 {
-                                    var del = cmd.Delete;
+                                    UpdateCommand.UpdateDelete del = cmd.Delete;
                                     Console.WriteLine($"DELETE [{del.WimPath}]");
                                 }
                                 break;
                             case UpdateOp.RENAME:
                                 {
-                                    var ren = cmd.Rename;
+                                    UpdateCommand.UpdateRename ren = cmd.Rename;
                                     Console.WriteLine($"RENAME [{ren.WimSourcePath}] -> [{ren.WimTargetPath}]");
                                 }
                                 break;
                         }
                     }
                     break;
-                default:
-                    break;
             }
+
             return CallbackStatus.CONTINUE;
         }
 
         public void Update_Template(string fileName, UpdateCommand[] cmds)
         {
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             try
             {
                 CallbackTested tested = new CallbackTested(false);
@@ -138,7 +130,7 @@ namespace ManagedWimLib.Tests
 
                 using (Wim wim = Wim.OpenWim(destWimFile, OpenFlags.DEFAULT))
                 {
-                    wim.IterateDirTree(1, @"\", IterateFlags.RECURSIVE, IterateCallback, entries);
+                    wim.IterateDirTree(1, Wim.RootPath, IterateFlags.RECURSIVE, IterateCallback, entries);
                 }
 
                 Assert.IsTrue(tested.Value);
@@ -148,19 +140,19 @@ namespace ManagedWimLib.Tests
                     {
                         case UpdateOp.ADD:
                             {
-                                var add = cmd.Add;
+                                UpdateCommand.UpdateAdd add = cmd.Add;
                                 Assert.IsTrue(entries.Contains(Path.Combine(Wim.RootPath, add.WimTargetPath), StringComparer.Ordinal));
                             }
                             break;
                         case UpdateOp.DELETE:
                             {
-                                var del = cmd.Delete;
+                                UpdateCommand.UpdateDelete del = cmd.Delete;
                                 Assert.IsFalse(entries.Contains(Path.Combine(Wim.RootPath, del.WimPath), StringComparer.Ordinal));
                             }
                             break;
                         case UpdateOp.RENAME:
                             {
-                                var ren = cmd.Rename;
+                                UpdateCommand.UpdateRename ren = cmd.Rename;
                                 Assert.IsTrue(entries.Contains(Path.Combine(Wim.RootPath, ren.WimTargetPath), StringComparer.Ordinal));
                             }
                             break;

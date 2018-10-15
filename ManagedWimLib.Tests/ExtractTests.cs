@@ -23,12 +23,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using ManagedWimLib;
-using System.IO;
 
 namespace ManagedWimLib.Tests
 {
@@ -48,7 +45,7 @@ namespace ManagedWimLib.Tests
         public void ExtractImage_Template(string wimFileName)
         {
             string wimFile = Path.Combine(TestSetup.SampleDir, wimFileName);
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             try
             {
                 Directory.CreateDirectory(destDir);
@@ -162,7 +159,7 @@ namespace ManagedWimLib.Tests
 
         public void ExtractPaths_Template(string fileName, string[] paths)
         {
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             try
             {
                 string srcDir = Path.Combine(TestSetup.SampleDir);
@@ -228,7 +225,7 @@ namespace ManagedWimLib.Tests
 
                 Assert.IsTrue(_checked.All(x => x));
 
-                foreach (string path in paths.Select(x => x.TrimStart('\\')))
+                foreach (string path in paths.Select(x => TestHelper.NormalizePath(x.TrimStart('\\'))))
                 {
                     if (path.IndexOfAny(new char[] { '*', '?' }) == -1)
                     { // No wlidcard
@@ -249,7 +246,7 @@ namespace ManagedWimLib.Tests
             }
         }
         #endregion
-       
+
         #region ExtractList
         [TestMethod]
         [TestCategory("WimLib")]
@@ -265,7 +262,7 @@ namespace ManagedWimLib.Tests
 
         public void ExtractList_Template(string fileName, string[] paths)
         {
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             try
             {
                 Directory.CreateDirectory(destDir);
@@ -338,7 +335,7 @@ namespace ManagedWimLib.Tests
 
                 Assert.IsTrue(_checked.All(x => x));
 
-                foreach (string path in paths.Select(x => x.TrimStart('\\')))
+                foreach (string path in paths.Select(x => TestHelper.NormalizePath(x.TrimStart('\\'))))
                 {
                     if (path.IndexOfAny(new char[] { '*', '?' }) == -1)
                     { // No wlidcard

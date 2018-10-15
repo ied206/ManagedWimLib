@@ -22,13 +22,8 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ManagedWimLib;
 using System.IO;
+using System.Linq;
 
 namespace ManagedWimLib.Tests
 {
@@ -45,11 +40,9 @@ namespace ManagedWimLib.Tests
 
         public void AddEmptyImage_Template(CompressionType compType, string wimFileName, AddFlags addFlags = AddFlags.DEFAULT)
         {
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             try
             {
-                Directory.CreateDirectory(destDir);
-
                 bool[] _checked = new bool[2];
                 for (int i = 0; i < _checked.Length; i++)
                     _checked[i] = false;
@@ -104,19 +97,17 @@ namespace ManagedWimLib.Tests
 
             AddImage_Template("NONE.wim", CompressionType.NONE, AddFlags.BOOT);
             AddImage_Template("XPRESS.wim", CompressionType.XPRESS, AddFlags.BOOT);
-            AddImage_Template("LZX.wim", CompressionType.LZX,  AddFlags.BOOT);
+            AddImage_Template("LZX.wim", CompressionType.LZX, AddFlags.BOOT);
             AddImage_Template("LZMS.wim", CompressionType.LZMS, AddFlags.BOOT);
         }
 
         public void AddImage_Template(string wimFileName, CompressionType compType, AddFlags addFlags = AddFlags.DEFAULT)
         {
             string srcDir = Path.Combine(TestSetup.SampleDir, "Src01");
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             string wimFile = Path.Combine(destDir, wimFileName);
             try
             {
-                Directory.CreateDirectory(destDir);
-
                 bool[] _checked = new bool[5];
                 for (int i = 0; i < _checked.Length; i++)
                     _checked[i] = false;
@@ -195,11 +186,9 @@ namespace ManagedWimLib.Tests
 
         public void AddImageMultiSource_Template(CompressionType compType, string wimFileName, AddFlags addFlags = AddFlags.DEFAULT)
         {
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             try
             {
-                Directory.CreateDirectory(destDir);
-
                 bool[] _checked = new bool[5];
                 for (int i = 0; i < _checked.Length; i++)
                     _checked[i] = false;
@@ -249,13 +238,13 @@ namespace ManagedWimLib.Tests
                 using (Wim wim = Wim.CreateNewWim(compType))
                 {
                     wim.RegisterCallback(ProgressCallback);
-                    
+
                     CaptureSource[] srcs = new CaptureSource[]
                     {
                         new CaptureSource(srcDir1, @"\A"),
                         new CaptureSource(srcDir3, @"\Z"),
                     };
-                    
+
                     wim.AddImageMultiSource(srcs, "UnitTest", null, addFlags);
                     wim.Write(wimFile, Wim.AllImages, WriteFlags.DEFAULT, Wim.DefaultThreads);
 

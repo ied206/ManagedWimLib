@@ -21,13 +21,12 @@
     along with this file; if not, see http://www.gnu.org/licenses/.
 */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ManagedWimLib;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Runtime.InteropServices;
 
 namespace ManagedWimLib.Tests
 {
@@ -40,20 +39,36 @@ namespace ManagedWimLib.Tests
         [AssemblyInitialize]
         public static void Init(TestContext context)
         {
-            BaseDir = Path.GetFullPath(Path.Combine(TestHelper.GetProgramAbsolutePath(), "..", ".."));
+            BaseDir = Path.GetFullPath(Path.Combine(TestHelper.GetProgramAbsolutePath(), "..", "..", ".."));
             SampleDir = Path.Combine(BaseDir, "Samples");
 
-            switch (IntPtr.Size)
+            string libPath = null;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                case 8:
-                    Wim.GlobalInit(Path.Combine("x64", "libwim-15.dll"));
-                    break;
-                case 4:
-                    Wim.GlobalInit(Path.Combine("x86", "libwim-15.dll"));
-                    break;
-                default:
-                    throw new PlatformNotSupportedException();
+                switch (RuntimeInformation.ProcessArchitecture)
+                {
+                    case Architecture.X86:
+                        libPath = Path.Combine("x86", "libwim-15.dll");
+                        break;
+                    case Architecture.X64:
+                        libPath = Path.Combine("x64", "libwim-15.dll");
+                        break;
+                }
             }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                switch (RuntimeInformation.ProcessArchitecture)
+                {
+                    case Architecture.X64:
+                        libPath = Path.Combine("x64", "libwim.so");
+                        break;
+                }
+            }
+
+            if (libPath == null)
+                throw new PlatformNotSupportedException();
+
+            Wim.GlobalInit(libPath);
         }
 
         [AssemblyCleanup]
@@ -77,8 +92,9 @@ namespace ManagedWimLib.Tests
         Src03,
     }
 
-    public class TestHelper
+    public static class TestHelper
     {
+        #region File and Path
         public static string GetProgramAbsolutePath()
         {
             string path = AppDomain.CurrentDomain.BaseDirectory;
@@ -86,6 +102,48 @@ namespace ManagedWimLib.Tests
                 path = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             return path;
         }
+
+        private static readonly object TempDirLock = new object();
+        public static string GetTempDir()
+        {
+            lock (TempDirLock)
+            {
+                string path = Path.GetTempFileName();
+                File.Delete(path);
+                Directory.CreateDirectory(path);
+                return path;
+            }
+        }
+
+        public static string NormalizePath(string str)
+        {
+            char[] newStr = new char[str.Length];
+            for (int i = 0; i < newStr.Length; i++)
+            {
+                switch (str[i])
+                {
+                    case '\\':
+                    case '/':
+                        newStr[i] = Path.DirectorySeparatorChar;
+                        break;
+                    default:
+                        newStr[i] = str[i];
+                        break;
+                }
+            }
+            return new string(newStr);
+        }
+
+        public static string[] NormalizePaths(IEnumerable<string> strs)
+        {
+            return strs.Select(NormalizePath).ToArray();
+        }
+
+        public static Tuple<string, bool>[] NormalizePaths(IEnumerable<Tuple<string, bool>> tuples)
+        {
+            return tuples.Select(x => new Tuple<string, bool>(NormalizePath(x.Item1), x.Item2)).ToArray();
+        }
+        #endregion
 
         #region File Check
         public static void CheckWimPath(SampleSet set, string wimFile)
@@ -141,7 +199,7 @@ namespace ManagedWimLib.Tests
                 default:
                     throw new NotImplementedException();
             }
-            
+
         }
 
         public static void CheckFileSystem(SampleSet set, string dir)
@@ -291,7 +349,9 @@ namespace ManagedWimLib.Tests
                     throw new NotImplementedException();
             }
 
-            foreach (var tup in checkList)
+            checkList = NormalizePaths(checkList);
+            paths = NormalizePaths(paths).ToList();
+            foreach (Tuple<string, bool> tup in checkList)
                 Assert.IsTrue(paths.Contains(tup, new CheckWimPathComparer()));
         }
 

@@ -2,33 +2,79 @@
 
 ## Initialization
 
-ManagedWimLib requires binary of wimlib to work.  
-Internally it is done by loading functions dynamically (using `LoadLibrary` and `GetProcAddress`).
+ManagedWimLib requires explicit loading of a wimlib library.
 
- `Wim.GlobalInit()` should be explicitly called before using `ManagedWimLib`.
+You must call  `Wim.GlobalInit()` before using `ManagedWimLib`.
 
 Put this snippet in your application's init code:
 
 ```cs
-if (IntPtr.Size == 8) // This app is running on 64bit .Net Framework
-    Wim.GlobalInit(Path.Combine("x64", "libwim-15.dll"));
-else // This app is running on 32bit .Net Framework
-    Wim.GlobalInit(Path.Combine("x86", "libwim-15.dll"));
+public static void InitNativeLibrary()
+{
+    string libPath = null;
+    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+    {
+        switch (RuntimeInformation.ProcessArchitecture)
+        {
+            case Architecture.X64:
+                libPath = Path.Combine("x64", "libwim-15.dll");
+                break;
+            case Architecture.X86:
+                libPath = Path.Combine("x86", "libwim-15.dll");
+                break;
+        }
+    }
+    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+    {
+        switch (RuntimeInformation.ProcessArchitecture)
+        {
+            case Architecture.X64:
+                libPath = Path.Combine("x64", "libwim.so");
+                break;
+        }
+    }
+
+    if (libPath == null)
+        throw new PlatformNotSupportedException();
+
+    Wim.GlobalInit(libPath);
+}
 ```
 
-**WARNING**: Architecture of `libwim-15.dll` must be matched with caller!
+**WARNING**: Caller process and callee library must have the same architecture!
 
-### Embedded precompiled binary
+### Embedded binary
 
-ManagedWimLib comes with `libwim-15.dll`, precompiled binaries of `wimlib 1.13.0-BETA5`.  
-They will be copied into `$(OutDir)\x86\libwim-15.dll` and `$(OutDir)\x64\libwim-15.dll` automatically at build.
+ManagedWimLib comes with sets of binaries of `wimlib 1.13.0-BETA5`.  
+They will be copied into the build directory at build time.
+
+| Platform         | Binary                        | License |
+|------------------|-------------------------------|---------|
+| Windows x86      | `$(OutDir)\x86\libwim-15.dll` | LGPLv3  |
+| Windows x64      | `$(OutDir)\x64\libwim-15.dll` | LGPLv3  |
+| Ubuntu 18.04 x64 | `$(OutDir)\x64\libwim.so`     | LGPLv3 (w/o NTFS-3G) |
 
 ### Custom binary
 
-To use custom `wimlib` binary instead, call `Wim.GlobalInit()` with path to custom `libwim-15.dll`.
+To use custom wimlib binary instead, call `Wim.GlobalInit()` with a path to the custom binary.
 
-**NOTE**: Create empty file named `ManagedWimLib.Precompiled.Exclude` in project directory to prevent copy of package-embedded `libwim-15.dll`.
+#### NOTES
 
-## Cleanup
+- Ubuntu 18.04 x64 binary is compiled without NTFS-3G support (`./configure --without-ntfs-3g --without-libcrypto --enable-static`) because it makes binary GPLv3 licensed. If you want NTFS-3G functionality, use system-provided or custom libwim.so and make sure your program is compatible with GPLv3.
+- Create an empty file named `ManagedWimLib.Precompiled.Exclude` in project directory to prevent copy of package-embedded binary.
 
-To unload `wimlib` explicitly, call `Wim.GlobalCleanup()`.
+### Cleanup
+
+To unload wimlib library explicitly, call `Wim.GlobalCleanup()`.
+
+## API
+
+ManagedWimLib provides sets of APIs match to its original.
+
+Most of the use cases follow this flow.
+
+1. Create Wim instance with `Wim.OpenWim()`
+2. Do your job by calling API of your interest.
+3. Cleanup Wim instance with the Disposable pattern.
+
+[ManagedWimLib.Tests](./ManagedWimLib.Tests) provide a lot of examples of how to use ManagedWimLib.

@@ -21,17 +21,16 @@
     along with this file; if not, see http://www.gnu.org/licenses/.
 */
 
-using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ManagedWimLib.Tests
 {
     [TestClass]
     public class RenameTests
     {
-        #region enamePath
+        #region RenamePath
         [TestMethod]
         [TestCategory("WimLib")]
         public void RenamePath()
@@ -44,7 +43,7 @@ namespace ManagedWimLib.Tests
         public void RenamePath_Template(string wimFileName, string srcPath)
         {
             string srcWim = Path.Combine(TestSetup.SampleDir, wimFileName);
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             string destWim = Path.Combine(destDir, wimFileName);
             try
             {
