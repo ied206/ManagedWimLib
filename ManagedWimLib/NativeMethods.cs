@@ -128,13 +128,13 @@ namespace ManagedWimLib
             {
                 funcPtr = Win32.GetProcAddress(hModule, funcSymbol);
                 if (funcPtr == IntPtr.Zero)
-                    throw new ArgumentException($"Cannot import [{funcSymbol}]", new Win32Exception());
+                    throw new InvalidOperationException($"Cannot import [{funcSymbol}]", new Win32Exception());
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 funcPtr = Linux.dlsym(hModule, funcSymbol);
                 if (funcPtr == IntPtr.Zero)
-                    throw new ArgumentException($"Cannot import [{funcSymbol}]", Linux.dlerror());
+                    throw new InvalidOperationException($"Cannot import [{funcSymbol}]", Linux.dlerror());
             }
             else
             {
@@ -144,7 +144,7 @@ namespace ManagedWimLib
             return Marshal.GetDelegateForFunctionPointer<T>(funcPtr);
         }
 
-        internal static void LoadFuntions()
+        internal static void LoadFunctions()
         {
             if (UseUtf16)
             {
@@ -347,8 +347,9 @@ namespace ManagedWimLib
             GetXmlData = GetFuncPtr<wimlib_get_xml_data>("wimlib_get_xml_data");
             #endregion
 
-            #region GetVersion - GetVersion
-            GetVersionPtr = GetFuncPtr<wimlib_get_version>("wimlib_get_version");
+            #region GetVersion - GetVersion, GetVersionString
+            GetVersion = GetFuncPtr<wimlib_get_version>("wimlib_get_version");
+            GetVersionString = GetFuncPtr<wimlib_get_version_string>("wimlib_get_version_string");
             #endregion
 
             #region Iterate - IterateLookupTable
@@ -389,7 +390,7 @@ namespace ManagedWimLib
             #endregion
         }
 
-        internal static void ResetFuntions()
+        internal static void ResetFunctions()
         {
             #region Global - GlobalInit, GlobalCleanup
             GlobalInit = null;
@@ -460,8 +461,9 @@ namespace ManagedWimLib
             Utf8.ResolveImage = null;
             #endregion
 
-            #region GetVersion - GetVersion
-            GetVersionPtr = null;
+            #region GetVersion - GetVersion, GetVersionString
+            GetVersion = null;
+            GetVersionString = null;
             #endregion
 
             #region Iterate - IterateDirTree, IterateLookupTable
@@ -1573,40 +1575,11 @@ namespace ManagedWimLib
         /// 20) | (WIMLIB_MINOR_VERSION &lt;&lt; 10) | WIMLIB_PATCH_VERSION) for the
         /// corresponding header file.
         /// </remarks>
-        internal static wimlib_get_version GetVersionPtr;
-        /// <summary>
-        /// Return the version of wimlib as a Version instance.
-        /// Major, Minor and Build (Patch) properties will be populated.
-        /// </summary>
-        public static Version GetVersion()
-        {
-            if (!Loaded)
-                throw new InvalidOperationException(MsgInitFirstError);
-
-            uint dword = GetVersionPtr();
-            ushort major = (ushort)(dword >> 20);
-            ushort minor = (ushort)((dword % (1 << 20)) >> 10);
-            ushort patch = (ushort)(dword % (1 << 10));
-
-            return new Version(major, minor, patch);
-        }
-
-        /// <summary>
-        /// Return the version of wimlib as a Tuple.
-        /// Tuple's items will be populated in a order of Major, Minor, and Patch.
-        /// </summary>
-        public static Tuple<ushort, ushort, ushort> GetVersionTuple()
-        {
-            if (!Loaded)
-                throw new InvalidOperationException(MsgInitFirstError);
-
-            uint dword = GetVersionPtr();
-            ushort major = (ushort)(dword >> 20);
-            ushort minor = (ushort)((dword % (1 << 20)) >> 10);
-            ushort patch = (ushort)(dword % (1 << 10));
-
-            return new Tuple<ushort, ushort, ushort>(major, minor, patch);
-        }
+        internal static wimlib_get_version GetVersion;
+        
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate IntPtr wimlib_get_version_string();
+        internal static wimlib_get_version_string GetVersionString;
         #endregion
 
         #region Iterate - IterateDirTree, IterateLookupTable

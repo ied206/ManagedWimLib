@@ -149,7 +149,7 @@ namespace ManagedWimLib
 
             try
             {
-                NativeMethods.LoadFuntions();
+                NativeMethods.LoadFunctions();
 
                 // Set ErrorFile and PrintError
                 NativeMethods.ErrorFile = Path.GetTempFileName();
@@ -171,7 +171,7 @@ namespace ManagedWimLib
             if (NativeMethods.Loaded)
             {
                 NativeMethods.GlobalCleanup();
-                NativeMethods.ResetFuntions();
+                NativeMethods.ResetFunctions();
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     int ret = NativeMethods.Win32.FreeLibrary(NativeMethods.hModule);
@@ -607,6 +607,8 @@ namespace ManagedWimLib
         /// Empty lines and lines beginning with the ';' or '#' characters are ignored.
         /// No quotes are needed, as paths are otherwise delimited by the newline character.
         /// However, quotes will be stripped if present.
+        ///
+        /// If pastListFile is null, then the pathlist file is read from standard input.
         /// </remarks>
         /// <exception cref="WimLibException">wimlib did not return ErrorCode.SUCCESS.</exception>
         public void ExtractPathList(int image, string target, string pathListFile, ExtractFlags extractFlags)
@@ -743,6 +745,55 @@ namespace ManagedWimLib
         public int ResolveImage(string imageNameOrNum)
         {
             return NativeMethods.ResolveImage(_ptr, imageNameOrNum);
+        }
+        #endregion
+
+        #region GetVersion - (Static) GetVersion, GetVersionTuple, GetVersionString
+        /// <summary>
+        /// Return the version of wimlib as a Version instance.
+        /// Major, Minor and Build (Patch) properties will be populated.
+        /// </summary>
+        public static Version GetVersion()
+        {
+            if (!Loaded)
+                throw new InvalidOperationException(NativeMethods.MsgInitFirstError);
+
+            uint dword = NativeMethods.GetVersion();
+            ushort major = (ushort)(dword >> 20);
+            ushort minor = (ushort)((dword % (1 << 20)) >> 10);
+            ushort patch = (ushort)(dword % (1 << 10));
+
+            return new Version(major, minor, patch);
+        }
+
+        /// <summary>
+        /// Return the version of wimlib as a Tuple.
+        /// Tuple's items will be populated in a order of Major, Minor, and Patch.
+        /// </summary>
+        public static Tuple<ushort, ushort, ushort> GetVersionTuple()
+        {
+            if (!Loaded)
+                throw new InvalidOperationException(NativeMethods.MsgInitFirstError);
+
+            uint dword = NativeMethods.GetVersion();
+            ushort major = (ushort)(dword >> 20);
+            ushort minor = (ushort)((dword % (1 << 20)) >> 10);
+            ushort patch = (ushort)(dword % (1 << 10));
+
+            return new Tuple<ushort, ushort, ushort>(major, minor, patch);
+        }
+
+        /// <summary>
+        /// Since wimlib v1.13.0: like wimlib_get_version(), but returns the full PACKAGE_VERSION string that was set at build time.
+        /// (This allows a beta release to be distinguished from an official release.)
+        /// </summary>
+        public static string GetVersionString()
+        {
+            if (!Loaded)
+                throw new InvalidOperationException(NativeMethods.MsgInitFirstError);
+
+            IntPtr ptr = NativeMethods.GetVersionString();
+            return NativeMethods.MarshalPtrToString(ptr);
         }
         #endregion
 
