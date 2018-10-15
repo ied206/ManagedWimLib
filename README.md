@@ -45,3 +45,6 @@ See [USAGE.md](./USAGE.md).
 
 Licensed under LGPLv3.
 See [LICENSE](./LICENSE) for details.
+
+Logo is licensed under CC BY 3.0 US.
+[disc](https://thenounproject.com/term/disc/772617) by Ralf Schmitzer from the Noun Project
