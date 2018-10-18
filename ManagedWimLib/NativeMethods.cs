@@ -124,12 +124,15 @@ namespace ManagedWimLib
         private static T GetFuncPtr<T>(string funcSymbol) where T : Delegate
         {
             IntPtr funcPtr;
+#if! NET451
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+#endif
             {
                 funcPtr = Win32.GetProcAddress(hModule, funcSymbol);
                 if (funcPtr == IntPtr.Zero)
                     throw new InvalidOperationException($"Cannot import [{funcSymbol}]", new Win32Exception());
             }
+#if !NET451
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 funcPtr = Linux.dlsym(hModule, funcSymbol);
@@ -140,6 +143,7 @@ namespace ManagedWimLib
             {
                 throw new PlatformNotSupportedException();
             }
+#endif
 
             return Marshal.GetDelegateForFunctionPointer<T>(funcPtr);
         }
@@ -1576,7 +1580,7 @@ namespace ManagedWimLib
         /// corresponding header file.
         /// </remarks>
         internal static wimlib_get_version GetVersion;
-        
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate IntPtr wimlib_get_version_string();
         internal static wimlib_get_version_string GetVersionString;
