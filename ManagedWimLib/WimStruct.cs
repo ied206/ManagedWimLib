@@ -96,7 +96,9 @@ namespace ManagedWimLib
             if (NativeMethods.Loaded)
                 throw new InvalidOperationException(NativeMethods.MsgAlreadyInited);
 
+#if !NET451
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+#endif
             {
                 NativeMethods.UseUtf16 = true;
                 NativeMethods.LongBitType = NativeMethods.LongBits.Long32;
@@ -115,6 +117,7 @@ namespace ManagedWimLib
                     throw new ArgumentException($"[{libPath}] is not a valid wimblib-15.dll");
                 }
             }
+#if !NET451
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 NativeMethods.UseUtf16 = false;
@@ -146,6 +149,7 @@ namespace ManagedWimLib
                     throw new ArgumentException($"[{libPath}] is not a valid libwim.so");
                 }
             }
+#endif
 
             try
             {
@@ -172,16 +176,20 @@ namespace ManagedWimLib
             {
                 NativeMethods.GlobalCleanup();
                 NativeMethods.ResetFunctions();
+#if !NET451
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+#endif
                 {
                     int ret = NativeMethods.Win32.FreeLibrary(NativeMethods.hModule);
                     Debug.Assert(ret != 0);
                 }
+#if !NET451
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
                     int ret = NativeMethods.Linux.dlclose(NativeMethods.hModule);
                     Debug.Assert(ret == 0);
                 }
+#endif
                 NativeMethods.hModule = IntPtr.Zero;
 
                 if (File.Exists(ErrorFile))
@@ -1579,10 +1587,39 @@ namespace ManagedWimLib
         public void UpdateImage(int image, IEnumerable<UpdateCommand> cmds, UpdateFlags updateFlags)
         {
             ErrorCode ret;
+            int bits;
+
+#if !NET451
             switch (RuntimeInformation.ProcessArchitecture)
             {
                 case Architecture.X86:
                 case Architecture.Arm:
+                    bits = 32;
+                    break;
+                case Architecture.X64:
+                case Architecture.Arm64:
+                    bits = 64;
+                    break;
+                default:
+                    throw new PlatformNotSupportedException();
+            }
+#else
+            switch (IntPtr.Size)
+            {
+                case 4:
+                    bits = 32;
+                    break;
+                case 8:
+                    bits = 64;
+                    break;
+                default:
+                    throw new PlatformNotSupportedException();
+            }
+#endif
+
+            switch (bits)
+            {
+                case 32:
                     UpdateCommand32[] cmds32 = cmds.Select(x => x.ToNativeStruct32()).ToArray();
                     try
                     {
@@ -1594,8 +1631,7 @@ namespace ManagedWimLib
                             cmd32.Free();
                     }
                     break;
-                case Architecture.X64:
-                case Architecture.Arm64:
+                case 64:
                     UpdateCommand64[] cmds64 = cmds.Select(x => x.ToNativeStruct64()).ToArray();
                     try
                     {
@@ -1610,6 +1646,7 @@ namespace ManagedWimLib
                 default:
                     throw new PlatformNotSupportedException();
             }
+
             WimLibException.CheckWimLibError(ret);
         }
         #endregion
