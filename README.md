@@ -31,8 +31,18 @@ If you need .Net Framework 4.5 support, use [1.1.x version](https://www.nuget.or
 
 ### Supported OS platforms
 
-- Windows x86, x64
-- Linux x64
+| Platform | Architecture | Tested |
+|----------|--------------|--------|
+| Windows  | x86, x64     | Yes    |
+| Linux    | x64, armhf   | Yes    |
+|          | arm64        | No     |
+
+#### Tested linux distributions
+
+| Architecture | Distribution | Note |
+|--------------|--------------|------|
+| x64          | Ubuntu 18.04 |      |
+| armhf        | Debian 9     | Emulated on QEMU's virt board |
 
 ### Supported wimlib version
 
@@ -44,8 +54,8 @@ See [USAGE.md](./USAGE.md).
 
 ## License
 
-Licensed under LGPLv3.
+Licensed under LGPLv3.  
 See [LICENSE](./LICENSE) for details.
 
-Logo is licensed under CC BY 3.0 US.
+Logo is licensed under CC BY 3.0 US.  
 [disc](https://thenounproject.com/term/disc/772617) by Ralf Schmitzer from the Noun Project

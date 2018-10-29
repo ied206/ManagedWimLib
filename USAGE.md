@@ -11,16 +11,21 @@ Put this snippet in your application's init code:
 ```cs
 public static void InitNativeLibrary()
 {
+    const string x64 = "x64";
+    const string x86 = "x86";
+    const string armhf = "armhf";
+    const string arm64 = "arm64";
+
     string libPath = null;
     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
     {
         switch (RuntimeInformation.ProcessArchitecture)
         {
             case Architecture.X64:
-                libPath = Path.Combine("x64", "libwim-15.dll");
+                libPath = Path.Combine(x64, "libwim-15.dll");
                 break;
             case Architecture.X86:
-                libPath = Path.Combine("x86", "libwim-15.dll");
+                libPath = Path.Combine(x86, "libwim-15.dll");
                 break;
         }
     }
@@ -29,7 +34,13 @@ public static void InitNativeLibrary()
         switch (RuntimeInformation.ProcessArchitecture)
         {
             case Architecture.X64:
-                libPath = Path.Combine("x64", "libwim.so");
+                libPath = Path.Combine(x64, "libwim.so");
+                break;
+            case Architecture.Arm:
+                libPath = Path.Combine(armhf, "libwim.so");
+                break;
+            case Architecture.Arm64:
+                libPath = Path.Combine(arm64, "libwim.so");
                 break;
         }
     }
@@ -53,6 +64,8 @@ They will be copied into the build directory at build time.
 | Windows x86      | `$(OutDir)\x86\libwim-15.dll` | LGPLv3  |
 | Windows x64      | `$(OutDir)\x64\libwim-15.dll` | LGPLv3  |
 | Ubuntu 18.04 x64 | `$(OutDir)\x64\libwim.so`     | LGPLv3 (w/o NTFS-3G) |
+| Debian 9.5 armhf | `$(OutDir)\armhf\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
+| Debian 9.5 arm64 | `$(OutDir)\arm64\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
 
 ### Custom binary
 
@@ -60,8 +73,10 @@ To use custom wimlib binary instead, call `Wim.GlobalInit()` with a path to the 
 
 #### NOTES
 
-- Ubuntu 18.04 x64 binary is compiled without NTFS-3G support (`./configure --without-ntfs-3g --without-libcrypto --enable-static`) because it makes binary GPLv3 licensed. If you want NTFS-3G functionality, use system-provided or custom libwim.so and make sure your program is compatible with GPLv3.
 - Create an empty file named `ManagedWimLib.Precompiled.Exclude` in project directory to prevent copy of package-embedded binary.
+- Linux binaries were compiled without NTFS-3G support (`./configure --without-ntfs-3g --without-libcrypto --enable-static`) because it makes binaries GPLv3 licensed. If you want NTFS-3G functionality, use system-provided or custom libwim.so and make sure your program is compatible with GPLv3.
+- You may have to compile custom wimlib to use ManagedWimLib in untested linux distribution.
+- ManagedWimLib is untested on arm64, because .Net Core 2.1 arm64 runtime has an [issue](https://github.com/dotnet/coreclr/issues/19578).
 
 ### Cleanup
 

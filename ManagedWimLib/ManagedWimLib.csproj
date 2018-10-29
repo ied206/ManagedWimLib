@@ -15,7 +15,7 @@ Supports Windows and Linux.</Description>
     <RepositoryUrl></RepositoryUrl>
     <PackageTags>wim wimlib pinvoke interop</PackageTags>
     <PackageIconUrl>https://raw.githubusercontent.com/ied206/ManagedWimLib/master/Image/Logo.png</PackageIconUrl>
-    <Version>1.2.1</Version>
+    <Version>1.2.2</Version>
   </PropertyGroup>
   <Import Project="$(MSBuildProjectDirectory)\ManagedWimLib.targets" />
 </Project>
