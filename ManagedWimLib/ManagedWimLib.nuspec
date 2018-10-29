@@ -13,7 +13,7 @@
     <description>C# pinvoke library for wimlib.
 Supports Windows and Linux.</description>
     <summary>C# pinvoke library for wimlib.</summary>
-    <releaseNotes>- Add Linux armhf, arm64 support</releaseNotes>
+    <releaseNotes>- Support armhf, arm64 on linux</releaseNotes>
     <copyright>Copyright (c) 2018 Hajin Jang</copyright>
     <tags>wim wimlib pinvoke interop</tags>
     <dependencies>

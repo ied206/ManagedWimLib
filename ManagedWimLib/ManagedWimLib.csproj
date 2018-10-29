@@ -9,7 +9,7 @@
 Supports Windows and Linux.</Description>
     <Copyright>Copyright (c) 2018 Hajin Jang</Copyright>
     <Company>Joveler</Company>
-    <PackageReleaseNotes>- Add Linux armhf, arm64 support</PackageReleaseNotes>
+    <PackageReleaseNotes>- Support armhf, arm64 on linux</PackageReleaseNotes>
     <PackageLicenseUrl>https://github.com/ied206/ManagedWimLib/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
     <RepositoryUrl></RepositoryUrl>
