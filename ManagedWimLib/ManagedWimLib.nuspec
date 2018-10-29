@@ -3,7 +3,7 @@
   <metadata>
     <id>ManagedWimLib</id>
     <title>ManagedWimLib</title>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <owners>ied206</owners>
     <authors>Eric Biggers, Hajin Jang</authors>
     <licenseUrl>https://github.com/ied206/ManagedWimLib/blob/master/LICENSE</licenseUrl> 
@@ -13,7 +13,7 @@
     <description>C# pinvoke library for wimlib.
 Supports Windows and Linux.</description>
     <summary>C# pinvoke library for wimlib.</summary>
-    <releaseNotes>- Add .Net Framework 4.5.1 target</releaseNotes>
+    <releaseNotes>- Support armhf, arm64 on linux</releaseNotes>
     <copyright>Copyright (c) 2018 Hajin Jang</copyright>
     <tags>wim wimlib pinvoke interop</tags>
     <dependencies>
