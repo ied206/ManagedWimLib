@@ -39,6 +39,11 @@ namespace ManagedWimLib.Tests
         [AssemblyInitialize]
         public static void Init(TestContext context)
         {
+            const string x64 = "x64";
+            const string x86 = "x86";
+            const string armhf = "armhf";
+            const string arm64 = "arm64";
+
             BaseDir = Path.GetFullPath(Path.Combine(TestHelper.GetProgramAbsolutePath(), "..", "..", ".."));
             SampleDir = Path.Combine(BaseDir, "Samples");
 
@@ -48,10 +53,10 @@ namespace ManagedWimLib.Tests
                 switch (RuntimeInformation.ProcessArchitecture)
                 {
                     case Architecture.X86:
-                        libPath = Path.Combine("x86", "libwim-15.dll");
+                        libPath = Path.Combine(x86, "libwim-15.dll");
                         break;
                     case Architecture.X64:
-                        libPath = Path.Combine("x64", "libwim-15.dll");
+                        libPath = Path.Combine(x64, "libwim-15.dll");
                         break;
                 }
             }
@@ -60,7 +65,13 @@ namespace ManagedWimLib.Tests
                 switch (RuntimeInformation.ProcessArchitecture)
                 {
                     case Architecture.X64:
-                        libPath = Path.Combine("x64", "libwim.so");
+                        libPath = Path.Combine(x64, "libwim.so");
+                        break;
+                    case Architecture.Arm:
+                        libPath = Path.Combine(armhf, "libwim.so");
+                        break;
+                    case Architecture.Arm64:
+                        libPath = Path.Combine(arm64, "libwim.so");
                         break;
                 }
             }
