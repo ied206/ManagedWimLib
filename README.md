@@ -46,7 +46,7 @@ If you need .Net Framework 4.5 support, use [1.1.x version](https://www.nuget.or
 
 ### Supported wimlib version
 
-- 1.13.0-BETA5 (Included)
+- 1.13.0 (Included)
 
 ## Usage
 
@@ -58,4 +58,4 @@ Licensed under LGPLv3.
 See [LICENSE](./LICENSE) for details.
 
 Logo is licensed under CC BY 3.0 US.  
-[disc](https://thenounproject.com/term/disc/772617) by Ralf Schmitzer from the Noun Project
+[disc](https://thenounproject.com/term/disc/772617) by Ralf Schmitzer from the Noun Project.
