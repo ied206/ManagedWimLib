@@ -28,9 +28,6 @@ Supports Windows and Linux.</description>
     <file src="bin\Release\net451\ManagedWimLib.pdb" target="lib\net451" />
     <file src="Precompiled\x86\libwim-15.dll" target="build\net451\Precompiled\x86" />
     <file src="Precompiled\x64\libwim-15.dll" target="build\net451\Precompiled\x64" />
-    <file src="Precompiled\x64\libwim.so" target="build\net451\Precompiled\x64" />
-    <file src="Precompiled\armhf\libwim.so" target="build\net451\Precompiled\armhf" />
-    <file src="Precompiled\arm64\libwim.so" target="build\net451\Precompiled\arm64" />
     <file src="ManagedWimLib.targets" target="build\net451\ManagedWimLib.targets" />
     <!-- .Net Standard 1.3 -->
     <file src="bin\Release\netstandard1.3\ManagedWimLib.dll" target="lib\netstandard1.3" />

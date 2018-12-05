@@ -59,7 +59,7 @@ public static void InitNativeLibrary()
 
 ### Embedded binary
 
-ManagedWimLib comes with sets of binaries of `wimlib 1.13.0-BETA5`.  
+ManagedWimLib comes with sets of binaries of `wimlib 1.13.0`.  
 They will be copied into the build directory at build time.
 
 | Platform         | Binary                        | License              |
