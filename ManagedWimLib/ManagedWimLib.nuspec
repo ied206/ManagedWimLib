@@ -8,7 +8,7 @@
     <authors>Eric Biggers, Hajin Jang</authors>
     <projectUrl>https://github.com/ied206/ManagedWimLib</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/ied206/ManagedWimLib/master/Image/Logo.png</iconUrl>
-    <license type="expression">LGPL-3.0+</license>
+    <license type="expression">LGPL-3.0-or-later</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# pinvoke library for wimlib.
 Supports Windows and Linux.</description>
