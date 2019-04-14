@@ -6,9 +6,9 @@
     <version>1.2.3</version>
     <owners>ied206</owners>
     <authors>Eric Biggers, Hajin Jang</authors>
-    <licenseUrl>https://github.com/ied206/ManagedWimLib/blob/master/LICENSE</licenseUrl> 
     <projectUrl>https://github.com/ied206/ManagedWimLib</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/ied206/ManagedWimLib/master/Image/Logo.png</iconUrl>
+    <license type="expression">LGPL-3.0+</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# pinvoke library for wimlib.
 Supports Windows and Linux.</description>
