@@ -29,6 +29,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+// ReSharper disable UnusedMember.Global
 
 namespace ManagedWimLib
 {
@@ -384,7 +385,7 @@ namespace ManagedWimLib
 
         /// <summary>
         /// Add the file or directory tree at fsSourcePath on the filesystem to the location wimTargetPath
-        /// within the specified image of thewim.
+        /// within the specified image of the wim.
         ///
         /// This just builds an appropriate AddCommand and passes it to Wim.UpdateImage().
         /// </summary>

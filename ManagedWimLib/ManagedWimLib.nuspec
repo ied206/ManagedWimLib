@@ -6,9 +6,9 @@
     <version>1.2.4</version>
     <owners>ied206</owners>
     <authors>Eric Biggers, Hajin Jang</authors>
-    <licenseUrl>https://github.com/ied206/ManagedWimLib/blob/master/LICENSE</licenseUrl> 
     <projectUrl>https://github.com/ied206/ManagedWimLib</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/ied206/ManagedWimLib/master/Image/Logo.png</iconUrl>
+    <license type="expression">LGPLv3</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# pinvoke library for wimlib.
 Supports Windows and Linux.</description>
@@ -24,28 +24,26 @@ Supports Windows and Linux.</description>
   </metadata>
   <files>
     <!-- .Net Framework 4.5.1 -->
+    <file src="ManagedWimLib.targets" target="build\net451\ManagedWimLib.targets" />
     <file src="bin\Release\net451\ManagedWimLib.dll" target="lib\net451" />
     <file src="bin\Release\net451\ManagedWimLib.pdb" target="lib\net451" />
-    <file src="Precompiled\x86\libwim-15.dll" target="build\net451\Precompiled\x86" />
-    <file src="Precompiled\x64\libwim-15.dll" target="build\net451\Precompiled\x64" />
-    <file src="ManagedWimLib.targets" target="build\net451\ManagedWimLib.targets" />
+    <file src="Precompiled\x86\*.dll" target="build\net451\Precompiled\x86" />
+    <file src="Precompiled\x64\*.dll" target="build\net451\Precompiled\x64" />
     <!-- .Net Standard 1.3 -->
+    <file src="ManagedWimLib.targets" target="build\netstandard1.3\ManagedWimLib.targets" />
     <file src="bin\Release\netstandard1.3\ManagedWimLib.dll" target="lib\netstandard1.3" />
     <file src="bin\Release\netstandard1.3\ManagedWimLib.pdb" target="lib\netstandard1.3" />
-    <file src="Precompiled\x86\libwim-15.dll" target="build\netstandard1.3\Precompiled\x86" />
-    <file src="Precompiled\x64\libwim-15.dll" target="build\netstandard1.3\Precompiled\x64" />
-    <file src="Precompiled\x64\libwim.so" target="build\netstandard1.3\Precompiled\x64" />
-    <file src="Precompiled\armhf\libwim.so" target="build\netstandard1.3\Precompiled\armhf" />
-    <file src="Precompiled\arm64\libwim.so" target="build\netstandard1.3\Precompiled\arm64" />
-    <file src="ManagedWimLib.targets" target="build\netstandard1.3\ManagedWimLib.targets" />
+    <file src="Precompiled\x86\*" target="build\netstandard1.3\Precompiled\x86" />
+    <file src="Precompiled\x64\*" target="build\netstandard1.3\Precompiled\x64" />
+    <file src="Precompiled\armhf\*" target="build\netstandard1.3\Precompiled\armhf" />
+    <file src="Precompiled\arm64\*" target="build\netstandard1.3\Precompiled\arm64" />
     <!-- .Net Standard 2.0 -->
+    <file src="ManagedWimLib.targets" target="build\netstandard2.0\ManagedWimLib.targets" />
     <file src="bin\Release\netstandard2.0\ManagedWimLib.dll" target="lib\netstandard2.0" />
     <file src="bin\Release\netstandard2.0\ManagedWimLib.pdb" target="lib\netstandard2.0" />
-    <file src="Precompiled\x86\libwim-15.dll" target="build\netstandard2.0\Precompiled\x86" />
-    <file src="Precompiled\x64\libwim-15.dll" target="build\netstandard2.0\Precompiled\x64" />
-    <file src="Precompiled\x64\libwim.so" target="build\netstandard2.0\Precompiled\x64" />
-    <file src="Precompiled\armhf\libwim.so" target="build\netstandard2.0\Precompiled\armhf" />
-    <file src="Precompiled\arm64\libwim.so" target="build\netstandard2.0\Precompiled\arm64" />
-    <file src="ManagedWimLib.targets" target="build\netstandard2.0\ManagedWimLib.targets" />
+    <file src="Precompiled\x86\*" target="build\netstandard2.0\Precompiled\x86" />
+    <file src="Precompiled\x64\*" target="build\netstandard2.0\Precompiled\x64" />
+    <file src="Precompiled\armhf\*" target="build\netstandard2.0\Precompiled\armhf" />
+    <file src="Precompiled\arm64\*" target="build\netstandard2.0\Precompiled\arm64" />
   </files>
 </package>
