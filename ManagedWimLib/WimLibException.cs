@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2018 Hajin Jang
+    Copyright (C) 2017-2019 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -49,7 +49,7 @@ namespace ManagedWimLib
             return b.ToString();
         }
 
-        public static void CheckWimLibError(ErrorCode ret)
+        internal static void CheckWimLibError(ErrorCode ret)
         {
             if (ret != ErrorCode.SUCCESS)
                 throw new WimLibException(ret);

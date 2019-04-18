@@ -1,11 +1,8 @@
 ﻿/*
     Licensed under LGPLv3
 
-    Derived from wimlib's original header files
-    Copyright (C) 2012-2018 Eric Biggers
-
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2018 Hajin Jang
+    Copyright (C) 2017-2019 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -31,35 +28,27 @@ namespace ManagedWimLib
     {
         public static string ReplaceEx(string str, string oldValue, string newValue, StringComparison comp)
         {
-            if (oldValue.Equals(string.Empty, comp))
+            if (oldValue.Length == 0)
+                return str;
+            if (str.IndexOf(oldValue, comp) == -1)
                 return str;
 
-            if (str.IndexOf(oldValue, comp) != -1)
+            int idx = 0;
+            StringBuilder b = new StringBuilder();
+            while (idx < str.Length)
             {
-                int idx = 0;
-                StringBuilder b = new StringBuilder();
-                while (idx < str.Length)
+                int vIdx = str.IndexOf(oldValue, idx, comp);
+                if (vIdx == -1)
                 {
-                    int vIdx = str.IndexOf(oldValue, idx, comp);
-
-                    if (vIdx == -1)
-                    {
-                        b.Append(str.Substring(idx));
-                        break;
-                    }
-                    else
-                    {
-                        b.Append(str.Substring(idx, vIdx - idx));
-                        b.Append(newValue);
-                        idx = vIdx += oldValue.Length;
-                    }
+                    b.Append(str.Substring(idx));
+                    break;
                 }
-                return b.ToString();
+
+                b.Append(str.Substring(idx, vIdx - idx));
+                b.Append(newValue);
+                idx = vIdx + oldValue.Length;
             }
-            else
-            {
-                return str;
-            }
+            return b.ToString();
         }
     }
     #endregion

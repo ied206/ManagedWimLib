@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2018 Hajin Jang
+    Copyright (C) 2017-2019 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -96,7 +96,7 @@ namespace ManagedWimLib
     /// <summary>
     /// Type of a callback function to wimlib_iterate_lookup_table().  Must return 0 on success.
     /// </summary>
-    public delegate CallbackStatus IterateLookupTableCallback(ResourceEntry resoure, object userCtx);
+    public delegate CallbackStatus IterateLookupTableCallback(ResourceEntry resource, object userCtx);
 
     public class ManagedIterateLookupTableCallback
     {

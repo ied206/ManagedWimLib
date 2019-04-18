@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net451;netstandard1.3;netstandard2.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard1.3;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net451;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0</TargetFrameworks>
     <Title>ManagedWimLib</Title>
     <LangVersion>latest</LangVersion>
     <Authors>Eric Biggers, Hajin Jang</Authors>
@@ -9,13 +9,14 @@
 Supports Windows and Linux.</Description>
     <Copyright>Copyright (c) 2018 Hajin Jang</Copyright>
     <Company>Joveler</Company>
-    <PackageReleaseNotes>- Include native armhf, arm64 linux binary</PackageReleaseNotes>
+    <PackageReleaseNotes>- Support dll with additional dependency
+- Drop .Net Standard 1.3 support</PackageReleaseNotes>
     <PackageLicenseUrl>https://github.com/ied206/ManagedWimLib/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
     <RepositoryUrl></RepositoryUrl>
     <PackageTags>wim wimlib pinvoke interop</PackageTags>
     <PackageIconUrl>https://raw.githubusercontent.com/ied206/ManagedWimLib/master/Image/Logo.png</PackageIconUrl>
-    <Version>1.2.3</Version>
+    <Version>1.2.4</Version>
   </PropertyGroup>
   <Import Project="$(MSBuildProjectDirectory)\ManagedWimLib.targets" />
 </Project>

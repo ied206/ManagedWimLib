@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2018 Hajin Jang
+    Copyright (C) 2017-2019 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -29,6 +29,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+// ReSharper disable UnusedMember.Global
 
 namespace ManagedWimLib
 {
@@ -94,7 +95,7 @@ namespace ManagedWimLib
         public static void GlobalInit(string libPath, InitFlags initFlags = InitFlags.DEFAULT)
         {
             if (NativeMethods.Loaded)
-                throw new InvalidOperationException(NativeMethods.MsgAlreadyInited);
+                throw new InvalidOperationException(NativeMethods.MsgAlreadyInit);
 
 #if !NET451
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -103,18 +104,30 @@ namespace ManagedWimLib
                 NativeMethods.UseUtf16 = true;
                 NativeMethods.LongBitType = NativeMethods.LongBits.Long32;
 
-                if (libPath == null || !File.Exists(libPath))
+                if (libPath == null)
+                    throw new ArgumentNullException(nameof(libPath));
+
+                libPath = Path.GetFullPath(libPath);
+                if (!File.Exists(libPath))
                     throw new ArgumentException("Specified .dll file does not exist");
+
+                // Set proper directory to search, unless LoadLibrary can fail when loading chained dll files.
+                string libDir = Path.GetDirectoryName(libPath);
+                if (libDir != null && !libDir.Equals(AppDomain.CurrentDomain.BaseDirectory))
+                    NativeMethods.Win32.SetDllDirectory(libDir);
 
                 NativeMethods.hModule = NativeMethods.Win32.LoadLibrary(libPath);
                 if (NativeMethods.hModule == IntPtr.Zero)
                     throw new ArgumentException($"Unable to load [{libPath}]", new Win32Exception());
 
+                // Reset dll search directory to prevent dll hijacking
+                NativeMethods.Win32.SetDllDirectory(null);
+
                 // Check if dll is valid (wimlib-15.dll)
-                if (NativeMethods.Win32.GetProcAddress(NativeMethods.hModule, "wimlib_open_wim") == IntPtr.Zero)
+                if (NativeMethods.Win32.GetProcAddress(NativeMethods.hModule, nameof(NativeMethods.Utf16.wimlib_open_wim)) == IntPtr.Zero)
                 {
                     GlobalCleanup();
-                    throw new ArgumentException($"[{libPath}] is not a valid wimblib-15.dll");
+                    throw new ArgumentException($"[{libPath}] is not a valid wimlib-15.dll");
                 }
             }
 #if !NET451
@@ -143,7 +156,7 @@ namespace ManagedWimLib
                     throw new ArgumentException($"Unable to load [{libPath}], {NativeMethods.Linux.dlerror()}");
 
                 // Check if dll is valid libwim.so
-                if (NativeMethods.Linux.dlsym(NativeMethods.hModule, "wimlib_open_wim") == IntPtr.Zero)
+                if (NativeMethods.Linux.dlsym(NativeMethods.hModule, nameof(NativeMethods.Utf8.wimlib_open_wim)) == IntPtr.Zero)
                 {
                     GlobalCleanup();
                     throw new ArgumentException($"[{libPath}] is not a valid libwim.so");
@@ -384,7 +397,7 @@ namespace ManagedWimLib
 
         /// <summary>
         /// Add the file or directory tree at fsSourcePath on the filesystem to the location wimTargetPath
-        /// within the specified image of thewim.
+        /// within the specified image of the wim.
         ///
         /// This just builds an appropriate AddCommand and passes it to Wim.UpdateImage().
         /// </summary>
@@ -1037,7 +1050,7 @@ namespace ManagedWimLib
         /// Bitwise OR of RefFlags. GLOB_ENABLE and/or RefFlags.GLOB_ERR_ON_NOMATCH.
         /// </param>
         /// <param name="openFlags">
-        /// Additional open flags, such as OpenFalgs.CHECK_INTEGRITY, to pass to internal calls to Wim.OpenWim() on the reference files.
+        /// Additional open flags, such as OpenFlags.CHECK_INTEGRITY, to pass to internal calls to Wim.OpenWim() on the reference files.
         /// </param>
         /// <exception cref="WimLibException">wimlib did not return ErrorCode.SUCCESS.</exception>
         public void ReferenceResourceFile(string resourceWimFile, RefFlags refFlags, OpenFlags openFlags)
@@ -1346,8 +1359,6 @@ namespace ManagedWimLib
             ErrorCode ret = NativeMethods.SetWimInfo(_ptr, ref info, which);
             WimLibException.CheckWimLibError(ret);
         }
-
-
         #endregion
 
         #region SetOutput - SetOutputChunkSize, SetOutputPackChunkSize, SetOutputCompressionType, SetOutputPackCompressionType

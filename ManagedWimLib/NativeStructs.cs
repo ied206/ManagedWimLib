@@ -107,7 +107,7 @@ namespace ManagedWimLib
         /// <summary>
         /// This message may be sent periodically (not necessarily for every file) while file and directory metadata is being extracted,
         /// following file data extraction.
-        /// info will point to PprogressInfo_Extract.
+        /// info will point to ProgressInfo_Extract.
         /// The CurrentFileCount and EndFileCount members may be used to track the progress of this phase of extraction.
         /// </summary>
         EXTRACT_METADATA = 6,
@@ -194,7 +194,7 @@ namespace ManagedWimLib
         /// <summary>
         /// A WIM update command is about to be executed. 
         /// info will point to ProgressInfo_Update. 
-        /// This message is received once per update command when Wim.UpdateImage() is called with the flag UpdateFlaags.SEND_PROGRESS.
+        /// This message is received once per update command when Wim.UpdateImage() is called with the flag UpdateFlags.SEND_PROGRESS.
         /// </summary>
         UPDATE_BEGIN_COMMAND = 21,
         /// <summary>
@@ -988,8 +988,8 @@ namespace ManagedWimLib
         /// See the documentation for the "--pipable" option of "wimcapture" for more information.
         /// Beware: WIMs written with this flag will not be compatible with Microsoft's software.
         ///
-        /// For WimStruct's created with Wim.OpenWim(), the default behavior is to write the WIM as pipableif and only if it was pipable before.
-        /// For WimStruct's created with Wim.CeateNewWim(), the default behavior is to write the WIM as non-pipable.
+        /// For WimStruct's created with Wim.OpenWim(), the default behavior is to write the WIM as pipable if and only if it was pipable before.
+        /// For WimStruct's created with Wim.CreateNewWim(), the default behavior is to write the WIM as non-pipable.
         /// </summary>
         PIPABLE = 0x00000004,
         /// <summary>
@@ -1091,7 +1091,7 @@ namespace ManagedWimLib
         /// LZMS-compressed solid resources, for example.
         /// However, if including solid resources, I suggest that you set the WIM's main compression type to LZMS as well,
         /// either by creating the WIM with Wim.CreateNewWim(CompressType.LZMS, ...)
-        /// or by calling Wim.SetOutputCompressionYype(..., CompressType.LZMS).
+        /// or by calling Wim.SetOutputCompressionType(..., CompressType.LZMS).
         ///
         /// This flag will be set by default when writing or overwriting a WIM file that
         /// either already contains solid resources, or has had solid resources exported
@@ -1353,9 +1353,7 @@ namespace ManagedWimLib
             set => NativeMethods.SetBitField(ref _bitFlag, 9, value);
         }
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 9)]
-#pragma warning disable IDE0044
         private uint[] _reserved;
-#pragma warning restore IDE0044
     }
     #endregion
 
@@ -2299,7 +2297,7 @@ namespace ManagedWimLib
             genesis = genesis.AddSeconds(UnixEpoch);
             genesis = genesis.AddTicks(NanoSeconds / 100);
 
-            // wimlib provide high 32bit seperately if timespec.tv_sec is only 32bit
+            // wimlib provide high 32bit separately if timespec.tv_sec is only 32bit
             if (IntPtr.Size == 4)
             {
                 long high64 = (long)high << 32;
@@ -2432,9 +2430,7 @@ namespace ManagedWimLib
         public ResourceEntry Resource;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
 
-#pragma warning disable IDE0044
         private ulong[] _reserved;
-#pragma warning restore IDE0044
     }
     #endregion
     #endregion

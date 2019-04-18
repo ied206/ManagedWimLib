@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2018 Hajin Jang
+    Copyright (C) 2017-2019 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -22,6 +22,7 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 // ReSharper disable FieldCanBeMadeReadOnly.Local
 // ReSharper disable InconsistentNaming
@@ -448,6 +449,7 @@ namespace ManagedWimLib
         /// </summary>
         public uint TotalCommands;
 
+        [SuppressMessage("ReSharper", "ArrangeThisQualifier")]
         public ProgressInfo_Update ToManaged()
         {
             return new ProgressInfo_Update
