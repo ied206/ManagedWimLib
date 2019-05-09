@@ -8,7 +8,7 @@
     <Authors>Eric Biggers, Hajin Jang</Authors>
     <Description>C# wrapper library for native wimlib.
 Supports Windows and Linux.</Description>
-    <Copyright>Copyright (c) 2018 Hajin Jang</Copyright>
+    <Copyright>Copyright (c) 2018-2019 Hajin Jang</Copyright>
     <Company>Joveler</Company>
     <PackageReleaseNotes>- Update included wimlib to 1.13.1
 - Support dll with additional dependency
@@ -16,7 +16,7 @@ Supports Windows and Linux.</Description>
     <PackageLicenseUrl>https://github.com/ied206/ManagedWimLib/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
     <RepositoryUrl></RepositoryUrl>
-    <PackageTags>wim wimlib pinvoke interop</PackageTags>
+    <PackageTags>wim wimlib imagex pinvoke interop</PackageTags>
     <PackageIconUrl>https://raw.githubusercontent.com/ied206/ManagedWimLib/master/Image/Logo.png</PackageIconUrl>
   </PropertyGroup>
   <Import Project="$(MSBuildProjectDirectory)\ManagedWimLib.targets" />
