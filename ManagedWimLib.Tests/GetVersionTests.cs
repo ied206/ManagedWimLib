@@ -35,13 +35,13 @@ namespace ManagedWimLib.Tests
         public void GetImageInfo()
         {
             Version ver = Wim.GetVersion();
-            Assert.AreEqual(new Version(1, 13, 0), ver);
+            Assert.AreEqual(new Version(1, 13, 1), ver);
 
             Tuple<ushort, ushort, ushort> tuple = Wim.GetVersionTuple();
-            Assert.AreEqual(new Tuple<ushort, ushort, ushort>(1, 13, 0), tuple);
+            Assert.AreEqual(new Tuple<ushort, ushort, ushort>(1, 13, 1), tuple);
 
             string str = Wim.GetVersionString();
-            Assert.IsTrue(str.Equals("1.13.0", StringComparison.Ordinal));
+            Assert.IsTrue(str.Equals("1.13.1", StringComparison.Ordinal));
         }
         #endregion
     }
