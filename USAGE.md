@@ -59,7 +59,7 @@ public static void InitNativeLibrary()
 
 ### Embedded binary
 
-ManagedWimLib comes with sets of binaries of `wimlib 1.13.0`.  
+ManagedWimLib comes with sets of binaries of `wimlib 1.13.1`.  
 They will be copied into the build directory at build time.
 
 | Platform         | Binary                        | License              |
@@ -76,10 +76,9 @@ To use custom wimlib binary instead, call `Wim.GlobalInit()` with a path to the 
 
 #### NOTES
 
-- Create an empty file named `ManagedWimLib.Precompiled.Exclude` in project directory to prevent copy of package-embedded binary.
-- Linux binaries were compiled without NTFS-3G support (`./configure --without-ntfs-3g --without-libcrypto --enable-static`) because it makes binaries GPLv3 licensed. If you want NTFS-3G functionality, use system-provided or custom libwim.so and make sure your program is compatible with GPLv3.
-- You may have to compile custom wimlib to use ManagedWimLib in untested linux distribution.
-- Untested on arm64, because .Net Core 2.1 arm64 runtime has an [issue](https://github.com/dotnet/coreclr/issues/19578).
+- Create an empty file named `ManagedWimLib.Precompiled.Exclude` in the project directory to prevent copy of the package-embedded binary.
+- Linux binaries were compiled without NTFS-3G support (`./configure --without-ntfs-3g --without-libcrypto --enable-static`) to make them as LGPLv3-licensed. If you want NTFS-3G functionality, use system-provided or custom libwim.so and make sure your program is compatible with GPLv3.
+- You may have to compile custom wimlib to use ManagedWimLib in untested Linux distribution.
 
 ### Cleanup
 

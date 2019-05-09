@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2018 Hajin Jang
+    Copyright (C) 2017-2019 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -47,7 +47,7 @@ namespace ManagedWimLib
     {
         #region Const
         public const string MsgInitFirstError = "Please call Wim.GlobalInit() first!";
-        public const string MsgAlreadyInited = "ManagedWimLib is already initialized.";
+        public const string MsgAlreadyInit = "ManagedWimLib is already initialized.";
         public const string MsgErrorFileNotSet = "ErrorFile is not set unable to read last error.";
         public const string MsgPrintErrorsDisabled = "Error is not being logged, unable to read last error.";
         #endregion
@@ -95,6 +95,9 @@ namespace ManagedWimLib
 
             [DllImport("kernel32.dll")]
             internal static extern int FreeLibrary(IntPtr hModule);
+
+            [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+            internal static extern int SetDllDirectory([MarshalAs(UnmanagedType.LPWStr)] string lpPathName);
         }
         #endregion
 
@@ -1607,7 +1610,7 @@ namespace ManagedWimLib
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         internal delegate CallbackStatus NativeIterateLookupTableCallback(
-            ResourceEntry resoure,
+            ResourceEntry resource,
             IntPtr progctx);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
@@ -1894,9 +1897,9 @@ namespace ManagedWimLib
         internal static void SetBitField(ref uint bitField, int bitShift, bool value)
         {
             if (value)
-                bitField = bitField | (uint)(1 << bitShift);
+                bitField |= (uint)(1 << bitShift);
             else
-                bitField = bitField & ~(uint)(1 << bitShift);
+                bitField &= ~(uint)(1 << bitShift);
         }
 
         internal static bool GetBitField(uint bitField, int bitShift)

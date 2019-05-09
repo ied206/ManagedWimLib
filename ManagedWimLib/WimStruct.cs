@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2018 Hajin Jang
+    Copyright (C) 2017-2019 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -85,17 +85,18 @@ namespace ManagedWimLib
             if (_ptr == IntPtr.Zero)
                 return;
 
-            RegisterCallback(null);
+            RegisterCallback(null, null);
             NativeMethods.Free(_ptr);
             _ptr = IntPtr.Zero;
         }
         #endregion
 
         #region Global - (Static) GlobalInit, GlobalCleanup
-        public static void GlobalInit(string libPath, InitFlags initFlags = InitFlags.DEFAULT)
+        public static void GlobalInit(string libPath) => GlobalInit(libPath, InitFlags.DEFAULT);
+        public static void GlobalInit(string libPath, InitFlags initFlags)
         {
             if (NativeMethods.Loaded)
-                throw new InvalidOperationException(NativeMethods.MsgAlreadyInited);
+                throw new InvalidOperationException(NativeMethods.MsgAlreadyInit);
 
 #if !NET451
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -104,18 +105,30 @@ namespace ManagedWimLib
                 NativeMethods.UseUtf16 = true;
                 NativeMethods.LongBitType = NativeMethods.LongBits.Long32;
 
-                if (libPath == null || !File.Exists(libPath))
+                if (libPath == null)
+                    throw new ArgumentNullException(nameof(libPath));
+
+                libPath = Path.GetFullPath(libPath);
+                if (!File.Exists(libPath))
                     throw new ArgumentException("Specified .dll file does not exist");
+
+                // Set proper directory to search, unless LoadLibrary can fail when loading chained dll files.
+                string libDir = Path.GetDirectoryName(libPath);
+                if (libDir != null && !libDir.Equals(AppDomain.CurrentDomain.BaseDirectory))
+                    NativeMethods.Win32.SetDllDirectory(libDir);
 
                 NativeMethods.hModule = NativeMethods.Win32.LoadLibrary(libPath);
                 if (NativeMethods.hModule == IntPtr.Zero)
                     throw new ArgumentException($"Unable to load [{libPath}]", new Win32Exception());
 
+                // Reset dll search directory to prevent dll hijacking
+                NativeMethods.Win32.SetDllDirectory(null);
+
                 // Check if dll is valid (wimlib-15.dll)
-                if (NativeMethods.Win32.GetProcAddress(NativeMethods.hModule, "wimlib_open_wim") == IntPtr.Zero)
+                if (NativeMethods.Win32.GetProcAddress(NativeMethods.hModule, nameof(NativeMethods.Utf16.wimlib_open_wim)) == IntPtr.Zero)
                 {
                     GlobalCleanup();
-                    throw new ArgumentException($"[{libPath}] is not a valid wimblib-15.dll");
+                    throw new ArgumentException($"[{libPath}] is not a valid wimlib-15.dll");
                 }
             }
 #if !NET451
@@ -144,7 +157,7 @@ namespace ManagedWimLib
                     throw new ArgumentException($"Unable to load [{libPath}], {NativeMethods.Linux.dlerror()}");
 
                 // Check if dll is valid libwim.so
-                if (NativeMethods.Linux.dlsym(NativeMethods.hModule, "wimlib_open_wim") == IntPtr.Zero)
+                if (NativeMethods.Linux.dlsym(NativeMethods.hModule, nameof(NativeMethods.Utf8.wimlib_open_wim)) == IntPtr.Zero)
                 {
                     GlobalCleanup();
                     throw new ArgumentException($"[{libPath}] is not a valid libwim.so");
@@ -825,11 +838,35 @@ namespace ManagedWimLib
         /// <param name="callback">
         /// A callback function that will receive each directory entry.
         /// </param>
+        /// <exception cref="WimLibException">wimlib did not return ErrorCode.SUCCESS.</exception>
+        public void IterateDirTree(int image, string path, IterateFlags iterateFlags, IterateDirTreeCallback callback)
+        {
+            IterateDirTree(image, path, iterateFlags, callback, null);
+        }
+
+        /// <summary>
+        /// Iterate through a file or directory tree in a WIM image.
+        /// By specifying appropriate flags and a callback function, you can get the attributes of a
+        /// file in the image, get a directory listing, or even get a listing of the entire image.
+        /// </summary>
+        /// <param name="image">
+        /// The 1-based index of the image that contains the files or directories to iterate over,
+        /// or Wim.AllImages to iterate over all images.
+        /// </param>
+        /// <param name="path">
+        /// Path in the image at which to do the iteration.
+        /// </param>
+        /// <param name="iterateFlags">
+        /// Bitwise OR of IterateFlags.
+        /// </param>
+        /// <param name="callback">
+        /// A callback function that will receive each directory entry.
+        /// </param>
         /// <param name="userData">
         /// An extra parameter that will always be passed to the callback function.
         /// </param>
         /// <exception cref="WimLibException">wimlib did not return ErrorCode.SUCCESS.</exception>
-        public void IterateDirTree(int image, string path, IterateFlags iterateFlags, IterateDirTreeCallback callback, object userData = null)
+        public void IterateDirTree(int image, string path, IterateFlags iterateFlags, IterateDirTreeCallback callback, object userData)
         {
             ManagedIterateDirTreeCallback cb = new ManagedIterateDirTreeCallback(callback, userData);
 
@@ -843,9 +880,18 @@ namespace ManagedWimLib
         /// which are deduplicated over all images.
         /// </summary>
         /// <param name="callback">A callback function that will receive each blob.</param>
+        /// <exception cref="WimLibException">wimlib did not return ErrorCode.SUCCESS.</exception>
+        public void IterateLookupTable(IterateLookupTableCallback callback) => IterateLookupTable(callback, null);
+
+        /// <summary>
+        /// Iterate through the blob lookup table of a WimStruct.
+        /// This can be used to directly get a listing of the unique "blobs" contained in a WIM file, 
+        /// which are deduplicated over all images.
+        /// </summary>
+        /// <param name="callback">A callback function that will receive each blob.</param>
         /// <param name="userData">An extra parameter that will always be passed to the callback function</param>
         /// <exception cref="WimLibException">wimlib did not return ErrorCode.SUCCESS.</exception>
-        public void IterateLookupTable(IterateLookupTableCallback callback, object userData = null)
+        public void IterateLookupTable(IterateLookupTableCallback callback, object userData)
         {
             ManagedIterateLookupTableCallback cb = new ManagedIterateLookupTableCallback(callback, userData);
 
@@ -895,10 +941,33 @@ namespace ManagedWimLib
         /// <param name="swmOpenFlags">Open flags for the split WIM parts (e.g. OpenFlags.CHECK_INTEGRITY).</param>
         /// <param name="wimWriteFlags">Bitwise OR of relevant WriteFlags, which will be used to write the joined WIM.</param>
         /// <param name="callback">Callback function to receive progress report</param>
+        /// <exception cref="WimLibException">wimlib did not return ErrorCode.SUCCESS.</exception>
+        public static void Join(IEnumerable<string> swms, string outputPath, OpenFlags swmOpenFlags, WriteFlags wimWriteFlags,
+            ProgressCallback callback)
+        {
+            Join(swms, outputPath, swmOpenFlags, wimWriteFlags, callback, null);
+        }
+
+        /// <summary>
+        /// Same as Wim.Join(), but allows specifying a progress function.
+        /// </summary>
+        /// <remarks>
+        /// The progress function will receive the write progress messages, such as ProgressMsg.WRITE_STREAMS, while writing the joined WIM.
+        /// In addition, if OpenFlags.CHECK_INTEGRITY is specified in swmOpenFlags, the progress function will receive a series of
+        /// ProgressMsg.VERIFY_INTEGRITY messages when each of the split WIM parts is opened.
+        /// </remarks>
+        /// <param name="swms">
+        /// An array of strings that gives the filenames of all parts of the split WIM.
+        /// No specific order is required, but all parts must be included with no duplicates.
+        /// </param>
+        /// <param name="outputPath">The path to write the joined WIM file to.</param>
+        /// <param name="swmOpenFlags">Open flags for the split WIM parts (e.g. OpenFlags.CHECK_INTEGRITY).</param>
+        /// <param name="wimWriteFlags">Bitwise OR of relevant WriteFlags, which will be used to write the joined WIM.</param>
+        /// <param name="callback">Callback function to receive progress report</param>
         /// <param name="userData">Data to be passed to callback function</param>
         /// <exception cref="WimLibException">wimlib did not return ErrorCode.SUCCESS.</exception>
         public static void Join(IEnumerable<string> swms, string outputPath, OpenFlags swmOpenFlags, WriteFlags wimWriteFlags,
-            ProgressCallback callback, object userData = null)
+            ProgressCallback callback, object userData)
         {
             ManagedProgressCallback mCallback = new ManagedProgressCallback(callback, userData);
 
@@ -1038,7 +1107,7 @@ namespace ManagedWimLib
         /// Bitwise OR of RefFlags. GLOB_ENABLE and/or RefFlags.GLOB_ERR_ON_NOMATCH.
         /// </param>
         /// <param name="openFlags">
-        /// Additional open flags, such as OpenFalgs.CHECK_INTEGRITY, to pass to internal calls to Wim.OpenWim() on the reference files.
+        /// Additional open flags, such as OpenFlags.CHECK_INTEGRITY, to pass to internal calls to Wim.OpenWim() on the reference files.
         /// </param>
         /// <exception cref="WimLibException">wimlib did not return ErrorCode.SUCCESS.</exception>
         public void ReferenceResourceFile(string resourceWimFile, RefFlags refFlags, OpenFlags openFlags)
@@ -1220,10 +1289,20 @@ namespace ManagedWimLib
         /// If the WIM already has a progress function registered, it will be replaced with this one.
         /// If null, the current progress function (if any) will be unregistered.
         /// </param>
+        public void RegisterCallback(ProgressCallback callback) => RegisterCallback(callback, null);
+
+        /// <summary>
+        /// Register a progress function with a WimStruct.
+        /// </summary>
+        /// <param name="callback">
+        /// Pointer to the progress function to register.
+        /// If the WIM already has a progress function registered, it will be replaced with this one.
+        /// If null, the current progress function (if any) will be unregistered.
+        /// </param>
         /// <param name="userData">
         /// The value which will be passed as the third argument to calls to progfunc.
         /// </param>
-        public void RegisterCallback(ProgressCallback callback, object userData = null)
+        public void RegisterCallback(ProgressCallback callback, object userData)
         {
             if (callback != null)
             { // RegisterCallback
@@ -1347,8 +1426,6 @@ namespace ManagedWimLib
             ErrorCode ret = NativeMethods.SetWimInfo(_ptr, ref info, which);
             WimLibException.CheckWimLibError(ret);
         }
-
-
         #endregion
 
         #region SetOutput - SetOutputChunkSize, SetOutputPackChunkSize, SetOutputCompressionType, SetOutputPackCompressionType
@@ -1590,7 +1667,19 @@ namespace ManagedWimLib
             ErrorCode ret;
             int bits;
 
-#if !NET451
+#if NET451
+            switch (IntPtr.Size)
+            {
+                case 4:
+                    bits = 32;
+                    break;
+                case 8:
+                    bits = 64;
+                    break;
+                default:
+                    throw new PlatformNotSupportedException();
+            }
+#else
             switch (RuntimeInformation.ProcessArchitecture)
             {
                 case Architecture.X86:
@@ -1599,18 +1688,6 @@ namespace ManagedWimLib
                     break;
                 case Architecture.X64:
                 case Architecture.Arm64:
-                    bits = 64;
-                    break;
-                default:
-                    throw new PlatformNotSupportedException();
-            }
-#else
-            switch (IntPtr.Size)
-            {
-                case 4:
-                    bits = 32;
-                    break;
-                case 8:
                     bits = 64;
                     break;
                 default:
