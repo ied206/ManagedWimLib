@@ -94,4 +94,4 @@ Most of the use cases follow this flow.
 2. Do your job by calling API of your interest.
 3. Cleanup Wim instance with the Disposable pattern.
 
-[ManagedWimLib.Tests](./ManagedWimLib.Tests) provide a lot of examples of how to use ManagedWimLib.
+[ManagedWimLib.Tests](./ManagedWimLib.Tests) provides a lot of examples of how to use ManagedWimLib.
