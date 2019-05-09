@@ -217,6 +217,7 @@ namespace ManagedWimLib
                 #endregion
 
                 #region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty
+                // ReSharper disable once CommentTypo
                 // wimlib_set_image_descripton is misspelled from wimlib itself.
                 Utf16.SetImageDescription = GetFuncPtr<Utf16.wimlib_set_image_description>("wimlib_set_image_descripton");
                 Utf16.SetImageFlags = GetFuncPtr<Utf16.wimlib_set_image_flags>("wimlib_set_image_flags");
@@ -301,6 +302,7 @@ namespace ManagedWimLib
                 #endregion
 
                 #region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty
+                // ReSharper disable once CommentTypo
                 // wimlib_set_image_descripton is misspelled from wimlib itself.
                 Utf8.SetImageDescription = GetFuncPtr<Utf8.wimlib_set_image_description>("wimlib_set_image_descripton");
                 Utf8.SetImageFlags = GetFuncPtr<Utf8.wimlib_set_image_flags>("wimlib_set_image_flags");
@@ -1295,7 +1297,7 @@ namespace ManagedWimLib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void wimlib_register_progress_function_delegate(
             IntPtr wim,
-            [MarshalAs(UnmanagedType.FunctionPtr)] NativeProgressFunc progFunc,
+            [MarshalAs(UnmanagedType.FunctionPtr)] NativeProgressFunc progfunc,
             IntPtr progctx);
         internal static wimlib_register_progress_function_delegate RegisterProgressFunction;
         #endregion

@@ -1386,7 +1386,7 @@ namespace ManagedWimLib
         /// add, modify, or remove a per-image property from the WIM's XML document.
         /// </summary>
         /// <remarks>
-        /// This is an alternative to Wim.SetImageName(), Wim.SetImageDescripton(), and Wim.SetImageFlags()
+        /// This is an alternative to Wim.SetImageName(), Wim.SetImageDescription(), and Wim.SetImageFlags()
         /// which allows manipulating any simple string property.
         /// </remarks>
         /// <param name="image">The 1-based index of the image for which to set the property.</param>
