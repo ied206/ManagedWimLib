@@ -20,4 +20,7 @@ Supports Windows and Linux.</Description>
     <PackageIconUrl>https://raw.githubusercontent.com/ied206/ManagedWimLib/master/Image/Logo.png</PackageIconUrl>
   </PropertyGroup>
   <Import Project="$(MSBuildProjectDirectory)\ManagedWimLib.targets" />
+  <ItemGroup>
+    <PackageReference Include="Joveler.DynLoader" Version="1.1.0" />
+  </ItemGroup>
 </Project>

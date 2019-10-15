@@ -44,7 +44,7 @@ namespace ManagedWimLib
         private readonly ProgressCallback _callback;
         private readonly object _userData;
 
-        internal NativeMethods.NativeProgressFunc NativeFunc { get; }
+        internal WimLibLoader.NativeProgressFunc NativeFunc { get; }
 
         public ManagedProgressCallback(ProgressCallback callback, object userData)
         {
@@ -225,13 +225,13 @@ namespace ManagedWimLib
         /// Top-level directory being scanned; or, when capturing an NTFS volume with AddFlags.NTFS, 
         /// this is instead the path to the file or block device that contains the NTFS volume being scanned. 
         /// </summary>
-        public string Source => NativeMethods.MarshalPtrToString(_sourcePtr);
+        public string Source => Wim.Lib.MarshalPtrToString(_sourcePtr);
         private IntPtr _sourcePtr;
         /// <summary>
         /// Path to the file (or directory) that has been scanned, valid on SCAN_DENTRY.
         /// When capturing an NTFS volume with ::WIMLIB_ADD_FLAG_NTFS, this path will be relative to the root of the NTFS volume. 
         /// </summary>
-        public string CurPath => NativeMethods.MarshalPtrToString(_curPathPtr);
+        public string CurPath => Wim.Lib.MarshalPtrToString(_curPathPtr);
         private IntPtr _curPathPtr;
         /// <summary>
         /// Dentry scan status, valid on SCAN_DENTRY. 
@@ -247,7 +247,7 @@ namespace ManagedWimLib
         /// For SCAN_DENTRY and a status of WIMLIB_SCAN_DENTRY_FIXED_SYMLINK or WIMLIB_SCAN_DENTRY_NOT_FIXED_SYMLINK,
         /// this is the target of the absolute symbolic link or junction.
         /// </summary>
-        public string WimTargetPathSymlinkTarget => NativeMethods.MarshalPtrToString(_wimTargetPathSymlinkTargetPtr);
+        public string WimTargetPathSymlinkTarget => Wim.Lib.MarshalPtrToString(_wimTargetPathSymlinkTargetPtr);
         private IntPtr _wimTargetPathSymlinkTargetPtr;
         /// <summary>
         /// The number of directories scanned so far, not counting excluded/unsupported files.
@@ -296,17 +296,17 @@ namespace ManagedWimLib
         /// If the WimStruct from which the extraction being performed has a backing file, 
         /// then this is an absolute path to that backing file. Otherwise, this is null.
         /// </summary>
-        public string WimFileName => NativeMethods.MarshalPtrToString(_wimFileNamePtr);
+        public string WimFileName => Wim.Lib.MarshalPtrToString(_wimFileNamePtr);
         private IntPtr _wimFileNamePtr;
         /// <summary>
         /// Name of the image from which files are being extracted, or the empty string if the image is unnamed.
         /// </summary>
-        public string ImageName => NativeMethods.MarshalPtrToString(_imageNamePtr);
+        public string ImageName => Wim.Lib.MarshalPtrToString(_imageNamePtr);
         private IntPtr _imageNamePtr;
         /// <summary>
         /// Path to the directory or NTFS volume to which the files are being extracted.
         /// </summary>
-        public string Target => NativeMethods.MarshalPtrToString(_targetPtr);
+        public string Target => Wim.Lib.MarshalPtrToString(_targetPtr);
         private IntPtr _targetPtr;
         /// <summary>
         /// Reserved.
@@ -379,13 +379,13 @@ namespace ManagedWimLib
         /// <summary>
         /// Name of the temporary file that the WIM was written to.
         /// </summary>
-        public string From => NativeMethods.MarshalPtrToString(_fromPtr);
+        public string From => Wim.Lib.MarshalPtrToString(_fromPtr);
         private IntPtr _fromPtr;
         /// <summary>
         /// Name of the original WIM file to which the temporary file is
         /// being renamed.
         /// </summary>
-        public string To => NativeMethods.MarshalPtrToString(_toPtr);
+        public string To => Wim.Lib.MarshalPtrToString(_toPtr);
         private IntPtr _toPtr;
     }
     #endregion
@@ -494,7 +494,7 @@ namespace ManagedWimLib
         /// <summary>
         /// For VERIFY_INTEGRITY messages, this is the path to the WIM file being checked.
         /// </summary>
-        public string FileName => NativeMethods.MarshalPtrToString(_fileNamePtr);
+        public string FileName => Wim.Lib.MarshalPtrToString(_fileNamePtr);
         private IntPtr _fileNamePtr;
     }
     #endregion
@@ -528,7 +528,7 @@ namespace ManagedWimLib
         /// Since wimlib v1.7.0, the library user may change this when receiving SPLIT_BEGIN_PART in order to
         /// cause the next split WIM part to be written to a different location.
         /// </summary>
-        public string PartName => NativeMethods.MarshalPtrToString(_partNamePtr);
+        public string PartName => Wim.Lib.MarshalPtrToString(_partNamePtr);
         private IntPtr _partNamePtr;
     }
     #endregion
@@ -543,7 +543,7 @@ namespace ManagedWimLib
         /// <summary>
         /// Path to the file in the image that is being replaced.
         /// </summary>
-        public string PathInWim => NativeMethods.MarshalPtrToString(_pathInWimPtr);
+        public string PathInWim => Wim.Lib.MarshalPtrToString(_pathInWimPtr);
         private IntPtr _pathInWimPtr;
     }
     #endregion
@@ -558,12 +558,12 @@ namespace ManagedWimLib
         /// <summary>
         /// Path to the file in the image.
         /// </summary>
-        public string PathInWim => NativeMethods.MarshalPtrToString(_pathInWimPtr);
+        public string PathInWim => Wim.Lib.MarshalPtrToString(_pathInWimPtr);
         private IntPtr _pathInWimPtr;
         /// <summary>
         /// Path to which the file is being extracted .
         /// </summary>
-        public string ExtractionInWim => NativeMethods.MarshalPtrToString(_extractionInWimPtr);
+        public string ExtractionInWim => Wim.Lib.MarshalPtrToString(_extractionInWimPtr);
         private IntPtr _extractionInWimPtr;
     }
     #endregion
@@ -578,12 +578,12 @@ namespace ManagedWimLib
         /// <summary>
         /// Path to directory being unmounted.
         /// </summary>
-        public string MountPoint => NativeMethods.MarshalPtrToString(_mountPointPtr);
+        public string MountPoint => Wim.Lib.MarshalPtrToString(_mountPointPtr);
         private IntPtr _mountPointPtr;
         /// <summary>
         /// Path to WIM file being unmounted.
         /// </summary>
-        public string MountedWim => NativeMethods.MarshalPtrToString(_mountedWimPtr);
+        public string MountedWim => Wim.Lib.MarshalPtrToString(_mountedWimPtr);
         private IntPtr _mountedWimPtr;
         /// <summary>
         /// 1-based index of image being unmounted.
@@ -621,7 +621,7 @@ namespace ManagedWimLib
         /// Also, this message will not be received for empty files or reparse points (or symbolic links),
         /// unless they have nonempty named data streams.
         /// </remarks>
-        public string PathToFile => NativeMethods.MarshalPtrToString(_pathToFilePtr);
+        public string PathToFile => Wim.Lib.MarshalPtrToString(_pathToFilePtr);
         private IntPtr _pathToFilePtr;
     }
     #endregion
@@ -633,7 +633,7 @@ namespace ManagedWimLib
     [StructLayout(LayoutKind.Sequential)]
     public struct ProgressInfo_VerifyImage
     {
-        public string WimFile => NativeMethods.MarshalPtrToString(_wimFilePtr);
+        public string WimFile => Wim.Lib.MarshalPtrToString(_wimFilePtr);
         private IntPtr _wimFilePtr;
         public uint TotalImages;
         public uint CurrentImage;
@@ -647,7 +647,7 @@ namespace ManagedWimLib
     [StructLayout(LayoutKind.Sequential)]
     public struct ProgressInfo_VerifyStreams
     {
-        public string WimFile => NativeMethods.MarshalPtrToString(_wimFilePtr);
+        public string WimFile => Wim.Lib.MarshalPtrToString(_wimFilePtr);
         private IntPtr _wimFilePtr;
         public uint TotalStreams;
         public uint TotalBytes;
@@ -670,7 +670,7 @@ namespace ManagedWimLib
         /// NTFS-3G capture mode:  The path will be given relative to the root of the NTFS volume, with a leading slash.
         /// Windows capture mode:  The path will be a Win32 namespace path to the file.
         /// </summary>
-        public string Path => NativeMethods.MarshalPtrToString(_pathPtr);
+        public string Path => Wim.Lib.MarshalPtrToString(_pathPtr);
         private IntPtr _pathPtr;
         /// <summary>
         /// Indicates whether the file or directory will be excluded from capture or not. 
@@ -691,7 +691,7 @@ namespace ManagedWimLib
         /// <summary>
         /// Path to the file for which the error occurred, or NULL if not relevant.
         /// </summary>
-        public string Path => NativeMethods.MarshalPtrToString(_pathPtr);
+        public string Path => Wim.Lib.MarshalPtrToString(_pathPtr);
         private IntPtr _pathPtr;
         /// <summary>
         /// The wimlib error code associated with the error.
