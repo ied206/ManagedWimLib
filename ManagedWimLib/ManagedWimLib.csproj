@@ -21,6 +21,6 @@ Supports Windows and Linux.</Description>
   </PropertyGroup>
   <Import Project="$(MSBuildProjectDirectory)\ManagedWimLib.targets" />
   <ItemGroup>
-    <PackageReference Include="Joveler.DynLoader" Version="1.1.0" />
+    <PackageReference Include="Joveler.DynLoader" Version="1.2.0" />
   </ItemGroup>
 </Project>

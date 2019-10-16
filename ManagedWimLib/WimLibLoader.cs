@@ -25,7 +25,6 @@ using Joveler.DynLoader;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
-using System.Text;
 // ReSharper disable FieldCanBeMadeReadOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
@@ -64,22 +63,8 @@ namespace ManagedWimLib
         #endregion 
 
         #region UTF-8 and UTF-16
-        internal bool UseUtf16;
-        internal Encoding Encoding => UseUtf16 ? Encoding.Unicode : new UTF8Encoding(false);
         internal Utf8d Utf8 = new Utf8d();
         internal Utf16d Utf16 = new Utf16d();
-
-        internal string MarshalPtrToString(IntPtr ptr)
-        {
-            if (ptr == IntPtr.Zero)
-                return string.Empty;
-            return UseUtf16 ? Marshal.PtrToStringUni(ptr) : Marshal.PtrToStringAnsi(ptr);
-        }
-
-        internal IntPtr MarshalStringToPtr(string str)
-        {
-            return UseUtf16 ? Marshal.StringToHGlobalUni(str) : Marshal.StringToHGlobalAnsi(str);
-        }
         #endregion
 
         #region Error Settings
@@ -104,202 +89,176 @@ namespace ManagedWimLib
         #region LoadFunctions, ResetFunctions
         protected override void LoadFunctions()
         {
-#if !NET451
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-#endif
+            switch (UnicodeConvention)
             {
-                UseUtf16 = true;
-                LongBitType = LongBits.Long32;
-            }
-#if !NET451
-            else
-            {
-                UseUtf16 = false;
-                switch (RuntimeInformation.ProcessArchitecture)
-                {
-                    case Architecture.Arm:
-                    case Architecture.X86:
-                        LongBitType = LongBits.Long32;
-                        break;
-                    case Architecture.Arm64:
-                    case Architecture.X64:
-                        LongBitType = LongBits.Long64;
-                        break;
-                    default:
-                        throw new PlatformNotSupportedException();
-                }
-            }
-#endif
+                case UnicodeConvention.Utf16:
+                    #region Error - SetErrorFile
+                    Utf16.SetErrorFile = GetFuncPtr<Utf16d.wimlib_set_error_file_by_name>(nameof(Utf16d.wimlib_set_error_file_by_name));
+                    #endregion
 
-            if (UseUtf16)
-            {
-                #region Error - SetErrorFile
-                Utf16.SetErrorFile = GetFuncPtr<Utf16d.wimlib_set_error_file_by_name>(nameof(Utf16d.wimlib_set_error_file_by_name));
-                #endregion
+                    #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
+                    Utf16.AddEmptyImage = GetFuncPtr<Utf16d.wimlib_add_empty_image>(nameof(Utf16d.wimlib_add_empty_image));
+                    Utf16.AddImage = GetFuncPtr<Utf16d.wimlib_add_image>(nameof(Utf16d.wimlib_add_image));
+                    Utf16.AddImageMultiSourceL32 = GetFuncPtr<Utf16d.wimlib_add_image_multisource_l32>("wimlib_add_image_multisource");
+                    Utf16.AddImageMultiSourceL64 = GetFuncPtr<Utf16d.wimlib_add_image_multisource_l64>("wimlib_add_image_multisource");
+                    Utf16.AddTree = GetFuncPtr<Utf16d.wimlib_add_tree>(nameof(Utf16d.wimlib_add_tree));
+                    #endregion
 
-                #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
-                Utf16.AddEmptyImage = GetFuncPtr<Utf16d.wimlib_add_empty_image>(nameof(Utf16d.wimlib_add_empty_image));
-                Utf16.AddImage = GetFuncPtr<Utf16d.wimlib_add_image>(nameof(Utf16d.wimlib_add_image));
-                Utf16.AddImageMultiSourceL32 = GetFuncPtr<Utf16d.wimlib_add_image_multisource_l32>("wimlib_add_image_multisource");
-                Utf16.AddImageMultiSourceL64 = GetFuncPtr<Utf16d.wimlib_add_image_multisource_l64>("wimlib_add_image_multisource");
-                Utf16.AddTree = GetFuncPtr<Utf16d.wimlib_add_tree>(nameof(Utf16d.wimlib_add_tree));
-                #endregion
+                    #region Delete - DeletePath
+                    Utf16.DeletePath = GetFuncPtr<Utf16d.wimlib_delete_path>(nameof(Utf16d.wimlib_delete_path));
+                    #endregion
 
-                #region Delete - DeletePath
-                Utf16.DeletePath = GetFuncPtr<Utf16d.wimlib_delete_path>(nameof(Utf16d.wimlib_delete_path));
-                #endregion
+                    #region Export - ExportImage
+                    Utf16.ExportImage = GetFuncPtr<Utf16d.wimlib_export_image>(nameof(Utf16d.wimlib_export_image));
+                    #endregion
 
-                #region Export - ExportImage
-                Utf16.ExportImage = GetFuncPtr<Utf16d.wimlib_export_image>(nameof(Utf16d.wimlib_export_image));
-                #endregion
+                    #region Extract - ExtractImage, ExtractPathList, ExtractPaths
+                    Utf16.ExtractImage = GetFuncPtr<Utf16d.wimlib_extract_image>(nameof(Utf16d.wimlib_extract_image));
+                    Utf16.ExtractPathList = GetFuncPtr<Utf16d.wimlib_extract_pathlist>(nameof(Utf16d.wimlib_extract_pathlist));
+                    Utf16.ExtractPaths = GetFuncPtr<Utf16d.wimlib_extract_paths>(nameof(Utf16d.wimlib_extract_paths));
+                    #endregion
 
-                #region Extract - ExtractImage, ExtractPathList, ExtractPaths
-                Utf16.ExtractImage = GetFuncPtr<Utf16d.wimlib_extract_image>(nameof(Utf16d.wimlib_extract_image));
-                Utf16.ExtractPathList = GetFuncPtr<Utf16d.wimlib_extract_pathlist>(nameof(Utf16d.wimlib_extract_pathlist));
-                Utf16.ExtractPaths = GetFuncPtr<Utf16d.wimlib_extract_paths>(nameof(Utf16d.wimlib_extract_paths));
-                #endregion
+                    #region GetImageInfo - GetImageProperty
+                    Utf16.GetImageProperty = GetFuncPtr<Utf16d.wimlib_get_image_property>(nameof(Utf16d.wimlib_get_image_property));
+                    #endregion
 
-                #region GetImageInfo - GetImageProperty
-                Utf16.GetImageProperty = GetFuncPtr<Utf16d.wimlib_get_image_property>(nameof(Utf16d.wimlib_get_image_property));
-                #endregion
+                    #region GetWimInfo - IsImageNameInUse, ResolveImage
+                    Utf16.IsImageNameInUse = GetFuncPtr<Utf16d.wimlib_image_name_in_use>(nameof(Utf16d.wimlib_image_name_in_use));
+                    Utf16.ResolveImage = GetFuncPtr<Utf16d.wimlib_resolve_image>(nameof(Utf16d.wimlib_resolve_image));
+                    #endregion
 
-                #region GetWimInfo - IsImageNameInUse, ResolveImage
-                Utf16.IsImageNameInUse = GetFuncPtr<Utf16d.wimlib_image_name_in_use>(nameof(Utf16d.wimlib_image_name_in_use));
-                Utf16.ResolveImage = GetFuncPtr<Utf16d.wimlib_resolve_image>(nameof(Utf16d.wimlib_resolve_image));
-                #endregion
+                    #region Iterate - IterateDirTree
+                    Utf16.IterateDirTree = GetFuncPtr<Utf16d.wimlib_iterate_dir_tree>(nameof(Utf16d.wimlib_iterate_dir_tree));
+                    #endregion
 
-                #region Iterate - IterateDirTree
-                Utf16.IterateDirTree = GetFuncPtr<Utf16d.wimlib_iterate_dir_tree>(nameof(Utf16d.wimlib_iterate_dir_tree));
-                #endregion
+                    #region Join - Join, JoinWithProgress
+                    Utf16.Join = GetFuncPtr<Utf16d.wimlib_join>(nameof(Utf16d.wimlib_join));
+                    Utf16.JoinWithProgress = GetFuncPtr<Utf16d.wimlib_join_with_progress>(nameof(Utf16d.wimlib_join_with_progress));
+                    #endregion
 
-                #region Join - Join, JoinWithProgress
-                Utf16.Join = GetFuncPtr<Utf16d.wimlib_join>(nameof(Utf16d.wimlib_join));
-                Utf16.JoinWithProgress = GetFuncPtr<Utf16d.wimlib_join_with_progress>(nameof(Utf16d.wimlib_join_with_progress));
-                #endregion
+                    #region Open - Open, OpenWithProgress
+                    Utf16.OpenWim = GetFuncPtr<Utf16d.wimlib_open_wim>(nameof(Utf16d.wimlib_open_wim));
+                    Utf16.OpenWimWithProgress = GetFuncPtr<Utf16d.wimlib_open_wim_with_progress>(nameof(Utf16d.wimlib_open_wim_with_progress));
+                    #endregion
 
-                #region Open - Open, OpenWithProgress
-                Utf16.OpenWim = GetFuncPtr<Utf16d.wimlib_open_wim>(nameof(Utf16d.wimlib_open_wim));
-                Utf16.OpenWimWithProgress = GetFuncPtr<Utf16d.wimlib_open_wim_with_progress>(nameof(Utf16d.wimlib_open_wim_with_progress));
-                #endregion
+                    #region Mount - MountImage (Linux Only)
+                    Utf16.MountImage = GetFuncPtr<Utf16d.wimlib_mount_image>(nameof(Utf16d.wimlib_mount_image));
+                    #endregion
 
-                #region Mount - MountImage (Linux Only)
-                Utf16.MountImage = GetFuncPtr<Utf16d.wimlib_mount_image>(nameof(Utf16d.wimlib_mount_image));
-                #endregion
+                    #region Reference - ReferenceTemplateImage
+                    Utf16.ReferenceResourceFiles = GetFuncPtr<Utf16d.wimlib_reference_resource_files>(nameof(Utf16d.wimlib_reference_resource_files));
+                    #endregion
 
-                #region Reference - ReferenceTemplateImage
-                Utf16.ReferenceResourceFiles = GetFuncPtr<Utf16d.wimlib_reference_resource_files>(nameof(Utf16d.wimlib_reference_resource_files));
-                #endregion
+                    #region Rename - RenamePath
+                    Utf16.RenamePath = GetFuncPtr<Utf16d.wimlib_rename_path>(nameof(Utf16d.wimlib_rename_path));
+                    #endregion
 
-                #region Rename - RenamePath
-                Utf16.RenamePath = GetFuncPtr<Utf16d.wimlib_rename_path>(nameof(Utf16d.wimlib_rename_path));
-                #endregion
+                    #region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty
+                    // ReSharper disable once CommentTypo
+                    // wimlib_set_image_descripton is misspelled from wimlib itself.
+                    Utf16.SetImageDescription = GetFuncPtr<Utf16d.wimlib_set_image_description>("wimlib_set_image_descripton");
+                    Utf16.SetImageFlags = GetFuncPtr<Utf16d.wimlib_set_image_flags>(nameof(Utf16d.wimlib_set_image_flags));
+                    Utf16.SetImageName = GetFuncPtr<Utf16d.wimlib_set_image_name>(nameof(Utf16d.wimlib_set_image_name));
+                    Utf16.SetImageProperty = GetFuncPtr<Utf16d.wimlib_set_image_property>(nameof(Utf16d.wimlib_set_image_property));
+                    #endregion
 
-                #region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty
-                // ReSharper disable once CommentTypo
-                // wimlib_set_image_descripton is misspelled from wimlib itself.
-                Utf16.SetImageDescription = GetFuncPtr<Utf16d.wimlib_set_image_description>("wimlib_set_image_descripton");
-                Utf16.SetImageFlags = GetFuncPtr<Utf16d.wimlib_set_image_flags>(nameof(Utf16d.wimlib_set_image_flags));
-                Utf16.SetImageName = GetFuncPtr<Utf16d.wimlib_set_image_name>(nameof(Utf16d.wimlib_set_image_name));
-                Utf16.SetImageProperty = GetFuncPtr<Utf16d.wimlib_set_image_property>(nameof(Utf16d.wimlib_set_image_property));
-                #endregion
+                    #region Split - Split
+                    Utf16.Split = GetFuncPtr<Utf16d.wimlib_split>(nameof(Utf16d.wimlib_split));
+                    #endregion
 
-                #region Split - Split
-                Utf16.Split = GetFuncPtr<Utf16d.wimlib_split>(nameof(Utf16d.wimlib_split));
-                #endregion
+                    #region Unmount - UnmountImage, UnmountImageWithProgress (Linux Only)
+                    Utf16.UnmountImage = GetFuncPtr<Utf16d.wimlib_unmount_image>(nameof(Utf16d.wimlib_unmount_image));
+                    Utf16.UnmountImageWithProgress = GetFuncPtr<Utf16d.wimlib_unmount_image_with_progress>(nameof(Utf16d.wimlib_unmount_image_with_progress));
+                    #endregion
 
-                #region Unmount - UnmountImage, UnmountImageWithProgress (Linux Only)
-                Utf16.UnmountImage = GetFuncPtr<Utf16d.wimlib_unmount_image>(nameof(Utf16d.wimlib_unmount_image));
-                Utf16.UnmountImageWithProgress = GetFuncPtr<Utf16d.wimlib_unmount_image_with_progress>(nameof(Utf16d.wimlib_unmount_image_with_progress));
-                #endregion
+                    #region Write - Write
+                    Utf16.Write = GetFuncPtr<Utf16d.wimlib_write>(nameof(Utf16d.wimlib_write));
+                    #endregion
+                    break;
+                case UnicodeConvention.Utf8:
+                    #region Error - SetErrorFile
+                    Utf8.SetErrorFile = GetFuncPtr<Utf8d.wimlib_set_error_file_by_name>(nameof(Utf8d.wimlib_set_error_file_by_name));
+                    #endregion
 
-                #region Write - Write
-                Utf16.Write = GetFuncPtr<Utf16d.wimlib_write>(nameof(Utf16d.wimlib_write));
-                #endregion
-            }
-            else
-            {
-                #region Error - SetErrorFile
-                Utf8.SetErrorFile = GetFuncPtr<Utf8d.wimlib_set_error_file_by_name>(nameof(Utf8d.wimlib_set_error_file_by_name));
-                #endregion
+                    #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
+                    Utf8.AddEmptyImage = GetFuncPtr<Utf8d.wimlib_add_empty_image>(nameof(Utf8d.wimlib_add_empty_image));
+                    Utf8.AddImage = GetFuncPtr<Utf8d.wimlib_add_image>(nameof(Utf8d.wimlib_add_image));
+                    Utf8.AddImageMultiSourceL32 = GetFuncPtr<Utf8d.wimlib_add_image_multisource_l32>("wimlib_add_image_multisource");
+                    Utf8.AddImageMultiSourceL64 = GetFuncPtr<Utf8d.wimlib_add_image_multisource_l64>("wimlib_add_image_multisource");
+                    Utf8.AddTree = GetFuncPtr<Utf8d.wimlib_add_tree>(nameof(Utf8d.wimlib_add_tree));
+                    #endregion
 
-                #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
-                Utf8.AddEmptyImage = GetFuncPtr<Utf8d.wimlib_add_empty_image>(nameof(Utf8d.wimlib_add_empty_image));
-                Utf8.AddImage = GetFuncPtr<Utf8d.wimlib_add_image>(nameof(Utf8d.wimlib_add_image));
-                Utf8.AddImageMultiSourceL32 = GetFuncPtr<Utf8d.wimlib_add_image_multisource_l32>("wimlib_add_image_multisource");
-                Utf8.AddImageMultiSourceL64 = GetFuncPtr<Utf8d.wimlib_add_image_multisource_l64>("wimlib_add_image_multisource");
-                Utf8.AddTree = GetFuncPtr<Utf8d.wimlib_add_tree>(nameof(Utf8d.wimlib_add_tree));
-                #endregion
+                    #region Delete - DeletePath
+                    Utf8.DeletePath = GetFuncPtr<Utf8d.wimlib_delete_path>(nameof(Utf8d.wimlib_delete_path));
+                    #endregion
 
-                #region Delete - DeletePath
-                Utf8.DeletePath = GetFuncPtr<Utf8d.wimlib_delete_path>(nameof(Utf8d.wimlib_delete_path));
-                #endregion
+                    #region Export - ExportImage
+                    Utf8.ExportImage = GetFuncPtr<Utf8d.wimlib_export_image>(nameof(Utf8d.wimlib_export_image));
+                    #endregion
 
-                #region Export - ExportImage
-                Utf8.ExportImage = GetFuncPtr<Utf8d.wimlib_export_image>(nameof(Utf8d.wimlib_export_image));
-                #endregion
+                    #region Extract - ExtractImage, ExtractPathList, ExtractPaths
+                    Utf8.ExtractImage = GetFuncPtr<Utf8d.wimlib_extract_image>(nameof(Utf8d.wimlib_extract_image));
+                    Utf8.ExtractPathList = GetFuncPtr<Utf8d.wimlib_extract_pathlist>(nameof(Utf8d.wimlib_extract_pathlist));
+                    Utf8.ExtractPaths = GetFuncPtr<Utf8d.wimlib_extract_paths>(nameof(Utf8d.wimlib_extract_paths));
+                    #endregion
 
-                #region Extract - ExtractImage, ExtractPathList, ExtractPaths
-                Utf8.ExtractImage = GetFuncPtr<Utf8d.wimlib_extract_image>(nameof(Utf8d.wimlib_extract_image));
-                Utf8.ExtractPathList = GetFuncPtr<Utf8d.wimlib_extract_pathlist>(nameof(Utf8d.wimlib_extract_pathlist));
-                Utf8.ExtractPaths = GetFuncPtr<Utf8d.wimlib_extract_paths>(nameof(Utf8d.wimlib_extract_paths));
-                #endregion
+                    #region GetImageInfo - GetImageProperty
+                    Utf8.GetImageProperty = GetFuncPtr<Utf8d.wimlib_get_image_property>(nameof(Utf8d.wimlib_get_image_property));
+                    #endregion
 
-                #region GetImageInfo - GetImageProperty
-                Utf8.GetImageProperty = GetFuncPtr<Utf8d.wimlib_get_image_property>(nameof(Utf8d.wimlib_get_image_property));
-                #endregion
+                    #region GetWimInfo - IsImageNameInUse, ResolveImage
+                    Utf8.IsImageNameInUse = GetFuncPtr<Utf8d.wimlib_image_name_in_use>(nameof(Utf8d.wimlib_image_name_in_use));
+                    Utf8.ResolveImage = GetFuncPtr<Utf8d.wimlib_resolve_image>(nameof(Utf8d.wimlib_resolve_image));
+                    #endregion
 
-                #region GetWimInfo - IsImageNameInUse, ResolveImage
-                Utf8.IsImageNameInUse = GetFuncPtr<Utf8d.wimlib_image_name_in_use>(nameof(Utf8d.wimlib_image_name_in_use));
-                Utf8.ResolveImage = GetFuncPtr<Utf8d.wimlib_resolve_image>(nameof(Utf8d.wimlib_resolve_image));
-                #endregion
+                    #region Iterate - IterateDirTree
+                    Utf8.IterateDirTree = GetFuncPtr<Utf8d.wimlib_iterate_dir_tree>(nameof(Utf8d.wimlib_iterate_dir_tree));
+                    #endregion
 
-                #region Iterate - IterateDirTree
-                Utf8.IterateDirTree = GetFuncPtr<Utf8d.wimlib_iterate_dir_tree>(nameof(Utf8d.wimlib_iterate_dir_tree));
-                #endregion
+                    #region Join - Join, JoinWithProgress
+                    Utf8.Join = GetFuncPtr<Utf8d.wimlib_join>(nameof(Utf8d.wimlib_join));
+                    Utf8.JoinWithProgress = GetFuncPtr<Utf8d.wimlib_join_with_progress>(nameof(Utf8d.wimlib_join_with_progress));
+                    #endregion
 
-                #region Join - Join, JoinWithProgress
-                Utf8.Join = GetFuncPtr<Utf8d.wimlib_join>(nameof(Utf8d.wimlib_join));
-                Utf8.JoinWithProgress = GetFuncPtr<Utf8d.wimlib_join_with_progress>(nameof(Utf8d.wimlib_join_with_progress));
-                #endregion
+                    #region Open - Open, OpenWithProgress
+                    Utf8.OpenWim = GetFuncPtr<Utf8d.wimlib_open_wim>(nameof(Utf8d.wimlib_open_wim));
+                    Utf8.OpenWimWithProgress = GetFuncPtr<Utf8d.wimlib_open_wim_with_progress>(nameof(Utf8d.wimlib_open_wim_with_progress));
+                    #endregion
 
-                #region Open - Open, OpenWithProgress
-                Utf8.OpenWim = GetFuncPtr<Utf8d.wimlib_open_wim>(nameof(Utf8d.wimlib_open_wim));
-                Utf8.OpenWimWithProgress = GetFuncPtr<Utf8d.wimlib_open_wim_with_progress>(nameof(Utf8d.wimlib_open_wim_with_progress));
-                #endregion
+                    #region Mount - MountImage (Linux Only)
+                    Utf8.MountImage = GetFuncPtr<Utf8d.wimlib_mount_image>(nameof(Utf8d.wimlib_mount_image));
+                    #endregion
 
-                #region Mount - MountImage (Linux Only)
-                Utf8.MountImage = GetFuncPtr<Utf8d.wimlib_mount_image>(nameof(Utf8d.wimlib_mount_image));
-                #endregion
+                    #region Reference - ReferenceTemplateImage
+                    Utf8.ReferenceResourceFiles = GetFuncPtr<Utf8d.wimlib_reference_resource_files>(nameof(Utf8d.wimlib_reference_resource_files));
+                    #endregion
 
-                #region Reference - ReferenceTemplateImage
-                Utf8.ReferenceResourceFiles = GetFuncPtr<Utf8d.wimlib_reference_resource_files>(nameof(Utf8d.wimlib_reference_resource_files));
-                #endregion
+                    #region Rename - RenamePath
+                    Utf8.RenamePath = GetFuncPtr<Utf8d.wimlib_rename_path>(nameof(Utf8d.wimlib_rename_path));
+                    #endregion
 
-                #region Rename - RenamePath
-                Utf8.RenamePath = GetFuncPtr<Utf8d.wimlib_rename_path>(nameof(Utf8d.wimlib_rename_path));
-                #endregion
+                    #region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty
+                    // ReSharper disable once CommentTypo
+                    // wimlib_set_image_descripton is misspelled from wimlib itself.
+                    Utf8.SetImageDescription = GetFuncPtr<Utf8d.wimlib_set_image_description>("wimlib_set_image_descripton");
+                    Utf8.SetImageFlags = GetFuncPtr<Utf8d.wimlib_set_image_flags>(nameof(Utf8d.wimlib_set_image_flags));
+                    Utf8.SetImageName = GetFuncPtr<Utf8d.wimlib_set_image_name>(nameof(Utf8d.wimlib_set_image_name));
+                    Utf8.SetImageProperty = GetFuncPtr<Utf8d.wimlib_set_image_property>(nameof(Utf8d.wimlib_set_image_property));
+                    #endregion
 
-                #region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty
-                // ReSharper disable once CommentTypo
-                // wimlib_set_image_descripton is misspelled from wimlib itself.
-                Utf8.SetImageDescription = GetFuncPtr<Utf8d.wimlib_set_image_description>("wimlib_set_image_descripton");
-                Utf8.SetImageFlags = GetFuncPtr<Utf8d.wimlib_set_image_flags>(nameof(Utf8d.wimlib_set_image_flags));
-                Utf8.SetImageName = GetFuncPtr<Utf8d.wimlib_set_image_name>(nameof(Utf8d.wimlib_set_image_name));
-                Utf8.SetImageProperty = GetFuncPtr<Utf8d.wimlib_set_image_property>(nameof(Utf8d.wimlib_set_image_property));
-                #endregion
+                    #region Split - Split
+                    Utf8.Split = GetFuncPtr<Utf8d.wimlib_split>(nameof(Utf8d.wimlib_split));
+                    #endregion
 
-                #region Split - Split
-                Utf8.Split = GetFuncPtr<Utf8d.wimlib_split>(nameof(Utf8d.wimlib_split));
-                #endregion
+                    #region Unmount - UnmountImage, UnmountImageWithProgress (Linux Only)
+                    Utf8.UnmountImage = GetFuncPtr<Utf8d.wimlib_unmount_image>(nameof(Utf8d.wimlib_unmount_image));
+                    Utf8.UnmountImageWithProgress = GetFuncPtr<Utf8d.wimlib_unmount_image_with_progress>(nameof(Utf8d.wimlib_unmount_image_with_progress));
+                    #endregion
 
-                #region Unmount - UnmountImage, UnmountImageWithProgress (Linux Only)
-                Utf8.UnmountImage = GetFuncPtr<Utf8d.wimlib_unmount_image>(nameof(Utf8d.wimlib_unmount_image));
-                Utf8.UnmountImageWithProgress = GetFuncPtr<Utf8d.wimlib_unmount_image_with_progress>(nameof(Utf8d.wimlib_unmount_image_with_progress));
-                #endregion
-
-                #region Write - Write
-                Utf8.Write = GetFuncPtr<Utf8d.wimlib_write>(nameof(Utf8d.wimlib_write));
-                #endregion
+                    #region Write - Write
+                    Utf8.Write = GetFuncPtr<Utf8d.wimlib_write>(nameof(Utf8d.wimlib_write));
+                    #endregion
+                    break;
             }
 
             #region Global - GlobalInit, GlobalCleanup
@@ -577,7 +536,7 @@ namespace ManagedWimLib
             internal delegate ErrorCode wimlib_add_image_multisource_l32(
                 IntPtr wim,
                 [MarshalAs(UnmanagedType.LPArray)] CaptureSourceBaseL32[] sources,
-                IntPtr num_sources, // size_t
+                UIntPtr num_sources, // size_t
                 [MarshalAs(StrType)] string name,
                 [MarshalAs(StrType)] string config_file,
                 AddFlags add_flags);
@@ -587,7 +546,7 @@ namespace ManagedWimLib
             internal delegate ErrorCode wimlib_add_image_multisource_l64(
                 IntPtr wim,
                 [MarshalAs(UnmanagedType.LPArray)] CaptureSourceBaseL64[] sources,
-                IntPtr num_sources, // size_t
+                UIntPtr num_sources, // size_t
                 [MarshalAs(StrType)] string name,
                 [MarshalAs(StrType)] string config_file,
                 AddFlags add_flags);
@@ -649,7 +608,7 @@ namespace ManagedWimLib
                 int image,
                 [MarshalAs(StrType)] string target,
                 [MarshalAs(UnmanagedType.LPArray, ArraySubType = StrType)] string[] paths,
-                IntPtr num_paths, // size_t
+                UIntPtr num_paths, // size_t
                 ExtractFlags extract_flags);
             internal wimlib_extract_paths ExtractPaths;
             #endregion
@@ -928,7 +887,7 @@ namespace ManagedWimLib
             internal delegate ErrorCode wimlib_add_image_multisource_l32(
                 IntPtr wim,
                 [MarshalAs(UnmanagedType.LPArray)] CaptureSourceBaseL32[] sources,
-                IntPtr num_sources, // size_t
+                UIntPtr num_sources, // size_t
                 [MarshalAs(StrType)] string name,
                 [MarshalAs(StrType)] string config_file,
                 AddFlags add_flags);
@@ -938,7 +897,7 @@ namespace ManagedWimLib
             internal delegate ErrorCode wimlib_add_image_multisource_l64(
                 IntPtr wim,
                 [MarshalAs(UnmanagedType.LPArray)] CaptureSourceBaseL64[] sources,
-                IntPtr num_sources, // size_t
+                UIntPtr num_sources, // size_t
                 [MarshalAs(StrType)] string name,
                 [MarshalAs(StrType)] string config_file,
                 AddFlags add_flags);
@@ -1000,7 +959,7 @@ namespace ManagedWimLib
                 int image,
                 [MarshalAs(StrType)] string target,
                 [MarshalAs(UnmanagedType.LPArray, ArraySubType = StrType)] string[] paths,
-                IntPtr num_paths, // size_t
+                UIntPtr num_paths, // size_t
                 ExtractFlags extract_flags);
             internal wimlib_extract_paths ExtractPaths;
             #endregion
@@ -1287,7 +1246,14 @@ namespace ManagedWimLib
 
         internal ErrorCode SetErrorFile(string path)
         {
-            return UseUtf16 ? Utf16.SetErrorFile(path) : Utf8.SetErrorFile(path);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.SetErrorFile(path);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.SetErrorFile(path);
+            }
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -1297,112 +1263,106 @@ namespace ManagedWimLib
         #endregion
 
         #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
-        internal ErrorCode AddEmptyImage(
-            IntPtr wim,
-            string name,
-            out int new_idx_ret)
+        internal ErrorCode AddEmptyImage(IntPtr wim, string name, out int newIdxRet)
         {
-            return UseUtf16
-                ? Utf16.AddEmptyImage(wim, name, out new_idx_ret)
-                : Utf8.AddEmptyImage(wim, name, out new_idx_ret);
-        }
-
-        internal ErrorCode AddImage(
-            IntPtr wim,
-            string source,
-            string name,
-            string config_file,
-            AddFlags add_flags)
-        {
-            return UseUtf16
-                ? Utf16.AddImage(wim, source, name, config_file, add_flags)
-                : Utf8.AddImage(wim, source, name, config_file, add_flags);
-        }
-
-        internal ErrorCode AddImageMultiSource(
-            IntPtr wim,
-            CaptureSource[] sources,
-            IntPtr num_sources, // size_t
-            string name,
-            string config_file,
-            AddFlags add_flags)
-        {
-            if (UseUtf16)
+            switch (UnicodeConvention)
             {
-                switch (LongBitType)
-                {
-                    case LongBits.Long32:
-                        Utf16d.CaptureSourceBaseL32[] capSrcsL32 = new Utf16d.CaptureSourceBaseL32[sources.Length];
-                        for (int i = 0; i < sources.Length; i++)
-                        {
-                            CaptureSource src = sources[i];
-                            capSrcsL32[i] = new Utf16d.CaptureSourceBaseL32
-                            {
-                                FsSourcePath = src.FsSourcePath,
-                                WimTargetPath = src.WimTargetPath,
-                            };
-                        }
-                        return Utf16.AddImageMultiSourceL32(wim, capSrcsL32, num_sources, name, config_file, add_flags);
-                    case LongBits.Long64:
-                        Utf16d.CaptureSourceBaseL64[] capSrcsL64 = new Utf16d.CaptureSourceBaseL64[sources.Length];
-                        for (int i = 0; i < sources.Length; i++)
-                        {
-                            CaptureSource src = sources[i];
-                            capSrcsL64[i] = new Utf16d.CaptureSourceBaseL64
-                            {
-                                FsSourcePath = src.FsSourcePath,
-                                WimTargetPath = src.WimTargetPath,
-                            };
-                        }
-                        return Utf16.AddImageMultiSourceL64(wim, capSrcsL64, num_sources, name, config_file, add_flags);
-                    default:
-                        throw new PlatformNotSupportedException();
-                }
-            }
-            else
-            {
-                switch (LongBitType)
-                {
-                    case LongBits.Long32:
-                        Utf8d.CaptureSourceBaseL32[] capSrcsL32 = new Utf8d.CaptureSourceBaseL32[sources.Length];
-                        for (int i = 0; i < sources.Length; i++)
-                        {
-                            CaptureSource src = sources[i];
-                            capSrcsL32[i] = new Utf8d.CaptureSourceBaseL32
-                            {
-                                FsSourcePath = src.FsSourcePath,
-                                WimTargetPath = src.WimTargetPath,
-                            };
-                        }
-                        return Utf8.AddImageMultiSourceL32(wim, capSrcsL32, num_sources, name, config_file, add_flags);
-                    case LongBits.Long64:
-                        Utf8d.CaptureSourceBaseL64[] capSrcsL64 = new Utf8d.CaptureSourceBaseL64[sources.Length];
-                        for (int i = 0; i < sources.Length; i++)
-                        {
-                            CaptureSource src = sources[i];
-                            capSrcsL64[i] = new Utf8d.CaptureSourceBaseL64
-                            {
-                                FsSourcePath = src.FsSourcePath,
-                                WimTargetPath = src.WimTargetPath,
-                            };
-                        }
-                        return Utf8.AddImageMultiSourceL64(wim, capSrcsL64, num_sources, name, config_file, add_flags);
-                    default:
-                        throw new PlatformNotSupportedException();
-                }
+                case UnicodeConvention.Utf16:
+                    return Utf16.AddEmptyImage(wim, name, out newIdxRet);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.AddEmptyImage(wim, name, out newIdxRet);
             }
         }
 
-        internal ErrorCode AddTree(
-            IntPtr wim,
-            int image,
-            string fs_source_path,
-            string wim_target_path,
-            AddFlags add_flags)
+        internal ErrorCode AddImage(IntPtr wim, string source, string name, string configFile, AddFlags addFlags)
         {
-            return UseUtf16
-                ? Utf16.AddTree(wim, image, fs_source_path, wim_target_path, add_flags)
-                : Utf8.AddTree(wim, image, fs_source_path, wim_target_path, add_flags);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.AddImage(wim, source, name, configFile, addFlags);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.AddImage(wim, source, name, configFile, addFlags);
+            }
+        }
+
+        internal ErrorCode AddImageMultiSource(IntPtr wim, CaptureSource[] sources, UIntPtr numSources, string name, string configFile, AddFlags addFlags)
+        {
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    switch (LongBitType)
+                    {
+                        case LongBits.Long32:
+                            Utf16d.CaptureSourceBaseL32[] capSrcsL32 = new Utf16d.CaptureSourceBaseL32[sources.Length];
+                            for (int i = 0; i < sources.Length; i++)
+                            {
+                                CaptureSource src = sources[i];
+                                capSrcsL32[i] = new Utf16d.CaptureSourceBaseL32
+                                {
+                                    FsSourcePath = src.FsSourcePath,
+                                    WimTargetPath = src.WimTargetPath,
+                                };
+                            }
+                            return Utf16.AddImageMultiSourceL32(wim, capSrcsL32, numSources, name, configFile, addFlags);
+                        case LongBits.Long64:
+                            Utf16d.CaptureSourceBaseL64[] capSrcsL64 = new Utf16d.CaptureSourceBaseL64[sources.Length];
+                            for (int i = 0; i < sources.Length; i++)
+                            {
+                                CaptureSource src = sources[i];
+                                capSrcsL64[i] = new Utf16d.CaptureSourceBaseL64
+                                {
+                                    FsSourcePath = src.FsSourcePath,
+                                    WimTargetPath = src.WimTargetPath,
+                                };
+                            }
+                            return Utf16.AddImageMultiSourceL64(wim, capSrcsL64, numSources, name, configFile, addFlags);
+                    }
+                    throw new PlatformNotSupportedException();
+                case UnicodeConvention.Utf8:
+                default:
+                    switch (LongBitType)
+                    {
+                        case LongBits.Long32:
+                            Utf8d.CaptureSourceBaseL32[] capSrcsL32 = new Utf8d.CaptureSourceBaseL32[sources.Length];
+                            for (int i = 0; i < sources.Length; i++)
+                            {
+                                CaptureSource src = sources[i];
+                                capSrcsL32[i] = new Utf8d.CaptureSourceBaseL32
+                                {
+                                    FsSourcePath = src.FsSourcePath,
+                                    WimTargetPath = src.WimTargetPath,
+                                };
+                            }
+                            return Utf8.AddImageMultiSourceL32(wim, capSrcsL32, numSources, name, configFile, addFlags);
+                        case LongBits.Long64:
+                            Utf8d.CaptureSourceBaseL64[] capSrcsL64 = new Utf8d.CaptureSourceBaseL64[sources.Length];
+                            for (int i = 0; i < sources.Length; i++)
+                            {
+                                CaptureSource src = sources[i];
+                                capSrcsL64[i] = new Utf8d.CaptureSourceBaseL64
+                                {
+                                    FsSourcePath = src.FsSourcePath,
+                                    WimTargetPath = src.WimTargetPath,
+                                };
+                            }
+                            return Utf8.AddImageMultiSourceL64(wim, capSrcsL64, numSources, name, configFile, addFlags);
+                    }
+                    throw new PlatformNotSupportedException();
+            }
+        }
+
+        internal ErrorCode AddTree(IntPtr wim, int image, string fsSourcePath, string wimTargetPath, AddFlags addFlags)
+        {
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.AddTree(wim, image, fsSourcePath, wimTargetPath, addFlags);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.AddTree(wim, image, fsSourcePath, wimTargetPath, addFlags);
+            }
         }
         #endregion
 
@@ -1421,68 +1381,68 @@ namespace ManagedWimLib
             int image);
         internal wimlib_delete_image DeleteImage;
 
-        internal ErrorCode DeletePath(
-            IntPtr wim,
-            int image,
-            string path,
-            DeleteFlags delete_flags)
+        internal ErrorCode DeletePath(IntPtr wim, int image, string path, DeleteFlags deleteFlags)
         {
-            return UseUtf16
-                ? Utf16.DeletePath(wim, image, path, delete_flags)
-                : Utf8.DeletePath(wim, image, path, delete_flags);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.DeletePath(wim, image, path, deleteFlags);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.DeletePath(wim, image, path, deleteFlags);
+            }
         }
         #endregion
 
         #region Export - ExportImage
-        internal ErrorCode ExportImage(
-            IntPtr src_wim,
-            int src_image,
-            IntPtr dest_wim,
-            string dest_name,
-            string dest_description,
-            ExportFlags export_flags)
+        internal ErrorCode ExportImage(IntPtr srcWim, int srcImage, IntPtr destWim, string destName, string destDesc, ExportFlags exportFlags)
         {
-            return UseUtf16
-                ? Utf16.ExportImage(src_wim, src_image, dest_wim, dest_name, dest_description, export_flags)
-                : Utf8.ExportImage(src_wim, src_image, dest_wim, dest_name, dest_description, export_flags);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.ExportImage(srcWim, srcImage, destWim, destName, destDesc, exportFlags);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.ExportImage(srcWim, srcImage, destWim, destName, destDesc, exportFlags);
+            }
         }
         #endregion
 
         #region Extract - ExtractImage, ExtractPaths, ExtractPathList
-        internal ErrorCode ExtractImage(
-            IntPtr wim,
-            int image,
-            string target,
-            ExtractFlags extract_flags)
+        internal ErrorCode ExtractImage(IntPtr wim, int image, string target, ExtractFlags extractFlags)
         {
-            return UseUtf16
-                ? Utf16.ExtractImage(wim, image, target, extract_flags)
-                : Utf8.ExtractImage(wim, image, target, extract_flags);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.ExtractImage(wim, image, target, extractFlags);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.ExtractImage(wim, image, target, extractFlags);
+            }
         }
 
-        internal ErrorCode ExtractPathList(
-            IntPtr wim,
-            int image,
-            string target,
-            string path_list_file,
-            ExtractFlags extract_flags)
+        internal ErrorCode ExtractPathList(IntPtr wim, int image, string target, string pathListFile, ExtractFlags extractFlags)
         {
-            return UseUtf16
-                ? Utf16.ExtractPathList(wim, image, target, path_list_file, extract_flags)
-                : Utf8.ExtractPathList(wim, image, target, path_list_file, extract_flags);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.ExtractPathList(wim, image, target, pathListFile, extractFlags);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.ExtractPathList(wim, image, target, pathListFile, extractFlags);
+            }
         }
 
-        internal ErrorCode ExtractPaths(
-            IntPtr wim,
-            int image,
-            string target,
-            string[] paths,
-            IntPtr num_paths, // size_t
-            ExtractFlags extract_flags)
+        internal ErrorCode ExtractPaths(IntPtr wim, int image, string target, string[] paths, UIntPtr numPaths, ExtractFlags extract_flags)
         {
-            return UseUtf16
-                ? Utf16.ExtractPaths(wim, image, target, paths, num_paths, extract_flags)
-                : Utf8.ExtractPaths(wim, image, target, paths, num_paths, extract_flags);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.ExtractPaths(wim, image, target, paths, numPaths, extract_flags);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.ExtractPaths(wim, image, target, paths, numPaths, extract_flags);
+            }
         }
         #endregion
 
@@ -1505,14 +1465,16 @@ namespace ManagedWimLib
             int image);
         internal wimlib_get_image_name GetImageName;
 
-        internal IntPtr GetImageProperty(
-            IntPtr wim,
-            int image,
-            string property_name)
+        internal IntPtr GetImageProperty(IntPtr wim, int image, string property_name)
         {
-            return UseUtf16
-                ? Utf16.GetImageProperty(wim, image, property_name)
-                : Utf8.GetImageProperty(wim, image, property_name);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.GetImageProperty(wim, image, property_name);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.GetImageProperty(wim, image, property_name);
+            }
         }
         #endregion
 
@@ -1527,25 +1489,31 @@ namespace ManagedWimLib
         internal delegate ErrorCode wimlib_get_xml_data(
             IntPtr wim,
             ref IntPtr buf_ret,
-            ref IntPtr bufsize_ret); // size_t
+            ref UIntPtr bufsize_ret); // size_t
         internal wimlib_get_xml_data GetXmlData;
 
-        internal bool IsImageNameInUse(
-            IntPtr wim,
-            string name)
+        internal bool IsImageNameInUse(IntPtr wim, string name)
         {
-            return UseUtf16
-                ? Utf16.IsImageNameInUse(wim, name)
-                : Utf8.IsImageNameInUse(wim, name);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.IsImageNameInUse(wim, name);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.IsImageNameInUse(wim, name);
+            }
         }
 
-        internal int ResolveImage(
-            IntPtr wim,
-            string image_name_or_num)
+        internal int ResolveImage(IntPtr wim, string imageNameOrNum)
         {
-            return UseUtf16
-                ? Utf16.ResolveImage(wim, image_name_or_num)
-                : Utf8.ResolveImage(wim, image_name_or_num);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.ResolveImage(wim, imageNameOrNum);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.ResolveImage(wim, imageNameOrNum);
+            }
         }
         #endregion
 
@@ -1575,17 +1543,16 @@ namespace ManagedWimLib
             IntPtr dentry,
             IntPtr progctx);
 
-        internal ErrorCode IterateDirTree(
-            IntPtr wim,
-            int image,
-            string path,
-            IterateFlags flags,
-            NativeIterateDirTreeCallback cb,
-            IntPtr user_ctx)
+        internal ErrorCode IterateDirTree(IntPtr wim, int image, string path, IterateFlags flags, NativeIterateDirTreeCallback cb, IntPtr userCtx)
         {
-            return UseUtf16
-                ? Utf16.IterateDirTree(wim, image, path, flags, cb, user_ctx)
-                : Utf8.IterateDirTree(wim, image, path, flags, cb, user_ctx);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.IterateDirTree(wim, image, path, flags, cb, userCtx);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.IterateDirTree(wim, image, path, flags, cb, userCtx);
+            }
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
@@ -1603,82 +1570,82 @@ namespace ManagedWimLib
         #endregion
 
         #region Join - Join, JoinWithProgress
-        internal ErrorCode Join(
-            string[] swms,
-            uint num_swms,
-            string output_path,
-            OpenFlags swms_open_flags,
-            WriteFlags write_flags)
+        internal ErrorCode Join(string[] swms, uint numSwms, string outputPath, OpenFlags swmsOpenFlags, WriteFlags writeFlags)
         {
-            return UseUtf16
-                ? Utf16.Join(swms, num_swms, output_path, swms_open_flags, write_flags)
-                : Utf8.Join(swms, num_swms, output_path, swms_open_flags, write_flags);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.Join(swms, numSwms, outputPath, swmsOpenFlags, writeFlags);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.Join(swms, numSwms, outputPath, swmsOpenFlags, writeFlags);
+            }
         }
 
-        internal ErrorCode JoinWithProgress(
-            string[] swms,
-            uint num_swms,
-            string output_path,
-            OpenFlags swms_open_flags,
-            WriteFlags write_flags,
-            NativeProgressFunc progfunc,
-            IntPtr progctx)
+        internal ErrorCode JoinWithProgress(string[] swms, uint numSwms, string outputPath, OpenFlags swmsOpenFlags, WriteFlags writeFlags, NativeProgressFunc progfunc, IntPtr progctx)
         {
-            return UseUtf16
-                ? Utf16.JoinWithProgress(swms, num_swms, output_path, swms_open_flags, write_flags, progfunc, progctx)
-                : Utf8.JoinWithProgress(swms, num_swms, output_path, swms_open_flags, write_flags, progfunc, progctx);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.JoinWithProgress(swms, numSwms, outputPath, swmsOpenFlags, writeFlags, progfunc, progctx);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.JoinWithProgress(swms, numSwms, outputPath, swmsOpenFlags, writeFlags, progfunc, progctx);
+            }
         }
         #endregion
 
         #region Open - OpenWim, OpenWithProgress
-        internal ErrorCode OpenWim(
-            string wim_file,
-            OpenFlags open_flags,
-            out IntPtr wim_ret)
+        internal ErrorCode OpenWim(string wimFile, OpenFlags openFlags, out IntPtr wimRet)
         {
-            return UseUtf16
-                ? Utf16.OpenWim(wim_file, open_flags, out wim_ret)
-                : Utf8.OpenWim(wim_file, open_flags, out wim_ret);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.OpenWim(wimFile, openFlags, out wimRet);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.OpenWim(wimFile, openFlags, out wimRet);
+            }
         }
 
-        internal ErrorCode OpenWimWithProgress(
-            string wim_file,
-            OpenFlags open_flags,
-            out IntPtr wim_ret,
-            NativeProgressFunc progfunc,
-            IntPtr progctx)
+        internal ErrorCode OpenWimWithProgress(string wimFile, OpenFlags openFlags, out IntPtr wimRet, NativeProgressFunc progfunc, IntPtr progctx)
         {
-            return UseUtf16
-                ? Utf16.OpenWimWithProgress(wim_file, open_flags, out wim_ret, progfunc, progctx)
-                : Utf8.OpenWimWithProgress(wim_file, open_flags, out wim_ret, progfunc, progctx);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.OpenWimWithProgress(wimFile, openFlags, out wimRet, progfunc, progctx);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.OpenWimWithProgress(wimFile, openFlags, out wimRet, progfunc, progctx);
+            }
         }
         #endregion
 
         #region Mount - MountImage (Linux Only)
-        internal ErrorCode MountImage(
-            IntPtr wim,
-            int image,
-            string dir,
-            MountFlags mount_flags,
-            string staging_dir)
+        internal ErrorCode MountImage(IntPtr wim, int image, string dir, MountFlags mountFlags, string stagingDir)
         {
-            return UseUtf16
-                ? Utf16.MountImage(wim, image, dir, mount_flags, staging_dir)
-                : Utf8.MountImage(wim, image, dir, mount_flags, staging_dir);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.MountImage(wim, image, dir, mountFlags, stagingDir);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.MountImage(wim, image, dir, mountFlags, stagingDir);
+            }
         }
         #endregion
 
         #region Reference - ReferenceResourceFiles, ReferenceResources, ReferenceTemplateImage
-        internal ErrorCode ReferenceResourceFiles(
-            IntPtr wim,
-            string[] resource_wimfiles_or_globs,
-            uint count,
-            RefFlags ref_flags,
-            OpenFlags open_flags)
+        internal ErrorCode ReferenceResourceFiles(IntPtr wim, string[] resourceWimfilesOrGlobs, uint count, RefFlags refFlags, OpenFlags openFlags)
         {
-            return UseUtf16
-                ? Utf16.ReferenceResourceFiles(wim, resource_wimfiles_or_globs, count, ref_flags, open_flags)
-                : Utf8.ReferenceResourceFiles(wim, resource_wimfiles_or_globs, count, ref_flags, open_flags);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.ReferenceResourceFiles(wim, resourceWimfilesOrGlobs, count, refFlags, openFlags);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.ReferenceResourceFiles(wim, resourceWimfilesOrGlobs, count, refFlags, openFlags);
+            }
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -1700,58 +1667,66 @@ namespace ManagedWimLib
         #endregion
 
         #region Rename - RenamePath
-        internal ErrorCode RenamePath(
-            IntPtr wim,
-            int image,
-            string source_path,
-            string dest_path)
+        internal ErrorCode RenamePath(IntPtr wim, int image, string sourcePath, string destPath)
         {
-            return UseUtf16
-                ? Utf16.RenamePath(wim, image, source_path, dest_path)
-                : Utf8.RenamePath(wim, image, source_path, dest_path);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.RenamePath(wim, image, sourcePath, destPath);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.RenamePath(wim, image, sourcePath, destPath);
+            }
         }
         #endregion
 
         #region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty, SetWimInfo
-        internal ErrorCode SetImageDescription(
-            IntPtr wim,
-            int image,
-            string description)
+        internal ErrorCode SetImageDescription(IntPtr wim, int image, string description)
         {
-            return UseUtf16
-                ? Utf16.SetImageDescription(wim, image, description)
-                : Utf8.SetImageDescription(wim, image, description);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.SetImageDescription(wim, image, description);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.SetImageDescription(wim, image, description);
+            }
         }
 
-        internal ErrorCode SetImageFlags(
-            IntPtr wim,
-            int image,
-            string flags)
+        internal ErrorCode SetImageFlags(IntPtr wim, int image, string flags)
         {
-            return UseUtf16
-                ? Utf16.SetImageFlags(wim, image, flags)
-                : Utf8.SetImageFlags(wim, image, flags);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.SetImageFlags(wim, image, flags);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.SetImageFlags(wim, image, flags);
+            }
         }
 
-        internal ErrorCode SetImageName(
-            IntPtr wim,
-            int image,
-            string name)
+        internal ErrorCode SetImageName(IntPtr wim, int image, string name)
         {
-            return UseUtf16
-                ? Utf16.SetImageName(wim, image, name)
-                : Utf8.SetImageName(wim, image, name);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.SetImageName(wim, image, name);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.SetImageName(wim, image, name);
+            }
         }
 
-        internal ErrorCode SetImageProperty(
-            IntPtr wim,
-            int image,
-            string property_name,
-            string property_value)
+        internal ErrorCode SetImageProperty(IntPtr wim, int image, string propertyName, string propertyValue)
         {
-            return UseUtf16
-                ? Utf16.SetImageProperty(wim, image, property_name, property_value)
-                : Utf8.SetImageProperty(wim, image, property_name, property_value);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.SetImageProperty(wim, image, propertyName, propertyValue);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.SetImageProperty(wim, image, propertyName, propertyValue);
+            }
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -1789,15 +1764,16 @@ namespace ManagedWimLib
         #endregion
 
         #region Split - Split
-        internal ErrorCode Split(
-            IntPtr wim,
-            string swm_name,
-            ulong part_size,
-            WriteFlags write_flags)
+        internal ErrorCode Split(IntPtr wim, string swmName, ulong partSize, WriteFlags writeFlags)
         {
-            return UseUtf16
-                ? Utf16.Split(wim, swm_name, part_size, write_flags)
-                : Utf8.Split(wim, swm_name, part_size, write_flags);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.Split(wim, swmName, partSize, writeFlags);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.Split(wim, swmName, partSize, writeFlags);
+            }
         }
         #endregion
 
@@ -1810,24 +1786,28 @@ namespace ManagedWimLib
         #endregion
 
         #region Unmount - UnmountImage, UnmountImageWithProgress (Linux Only)
-        internal ErrorCode UnmountImage(
-            string dir,
-            UnmountFlags unmount_flags)
+        internal ErrorCode UnmountImage(string dir, UnmountFlags unmountFlags)
         {
-            return UseUtf16
-                ? Utf16.UnmountImage(dir, unmount_flags)
-                : Utf8.UnmountImage(dir, unmount_flags);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.UnmountImage(dir, unmountFlags);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.UnmountImage(dir, unmountFlags);
+            }
         }
 
-        internal ErrorCode UnmountImageWithProgress(
-            string dir,
-            UnmountFlags unmount_flags,
-            NativeProgressFunc progfunc,
-            IntPtr progctx)
+        internal ErrorCode UnmountImageWithProgress(string dir, UnmountFlags unmountFlags, NativeProgressFunc progfunc, IntPtr progctx)
         {
-            return UseUtf16
-                ? Utf16.UnmountImageWithProgress(dir, unmount_flags, progfunc, progctx)
-                : Utf8.UnmountImageWithProgress(dir, unmount_flags, progfunc, progctx);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.UnmountImageWithProgress(dir, unmountFlags, progfunc, progctx);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.UnmountImageWithProgress(dir, unmountFlags, progfunc, progctx);
+            }
         }
         #endregion
 
@@ -1852,16 +1832,16 @@ namespace ManagedWimLib
         #endregion
 
         #region Write - Write, Overwrite
-        internal ErrorCode Write(
-            IntPtr wim,
-            string path,
-            int image,
-            WriteFlags write_flags,
-            uint num_threads)
+        internal ErrorCode Write(IntPtr wim, string path, int image, WriteFlags writeFlags, uint numThreads)
         {
-            return UseUtf16
-                ? Utf16.Write(wim, path, image, write_flags, num_threads)
-                : Utf8.Write(wim, path, image, write_flags, num_threads);
+            switch (UnicodeConvention)
+            {
+                case UnicodeConvention.Utf16:
+                    return Utf16.Write(wim, path, image, writeFlags, numThreads);
+                case UnicodeConvention.Utf8:
+                default:
+                    return Utf8.Write(wim, path, image, writeFlags, numThreads);
+            }
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]

@@ -59,12 +59,6 @@ namespace ManagedWimLib
         private ManagedProgressCallback _managedCallback;
         #endregion
 
-        #region Properties
-        public static string ErrorFile => Lib.ErrorFile;
-        public static string PathSeparator => Lib.UseUtf16 ? @"\" : @"/";
-        public static string RootPath => Lib.UseUtf16 ? @"\" : @"/";
-        #endregion
-
         #region Constructor (private)
         private Wim(IntPtr ptr)
         {
@@ -113,7 +107,7 @@ namespace ManagedWimLib
             Manager.EnsureLoaded();
 
             IntPtr ptr = Lib.GetErrorString(code);
-            return Lib.MarshalPtrToString(ptr);
+            return Lib.PtrToStringAuto(ptr);
         }
 
         public static string[] GetErrors()
@@ -124,7 +118,7 @@ namespace ManagedWimLib
                 return null;
 
             using (FileStream fs = new FileStream(Lib.ErrorFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (StreamReader r = new StreamReader(fs, Lib.Encoding, false))
+            using (StreamReader r = new StreamReader(fs, Lib.UnicodeEncoding, false))
             {
                 return r.ReadToEnd().Split('\n').Select(x => x.Trim()).Where(x => 0 < x.Length).ToArray();
             }
@@ -138,7 +132,7 @@ namespace ManagedWimLib
                 return null;
 
             using (FileStream fs = new FileStream(Lib.ErrorFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (StreamReader r = new StreamReader(fs, Lib.Encoding, false))
+            using (StreamReader r = new StreamReader(fs, Lib.UnicodeEncoding, false))
             {
                 var lines = r.ReadToEnd().Split('\n').Select(x => x.Trim()).Where(x => 0 < x.Length);
                 return lines.LastOrDefault();
@@ -154,7 +148,7 @@ namespace ManagedWimLib
 
             // Overwrite to Empty File
             using (FileStream fs = new FileStream(Lib.ErrorFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-            using (StreamWriter w = new StreamWriter(fs, Lib.Encoding))
+            using (StreamWriter w = new StreamWriter(fs, Lib.UnicodeEncoding))
             {
                 w.WriteLine();
             }
@@ -273,7 +267,7 @@ namespace ManagedWimLib
         public void AddImageMultiSource(IEnumerable<CaptureSource> sources, string name, string configFile, AddFlags addFlags)
         {
             CaptureSource[] srcArr = sources.ToArray();
-            ErrorCode ret = Lib.AddImageMultiSource(_ptr, srcArr, new IntPtr(srcArr.Length), name, configFile, addFlags);
+            ErrorCode ret = Lib.AddImageMultiSource(_ptr, srcArr, new UIntPtr((uint)srcArr.Length), name, configFile, addFlags);
             WimLibException.CheckWimLibError(ret);
         }
 
@@ -451,7 +445,7 @@ namespace ManagedWimLib
         /// <exception cref="WimLibException">wimlib did not return ErrorCode.SUCCESS.</exception>
         public void ExtractPath(int image, string target, string path, ExtractFlags extractFlags)
         {
-            ErrorCode ret = Lib.ExtractPaths(_ptr, image, target, new string[1] { path }, new IntPtr(1), extractFlags);
+            ErrorCode ret = Lib.ExtractPaths(_ptr, image, target, new string[1] { path }, new UIntPtr(1), extractFlags);
             WimLibException.CheckWimLibError(ret);
         }
 
@@ -495,7 +489,7 @@ namespace ManagedWimLib
         public void ExtractPaths(int image, string target, IEnumerable<string> paths, ExtractFlags extractFlags)
         {
             string[] pathArr = paths.ToArray();
-            ErrorCode ret = Lib.ExtractPaths(_ptr, image, target, pathArr, new IntPtr(pathArr.Length), extractFlags);
+            ErrorCode ret = Lib.ExtractPaths(_ptr, image, target, pathArr, new UIntPtr((uint)pathArr.Length), extractFlags);
             WimLibException.CheckWimLibError(ret);
         }
 
@@ -529,7 +523,7 @@ namespace ManagedWimLib
         public string GetImageDescription(int image)
         {
             IntPtr ptr = Lib.GetImageDescription(_ptr, image);
-            return ptr == IntPtr.Zero ? null : Lib.MarshalPtrToString(ptr);
+            return ptr == IntPtr.Zero ? null : Lib.PtrToStringAuto(ptr);
         }
 
         /// <summary>
@@ -544,7 +538,7 @@ namespace ManagedWimLib
         public string GetImageName(int image)
         {
             IntPtr ptr = Lib.GetImageName(_ptr, image);
-            return ptr == IntPtr.Zero ? null : Lib.MarshalPtrToString(ptr);
+            return ptr == IntPtr.Zero ? null : Lib.PtrToStringAuto(ptr);
         }
 
         /// <summary>
@@ -568,7 +562,7 @@ namespace ManagedWimLib
         public string GetImageProperty(int image, string propertyName)
         {
             IntPtr ptr = Lib.GetImageProperty(_ptr, image, propertyName);
-            return ptr == IntPtr.Zero ? null : Lib.MarshalPtrToString(ptr);
+            return ptr == IntPtr.Zero ? null : Lib.PtrToStringAuto(ptr);
         }
         #endregion
 
@@ -601,14 +595,14 @@ namespace ManagedWimLib
         public string GetXmlData()
         {
             IntPtr buffer = IntPtr.Zero;
-            IntPtr bufferSize = IntPtr.Zero;
+            UIntPtr bufferSize = UIntPtr.Zero;
 
             Lib.GetXmlData(_ptr, ref buffer, ref bufferSize);
 
             // bufferSize is a length in byte.
             // Marshal.PtrStringUni expects length of characters.
             // Since xml is returned in UTF-16LE, divide by two.
-            int charLen = bufferSize.ToInt32() / 2;
+            int charLen = (int)(bufferSize.ToUInt32() / 2);
             return Marshal.PtrToStringUni(buffer, charLen).Trim();
         }
 
@@ -692,7 +686,7 @@ namespace ManagedWimLib
             Manager.EnsureLoaded();
 
             IntPtr ptr = Lib.GetVersionString();
-            return Lib.MarshalPtrToString(ptr);
+            return Lib.PtrToStringAuto(ptr);
         }
         #endregion
 

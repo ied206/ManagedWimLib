@@ -1700,7 +1700,7 @@ namespace ManagedWimLib
         private IntPtr _addFsSourcePathPtr;
         public string AddFsSourcePath
         {
-            get => Wim.Lib.MarshalPtrToString(_addFsSourcePathPtr);
+            get => Wim.Lib.PtrToStringAuto(_addFsSourcePathPtr);
             set => UpdatePtr(ref _addFsSourcePathPtr, value);
         }
         /// <summary>
@@ -1710,7 +1710,7 @@ namespace ManagedWimLib
         private IntPtr _addWimTargetPathPtr;
         public string AddWimTargetPath
         {
-            get => Wim.Lib.MarshalPtrToString(_addWimTargetPathPtr);
+            get => Wim.Lib.PtrToStringAuto(_addWimTargetPathPtr);
             set => UpdatePtr(ref _addWimTargetPathPtr, value);
         }
         /// <summary>
@@ -1720,7 +1720,7 @@ namespace ManagedWimLib
         private IntPtr _addConfigFilePtr;
         public string AddConfigFile
         {
-            get => Wim.Lib.MarshalPtrToString(_addConfigFilePtr);
+            get => Wim.Lib.PtrToStringAuto(_addConfigFilePtr);
             set => UpdatePtr(ref _addConfigFilePtr, value);
         }
         /// <summary>
@@ -1738,7 +1738,7 @@ namespace ManagedWimLib
         private IntPtr _delWimPathPtr;
         public string DelWimPath
         {
-            get => Wim.Lib.MarshalPtrToString(_delWimPathPtr);
+            get => Wim.Lib.PtrToStringAuto(_delWimPathPtr);
             set => UpdatePtr(ref _delWimPathPtr, value);
         }
         /// <summary>
@@ -1756,7 +1756,7 @@ namespace ManagedWimLib
         private IntPtr _renWimSourcePathPtr;
         public string RenWimSourcePath
         {
-            get => Wim.Lib.MarshalPtrToString(_renWimSourcePathPtr);
+            get => Wim.Lib.PtrToStringAuto(_renWimSourcePathPtr);
             set => UpdatePtr(ref _renWimSourcePathPtr, value);
         }
         /// <summary>
@@ -1766,7 +1766,7 @@ namespace ManagedWimLib
         private IntPtr _renWimTargetPathPtr;
         public string RenWimTargetPath
         {
-            get => Wim.Lib.MarshalPtrToString(_renWimTargetPathPtr);
+            get => Wim.Lib.PtrToStringAuto(_renWimTargetPathPtr);
             set => UpdatePtr(ref _renWimTargetPathPtr, value);
         }
         /// <summary>
@@ -1806,7 +1806,7 @@ namespace ManagedWimLib
         internal static void UpdatePtr(ref IntPtr ptr, string str)
         {
             FreePtr(ref ptr);
-            ptr = Wim.Lib.MarshalStringToPtr(str);
+            ptr = Wim.Lib.StringToHGlobalAuto(str);
         }
         #endregion
 
@@ -1844,7 +1844,7 @@ namespace ManagedWimLib
         private IntPtr _addFsSourcePathPtr;
         public string AddFsSourcePath
         {
-            get => Wim.Lib.MarshalPtrToString(_addFsSourcePathPtr);
+            get => Wim.Lib.PtrToStringAuto(_addFsSourcePathPtr);
             set => UpdatePtr(ref _addFsSourcePathPtr, value);
         }
         /// <summary>
@@ -1854,7 +1854,7 @@ namespace ManagedWimLib
         private IntPtr _addWimTargetPathPtr;
         public string AddWimTargetPath
         {
-            get => Wim.Lib.MarshalPtrToString(_addWimTargetPathPtr);
+            get => Wim.Lib.PtrToStringAuto(_addWimTargetPathPtr);
             set => UpdatePtr(ref _addWimTargetPathPtr, value);
         }
         /// <summary>
@@ -1864,7 +1864,7 @@ namespace ManagedWimLib
         private IntPtr _addConfigFilePtr;
         public string AddConfigFile
         {
-            get => Wim.Lib.MarshalPtrToString(_addConfigFilePtr);
+            get => Wim.Lib.PtrToStringAuto(_addConfigFilePtr);
             set => UpdatePtr(ref _addConfigFilePtr, value);
         }
         /// <summary>
@@ -1882,7 +1882,7 @@ namespace ManagedWimLib
         private IntPtr _delWimPathPtr;
         public string DelWimPath
         {
-            get => Wim.Lib.MarshalPtrToString(_delWimPathPtr);
+            get => Wim.Lib.PtrToStringAuto(_delWimPathPtr);
             set => UpdatePtr(ref _delWimPathPtr, value);
         }
         /// <summary>
@@ -1900,7 +1900,7 @@ namespace ManagedWimLib
         private IntPtr _renWimSourcePathPtr;
         public string RenWimSourcePath
         {
-            get => Wim.Lib.MarshalPtrToString(_renWimSourcePathPtr);
+            get => Wim.Lib.PtrToStringAuto(_renWimSourcePathPtr);
             set => UpdatePtr(ref _renWimSourcePathPtr, value);
         }
         /// <summary>
@@ -1910,7 +1910,7 @@ namespace ManagedWimLib
         private IntPtr _renWimTargetPathPtr;
         public string RenWimTargetPath
         {
-            get => Wim.Lib.MarshalPtrToString(_renWimTargetPathPtr);
+            get => Wim.Lib.PtrToStringAuto(_renWimTargetPathPtr);
             set => UpdatePtr(ref _renWimTargetPathPtr, value);
         }
         /// <summary>
@@ -1950,7 +1950,7 @@ namespace ManagedWimLib
         internal static void UpdatePtr(ref IntPtr ptr, string str)
         {
             FreePtr(ref ptr);
-            ptr = Wim.Lib.MarshalStringToPtr(str);
+            ptr = Wim.Lib.StringToHGlobalAuto(str);
         }
         #endregion
 
@@ -1986,18 +1986,18 @@ namespace ManagedWimLib
         /// <summary>
         /// Name of the file, or null if this file is unnamed. Only the root directory of an image will be unnamed.
         /// </summary>
-        public string FileName => Wim.Lib.MarshalPtrToString(_fileNamePtr);
+        public string FileName => Wim.Lib.PtrToStringAuto(_fileNamePtr);
         private IntPtr _fileNamePtr;
         /// <summary>
         /// 8.3 name (or "DOS name", or "short name") of this file; or null if this file has no such name.
         /// </summary>
-        public string DosName => Wim.Lib.MarshalPtrToString(_dosNamePtr);
+        public string DosName => Wim.Lib.PtrToStringAuto(_dosNamePtr);
         private IntPtr _dosNamePtr;
         /// <summary>
         /// Full path to this file within the image.
         /// Path separators will be Wim.PathSeparator.
         /// </summary>
-        public string FullPath => Wim.Lib.MarshalPtrToString(_fullPathPtr);
+        public string FullPath => Wim.Lib.PtrToStringAuto(_fullPathPtr);
         private IntPtr _fullPathPtr;
         /// <summary>
         /// Depth of this directory entry, where 0 is the root, 1 is the root's children, ..., etc.

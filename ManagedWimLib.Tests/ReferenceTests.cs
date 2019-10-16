@@ -78,7 +78,7 @@ namespace ManagedWimLib.Tests
                 string wimFile = Path.Combine(TestSetup.SampleDir, wimFileName);
                 using (Wim wim = Wim.OpenWim(destWimFile, OpenFlags.DEFAULT))
                 {
-                    wim.IterateDirTree(imageCount + 1, Wim.RootPath, IterateFlags.RECURSIVE, IterateCallback);
+                    wim.IterateDirTree(imageCount + 1, TestHelper.RootPath, IterateFlags.RECURSIVE, IterateCallback);
                 }
 
                 TestHelper.CheckPathList(set, entries);

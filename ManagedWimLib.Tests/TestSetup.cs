@@ -157,6 +157,17 @@ namespace ManagedWimLib.Tests
         {
             return tuples.Select(x => new Tuple<string, bool>(NormalizePath(x.Item1), x.Item2)).ToArray();
         }
+
+        public static string RootPath
+        {
+            get
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    return @"\";
+                else
+                    return @"/";
+            }
+        }
         #endregion
 
         #region File Check
@@ -384,7 +395,7 @@ namespace ManagedWimLib.Tests
 
             using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
             {
-                wim.IterateDirTree(1, Wim.RootPath, IterateFlags.RECURSIVE, IterateCallback);
+                wim.IterateDirTree(1, TestHelper.RootPath, IterateFlags.RECURSIVE, IterateCallback);
             }
 
             return entries;
