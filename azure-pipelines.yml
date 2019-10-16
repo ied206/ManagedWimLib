@@ -28,9 +28,11 @@ steps:
     version: 3.0.100
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'Build Projects'
-- task: DotNetCoreCLI@2
+- script: dotnet test --logger trx
   displayName: 'Run Tests'
+- task: PublishTestResults@2
+  displayName: 'Publish Test Results'
+  condition: succeededOrFailed()
   inputs:
-    command: test
-    projects: '**/*.Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+    testRunner: VSTest
+    testResultsFiles: '**/*.trx'
