@@ -111,7 +111,7 @@ namespace ManagedWimLib.Tests
                     WimInfo wi = wim.GetWimInfo();
                     Assert.IsTrue(wi.ImageCount == 1);
 
-                    wim.IterateDirTree(1, Wim.RootPath, IterateFlags.RECURSIVE, IterateCallback);
+                    wim.IterateDirTree(1, TestHelper.RootPath, IterateFlags.RECURSIVE, IterateCallback);
                 }
 
                 TestHelper.CheckPathList(SampleSet.Src03, entries);

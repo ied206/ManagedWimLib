@@ -1,0 +1,36 @@
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+strategy:
+  matrix:
+    linux:
+      imageName: 'ubuntu-latest'
+    mac:
+      imageName: 'macos-latest'
+    windows:
+      imageName: 'windows-latest'
+
+trigger:
+  branches:
+    include:
+    - master
+    - develop
+
+pool:
+  vmImage: $(imageName)
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Install .NET Core SDK 3.0'
+  inputs:
+    version: 3.0.100
+- script: dotnet build --configuration $(buildConfiguration)
+  displayName: 'Build Projects'
+- task: DotNetCoreCLI@2
+  displayName: 'Run Tests'
+  inputs:
+    command: test
+    projects: '**/*.Tests/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'

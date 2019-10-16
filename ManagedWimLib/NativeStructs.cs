@@ -1276,16 +1276,16 @@ namespace ManagedWimLib
         /// </summary>
         public bool HasIntegrityTable
         {
-            get => NativeMethods.GetBitField(_bitFlag, 0);
-            set => NativeMethods.SetBitField(ref _bitFlag, 0, value);
+            get => WimLibLoader.GetBitField(_bitFlag, 0);
+            set => WimLibLoader.SetBitField(ref _bitFlag, 0, value);
         }
         /// <summary>
         /// 1 iff this info struct is for a WimStruct that has a backing file.
         /// </summary>
         public bool OpenedFromFile
         {
-            get => NativeMethods.GetBitField(_bitFlag, 1);
-            set => NativeMethods.SetBitField(ref _bitFlag, 1, value);
+            get => WimLibLoader.GetBitField(_bitFlag, 1);
+            set => WimLibLoader.SetBitField(ref _bitFlag, 1, value);
         }
         /// <summary>
         /// 1 iff this WIM file is considered readonly for any reason
@@ -1293,64 +1293,64 @@ namespace ManagedWimLib
         /// </summary>
         public bool IsReadonly
         {
-            get => NativeMethods.GetBitField(_bitFlag, 2);
-            set => NativeMethods.SetBitField(ref _bitFlag, 2, value);
+            get => WimLibLoader.GetBitField(_bitFlag, 2);
+            set => WimLibLoader.SetBitField(ref _bitFlag, 2, value);
         }
         /// <summary>
         /// 1 iff the "reparse point fix" flag is set in this WIM's header
         /// </summary>
         public bool HasRpfix
         {
-            get => NativeMethods.GetBitField(_bitFlag, 3);
-            set => NativeMethods.SetBitField(ref _bitFlag, 3, value);
+            get => WimLibLoader.GetBitField(_bitFlag, 3);
+            set => WimLibLoader.SetBitField(ref _bitFlag, 3, value);
         }
         /// <summary>
         /// 1 iff the "readonly" flag is set in this WIM's header
         /// </summary>
         public bool IsMarkedReadonly
         {
-            get => NativeMethods.GetBitField(_bitFlag, 4);
-            set => NativeMethods.SetBitField(ref _bitFlag, 4, value);
+            get => WimLibLoader.GetBitField(_bitFlag, 4);
+            set => WimLibLoader.SetBitField(ref _bitFlag, 4, value);
         }
         /// <summary>
         /// 1 iff the "spanned" flag is set in this WIM's header
         /// </summary>
         public bool Spanned
         {
-            get => NativeMethods.GetBitField(_bitFlag, 5);
-            set => NativeMethods.SetBitField(ref _bitFlag, 5, value);
+            get => WimLibLoader.GetBitField(_bitFlag, 5);
+            set => WimLibLoader.SetBitField(ref _bitFlag, 5, value);
         }
         /// <summary>
         /// 1 iff the "write in progress" flag is set in this WIM's header
         /// </summary>
         public bool WriteInProgress
         {
-            get => NativeMethods.GetBitField(_bitFlag, 6);
-            set => NativeMethods.SetBitField(ref _bitFlag, 6, value);
+            get => WimLibLoader.GetBitField(_bitFlag, 6);
+            set => WimLibLoader.SetBitField(ref _bitFlag, 6, value);
         }
         /// <summary>
         /// 1 iff the "metadata only" flag is set in this WIM's header
         /// </summary>
         public bool MetadataOnly
         {
-            get => NativeMethods.GetBitField(_bitFlag, 7);
-            set => NativeMethods.SetBitField(ref _bitFlag, 7, value);
+            get => WimLibLoader.GetBitField(_bitFlag, 7);
+            set => WimLibLoader.SetBitField(ref _bitFlag, 7, value);
         }
         /// <summary>
         /// 1 iff the "resource only" flag is set in this WIM's header
         /// </summary>
         public bool ResourceOnly
         {
-            get => NativeMethods.GetBitField(_bitFlag, 8);
-            set => NativeMethods.SetBitField(ref _bitFlag, 8, value);
+            get => WimLibLoader.GetBitField(_bitFlag, 8);
+            set => WimLibLoader.SetBitField(ref _bitFlag, 8, value);
         }
         /// <summary>
         /// 1 iff this WIM file is pipable (see WriteFlags.PIPABLE).
         /// </summary>
         public bool Pipable
         {
-            get => NativeMethods.GetBitField(_bitFlag, 9);
-            set => NativeMethods.SetBitField(ref _bitFlag, 9, value);
+            get => WimLibLoader.GetBitField(_bitFlag, 9);
+            set => WimLibLoader.SetBitField(ref _bitFlag, 9, value);
         }
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 9)]
         private uint[] _reserved;
@@ -1700,7 +1700,7 @@ namespace ManagedWimLib
         private IntPtr _addFsSourcePathPtr;
         public string AddFsSourcePath
         {
-            get => NativeMethods.MarshalPtrToString(_addFsSourcePathPtr);
+            get => Wim.Lib.PtrToStringAuto(_addFsSourcePathPtr);
             set => UpdatePtr(ref _addFsSourcePathPtr, value);
         }
         /// <summary>
@@ -1710,7 +1710,7 @@ namespace ManagedWimLib
         private IntPtr _addWimTargetPathPtr;
         public string AddWimTargetPath
         {
-            get => NativeMethods.MarshalPtrToString(_addWimTargetPathPtr);
+            get => Wim.Lib.PtrToStringAuto(_addWimTargetPathPtr);
             set => UpdatePtr(ref _addWimTargetPathPtr, value);
         }
         /// <summary>
@@ -1720,7 +1720,7 @@ namespace ManagedWimLib
         private IntPtr _addConfigFilePtr;
         public string AddConfigFile
         {
-            get => NativeMethods.MarshalPtrToString(_addConfigFilePtr);
+            get => Wim.Lib.PtrToStringAuto(_addConfigFilePtr);
             set => UpdatePtr(ref _addConfigFilePtr, value);
         }
         /// <summary>
@@ -1738,7 +1738,7 @@ namespace ManagedWimLib
         private IntPtr _delWimPathPtr;
         public string DelWimPath
         {
-            get => NativeMethods.MarshalPtrToString(_delWimPathPtr);
+            get => Wim.Lib.PtrToStringAuto(_delWimPathPtr);
             set => UpdatePtr(ref _delWimPathPtr, value);
         }
         /// <summary>
@@ -1756,7 +1756,7 @@ namespace ManagedWimLib
         private IntPtr _renWimSourcePathPtr;
         public string RenWimSourcePath
         {
-            get => NativeMethods.MarshalPtrToString(_renWimSourcePathPtr);
+            get => Wim.Lib.PtrToStringAuto(_renWimSourcePathPtr);
             set => UpdatePtr(ref _renWimSourcePathPtr, value);
         }
         /// <summary>
@@ -1766,7 +1766,7 @@ namespace ManagedWimLib
         private IntPtr _renWimTargetPathPtr;
         public string RenWimTargetPath
         {
-            get => NativeMethods.MarshalPtrToString(_renWimTargetPathPtr);
+            get => Wim.Lib.PtrToStringAuto(_renWimTargetPathPtr);
             set => UpdatePtr(ref _renWimTargetPathPtr, value);
         }
         /// <summary>
@@ -1806,7 +1806,7 @@ namespace ManagedWimLib
         internal static void UpdatePtr(ref IntPtr ptr, string str)
         {
             FreePtr(ref ptr);
-            ptr = NativeMethods.MarshalStringToPtr(str);
+            ptr = Wim.Lib.StringToHGlobalAuto(str);
         }
         #endregion
 
@@ -1844,7 +1844,7 @@ namespace ManagedWimLib
         private IntPtr _addFsSourcePathPtr;
         public string AddFsSourcePath
         {
-            get => NativeMethods.MarshalPtrToString(_addFsSourcePathPtr);
+            get => Wim.Lib.PtrToStringAuto(_addFsSourcePathPtr);
             set => UpdatePtr(ref _addFsSourcePathPtr, value);
         }
         /// <summary>
@@ -1854,7 +1854,7 @@ namespace ManagedWimLib
         private IntPtr _addWimTargetPathPtr;
         public string AddWimTargetPath
         {
-            get => NativeMethods.MarshalPtrToString(_addWimTargetPathPtr);
+            get => Wim.Lib.PtrToStringAuto(_addWimTargetPathPtr);
             set => UpdatePtr(ref _addWimTargetPathPtr, value);
         }
         /// <summary>
@@ -1864,7 +1864,7 @@ namespace ManagedWimLib
         private IntPtr _addConfigFilePtr;
         public string AddConfigFile
         {
-            get => NativeMethods.MarshalPtrToString(_addConfigFilePtr);
+            get => Wim.Lib.PtrToStringAuto(_addConfigFilePtr);
             set => UpdatePtr(ref _addConfigFilePtr, value);
         }
         /// <summary>
@@ -1882,7 +1882,7 @@ namespace ManagedWimLib
         private IntPtr _delWimPathPtr;
         public string DelWimPath
         {
-            get => NativeMethods.MarshalPtrToString(_delWimPathPtr);
+            get => Wim.Lib.PtrToStringAuto(_delWimPathPtr);
             set => UpdatePtr(ref _delWimPathPtr, value);
         }
         /// <summary>
@@ -1900,7 +1900,7 @@ namespace ManagedWimLib
         private IntPtr _renWimSourcePathPtr;
         public string RenWimSourcePath
         {
-            get => NativeMethods.MarshalPtrToString(_renWimSourcePathPtr);
+            get => Wim.Lib.PtrToStringAuto(_renWimSourcePathPtr);
             set => UpdatePtr(ref _renWimSourcePathPtr, value);
         }
         /// <summary>
@@ -1910,7 +1910,7 @@ namespace ManagedWimLib
         private IntPtr _renWimTargetPathPtr;
         public string RenWimTargetPath
         {
-            get => NativeMethods.MarshalPtrToString(_renWimTargetPathPtr);
+            get => Wim.Lib.PtrToStringAuto(_renWimTargetPathPtr);
             set => UpdatePtr(ref _renWimTargetPathPtr, value);
         }
         /// <summary>
@@ -1950,7 +1950,7 @@ namespace ManagedWimLib
         internal static void UpdatePtr(ref IntPtr ptr, string str)
         {
             FreePtr(ref ptr);
-            ptr = NativeMethods.MarshalStringToPtr(str);
+            ptr = Wim.Lib.StringToHGlobalAuto(str);
         }
         #endregion
 
@@ -1986,18 +1986,18 @@ namespace ManagedWimLib
         /// <summary>
         /// Name of the file, or null if this file is unnamed. Only the root directory of an image will be unnamed.
         /// </summary>
-        public string FileName => NativeMethods.MarshalPtrToString(_fileNamePtr);
+        public string FileName => Wim.Lib.PtrToStringAuto(_fileNamePtr);
         private IntPtr _fileNamePtr;
         /// <summary>
         /// 8.3 name (or "DOS name", or "short name") of this file; or null if this file has no such name.
         /// </summary>
-        public string DosName => NativeMethods.MarshalPtrToString(_dosNamePtr);
+        public string DosName => Wim.Lib.PtrToStringAuto(_dosNamePtr);
         private IntPtr _dosNamePtr;
         /// <summary>
         /// Full path to this file within the image.
         /// Path separators will be Wim.PathSeparator.
         /// </summary>
-        public string FullPath => NativeMethods.MarshalPtrToString(_fullPathPtr);
+        public string FullPath => Wim.Lib.PtrToStringAuto(_fullPathPtr);
         private IntPtr _fullPathPtr;
         /// <summary>
         /// Depth of this directory entry, where 0 is the root, 1 is the root's children, ..., etc.
@@ -2373,22 +2373,22 @@ namespace ManagedWimLib
         /// <summary>
         /// 1 iff this blob is located in a non-solid compressed WIM resource.
         /// </summary>
-        public bool IsCompressed => NativeMethods.GetBitField(_bitFlag, 0);
+        public bool IsCompressed => WimLibLoader.GetBitField(_bitFlag, 0);
         /// <summary>
         /// 1 iff this blob contains the metadata for an image. 
         /// </summary>
-        public bool IsMetadata => NativeMethods.GetBitField(_bitFlag, 1);
-        public bool IsFree => NativeMethods.GetBitField(_bitFlag, 2);
-        public bool IsSpanned => NativeMethods.GetBitField(_bitFlag, 3);
+        public bool IsMetadata => WimLibLoader.GetBitField(_bitFlag, 1);
+        public bool IsFree => WimLibLoader.GetBitField(_bitFlag, 2);
+        public bool IsSpanned => WimLibLoader.GetBitField(_bitFlag, 3);
         /// <summary>
         /// 1 iff a blob with this hash was not found in the blob lookup table of the WimStruct.
         /// This normally implies a missing call to Wim.ReferenceResourceFiles() or Wim.ReferenceResources().
         /// </summary>
-        public bool IsMissing => NativeMethods.GetBitField(_bitFlag, 4);
+        public bool IsMissing => WimLibLoader.GetBitField(_bitFlag, 4);
         /// <summary>
         /// 1 iff this blob is located in a solid resource.
         /// </summary>
-        public bool Packed => NativeMethods.GetBitField(_bitFlag, 5);
+        public bool Packed => WimLibLoader.GetBitField(_bitFlag, 5);
         /// <summary>
         /// If this blob is located in a solid WIM resource, then this is the offset of that solid resource within the WIM file containing it.
         /// </summary>

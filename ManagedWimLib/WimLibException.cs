@@ -22,11 +22,13 @@
 */
 
 using System;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace ManagedWimLib
 {
     #region WimLibException
+    [Serializable]
     public class WimLibException : Exception
     {
         public ErrorCode ErrorCode;
@@ -54,6 +56,21 @@ namespace ManagedWimLib
             if (ret != ErrorCode.SUCCESS)
                 throw new WimLibException(ret);
         }
+
+        #region Serializable
+        protected WimLibException(SerializationInfo info, StreamingContext ctx)
+        {
+            ErrorCode = (ErrorCode)info.GetValue(nameof(ErrorCode), typeof(ErrorCode));
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+            info.AddValue(nameof(ErrorCode), ErrorCode);
+            base.GetObjectData(info, context);
+        }
+        #endregion
     }
     #endregion
 }

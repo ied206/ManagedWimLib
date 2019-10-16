@@ -37,7 +37,7 @@ namespace ManagedWimLib
         private readonly IterateDirTreeCallback _callback;
         private readonly object _userData;
 
-        internal NativeMethods.NativeIterateDirTreeCallback NativeFunc { get; }
+        internal WimLibLoader.NativeIterateDirTreeCallback NativeFunc { get; }
 
         public ManagedIterateDirTreeCallback(IterateDirTreeCallback callback, object userData)
         {
@@ -103,7 +103,7 @@ namespace ManagedWimLib
         private readonly IterateLookupTableCallback _callback;
         private readonly object _userData;
 
-        internal NativeMethods.NativeIterateLookupTableCallback NativeFunc { get; }
+        internal WimLibLoader.NativeIterateLookupTableCallback NativeFunc { get; }
 
         public ManagedIterateLookupTableCallback(IterateLookupTableCallback callback, object userData)
         {
