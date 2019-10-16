@@ -69,6 +69,19 @@ They will be copied into the build directory at build time.
 | Ubuntu 18.04 x64 | `$(OutDir)\x64\libwim.so`     | LGPLv3 (w/o NTFS-3G) |
 | Debian 9 armhf   | `$(OutDir)\armhf\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
 | Debian 9 arm64   | `$(OutDir)\arm64\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
+| macOS 10.15      | | |
+
+- Build Command
+
+| Platform         | Binary Source or Build Command | Dependency           |
+|------------------|--------------------------------|----------------------|
+| Windows x86      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.1-windows-i686-bin.zip)   | -               |
+| Windows x64      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.1-windows-x86_64-bin.zip) | -               |
+| Ubuntu 18.04 x64 | `./configure --without-ntfs-3g --disable-static --enable-ssse3-sha1` | `libxml2`, `libfuse` |
+| Debian 10 armhf  | `./configure --without-ntfs-3g --disable-static` | `libxml2`, `libfuse` |
+| Debian 10 arm64  | `./configure --without-ntfs-3g --disable-static` | `libxml2`, `libfuse` |
+| macOS 10.15      | `libxml2`: `./configure --with-minimum --disable-static --with-minimum --without-lzma --with-tree --with-writer` | |
+|                  | `libwim`: `./configure --without-ntfs-3g --without-fuse --disable-static` | |
 
 ### Custom binary
 
@@ -77,8 +90,10 @@ To use custom wimlib binary instead, call `Wim.GlobalInit()` with a path to the 
 #### NOTES
 
 - Create an empty file named `ManagedWimLib.Precompiled.Exclude` in the project directory to prevent copy of the package-embedded binary.
-- Linux binaries were compiled without NTFS-3G support (`./configure --without-ntfs-3g --without-libcrypto --enable-static`) to make them as LGPLv3-licensed. If you want NTFS-3G functionality, use system-provided or custom libwim.so and make sure your program is compatible with GPLv3.
+- POSIX binaries were compiled without NTFS-3G support to make them as LGPLv3-licensed. If you want NTFS-3G functionality, provide the library yourself and make sure your program is compatible with GPLv3.
+  - wimlib depends on `libfuse` and `libxml2`, and it will search them from the system directories.
 - You may have to compile custom wimlib to use ManagedWimLib in untested Linux distribution.
+- If you do not specify `libPath` parameter on Linux or macOS, `ManagedWimLib` will search for system-installed wimlib.
 
 ### Cleanup
 

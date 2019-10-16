@@ -80,6 +80,8 @@ namespace ManagedWimLib
 #if !NET451
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     return "libwim.so.15";
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    return "libwim.15.dylib";
 #endif
                 throw new PlatformNotSupportedException();
             }
