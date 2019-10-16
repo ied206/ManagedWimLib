@@ -12,6 +12,8 @@ wimlib is a library that handles Windows Imaging (WIM) archives, written by Eric
 |-----------|----------------|
 | Master    | [![CI Master Branch Build Status](https://ci.appveyor.com/api/projects/status/wtb8ong8c112f4ug/branch/master?svg=true)](https://ci.appveyor.com/project/ied206/managedwimlib/branch/master) |
 | Develop   | [![CI Develop Branch Build Status](https://ci.appveyor.com/api/projects/status/wtb8ong8c112f4ug/branch/develop?svg=true)](https://ci.appveyor.com/project/ied206/managedwimlib/branch/develop) |
+| Azure Pipelines | Master    | [![Azure Pipelines CI Master Branch Build Status](https://ied206.visualstudio.com/ManagedWimLib/_apis/build/status/ied206.ManagedWimLib?branchName=master)](https://dev.azure.com/ied206/ManagedWimLib/_build) |
+|                 | Develop   | [![Azure Pipelines CI Develop Branch Build Status](https://ied206.visualstudio.com/ManagedWimLib/_apis/build/status/ied206.ManagedWimLib?branchName=develop)](https://dev.azure.com/ied206/ManagedWimLib/_build) |git
 
 ## Install
 
@@ -38,8 +40,7 @@ If you need .Net Standard 1.3 support, use [1.2.x version](https://www.nuget.org
 | Linux    | x64          | Yes    |
 |          | armhf        | Yes    |
 |          | arm64        | Yes    |
-
-**Note:** I want to support macOS, but I do not have any macOS device. Please contribute to macOS support!
+| macOS    | x64          | Yes    |
 
 #### Tested linux distributions
 
