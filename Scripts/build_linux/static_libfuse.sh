@@ -9,12 +9,13 @@ BASE_DIR=$(dirname "$BASE_ABS_PATH")
 
 # libxml2 source directory must be parameter
 pushd $PWD
-LIB_PREFIX=$(readlink -f "$HOME/wimlib-build")
-LIBXML2_SRC_DIR=$(readlink -f "$1")
+LIB_PREFIX=$HOME/wimlib-build
+LIBFUSE_SRC_DIR=$(readlink -f "$1")
 mkdir $LIB_PREFIX
-cd $LIBXML2_SRC_DIR
-./configure --enable-static --disable-shared --prefix=$LIB_PREFIX CFLAGS=-Os --with-minimum --without-lzma --with-tree --with-writer
-make install
-# rm -f $LIB_PREFIX/lib/libxml2.la;
-make clean
+cd $LIBFUSE_SRC_DIR
+mkdir build
+CFLAGS=-Os meson . build --strip --default-library shared --prefix=$LIB_PREFIX 
+cd build
+ninja -j 12
+ninja install
 popd

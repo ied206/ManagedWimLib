@@ -21,5 +21,4 @@ fi
 make -j12
 cp .libs/*.so $BASE_DIR
 strip $BASE_DIR/*.so
-make clean
 popd

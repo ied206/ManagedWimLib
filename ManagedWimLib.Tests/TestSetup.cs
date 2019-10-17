@@ -39,7 +39,8 @@ namespace ManagedWimLib.Tests
         [AssemblyInitialize]
         public static void Init(TestContext context)
         {
-            BaseDir = Path.GetFullPath(Path.Combine(TestHelper.GetProgramAbsolutePath(), "..", "..", ".."));
+            string absPath = TestHelper.GetProgramAbsolutePath();
+            BaseDir = Path.GetFullPath(Path.Combine(absPath, "..", "..", ".."));
             SampleDir = Path.Combine(BaseDir, "Samples");
 
             string arch = null;
@@ -61,11 +62,11 @@ namespace ManagedWimLib.Tests
             
             string libPath = null;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                libPath = Path.Combine(arch, "libwim-15.dll");
+                libPath = Path.Combine(absPath, arch, "libwim-15.dll");
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                libPath = Path.Combine(arch, "libwim.so");
+                libPath = Path.Combine(absPath, arch, "libwim.so");
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                libPath = Path.Combine(arch, "libwim.dylib");
+                libPath = Path.Combine(absPath, arch, "libwim.dylib");
 
             if (libPath == null || !File.Exists(libPath))
                 throw new PlatformNotSupportedException();

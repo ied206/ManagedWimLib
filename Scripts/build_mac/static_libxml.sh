@@ -21,8 +21,8 @@ LIB_PREFIX=$HOME/wimlib-build
 LIBXML2_SRC_DIR=$1
 mkdir $LIB_PREFIX
 cd $LIBXML2_SRC_DIR
-./configure --enable-static --disable-shared --prefix=$LIB_PREFIX CFLAGS=-Os --with-minimum --without-lzma --with-tree --with-writer
+./configure --enable-static --disable-shared \
+    --prefix=$LIB_PREFIX CFLAGS=-Os \
+    --with-minimum --without-lzma --with-tree --with-writer
 make install
-# rm -f $LIB_PREFIX/lib/libxml2.la;
-make clean
 popd
