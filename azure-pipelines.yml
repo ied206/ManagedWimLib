@@ -26,6 +26,10 @@ steps:
   displayName: 'Install .NET Core SDK 3.0'
   inputs:
     version: 3.0.100
+- bash: |
+    sudo apt install -y libfuse-dev
+  condition: eq( variables['Agent.OS'], 'Linux')
+  displayName: 'Install libfuse-dev'
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'Build Projects'
 - task: DotNetCoreCLI@2
