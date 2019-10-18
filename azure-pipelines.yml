@@ -28,6 +28,7 @@ steps:
     version: 3.0.100
 - bash: |
     sudo apt install -y libfuse-dev fuse
+    ldd -v ManagedWimLib/Precompiled/x64/libwim.so
   condition: eq( variables['Agent.OS'], 'Linux')
   displayName: 'Install libfuse2'
 - script: dotnet build --configuration $(buildConfiguration)
