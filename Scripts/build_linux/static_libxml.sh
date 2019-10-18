@@ -9,12 +9,12 @@ BASE_DIR=$(dirname "$BASE_ABS_PATH")
 
 # libxml2 source directory must be parameter
 pushd $PWD
-LIB_PREFIX=$(readlink -f "$HOME/wimlib-build")
-LIBXML2_SRC_DIR=$(readlink -f "$1")
+LIB_PREFIX=$HOME/wimlib-build
 mkdir $LIB_PREFIX
-cd $LIBXML2_SRC_DIR
+cd $1
+make clean
 ./configure --enable-static --disable-shared \
-    --prefix=$LIB_PREFIX CFLAGS=-Os \
+    --prefix=$LIB_PREFIX CFLAGS="-Os -fPIC" \
     --with-minimum --without-lzma --with-tree --with-writer
 make install
 popd

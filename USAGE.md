@@ -65,10 +65,13 @@ They will be copied into the build directory at build time.
 |------------------|-------------------------------|------------|
 | Windows x86      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.1-windows-i686-bin.zip)   | -               |
 | Windows x64      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.1-windows-x86_64-bin.zip) | -               |
-| Ubuntu 18.04 x64 | `./configure --enable-dynamic --disable-static --without-libcrypto --without-ntfs-3g --enable-ssse3-sha1` | libxml2, libfuse |
-| Debian 10 armhf  | `./configure --enable-dynamic --disable-static --without-libcrypto --without-ntfs-3g` | libxml2, libfuse |
-| Debian 10 arm64  | `./configure --enable-dynamic --disable-static --without-libcrypto --without-ntfs-3g` | libxml2, libfuse |
-| macOS 10.15      | libxml2: `./configure --enable-static --disable-shared CFLAGS=-Os --with-minimum --without-lzma --with-tree --with-writer` (static linked) | - |
+| Ubuntu 18.04 x64 | libxml2: `./configure --enable-static --disable-shared CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
+|                  | libwim:  `./configure --enable-dynamic --disable-static --without-libcrypto --without-ntfs-3g --enable-ssse3-sha1` | glibc, libfuse |
+| Debian 10 armhf  | libxml2: `./configure --enable-static --disable-shared CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
+|                  | libwim:  `./configure --enable-dynamic --disable-static --without-libcrypto --without-ntfs-3g` | glibc, libfuse |
+| Debian 10 arm64  | libxml2: `./configure --enable-static --disable-shared CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
+|                  | libwim:  `./configure --enable-dynamic --disable-static --without-libcrypto --without-ntfs-3g` | glibc, libfuse |
+| macOS 10.15      | libxml2: `./configure --enable-static --disable-shared CFLAGS="-Os" --with-minimum --without-lzma --with-tree --with-writer` (static linked) | - |
 |                  | libwim: `./configure --enable-dynamic --disable-static --without-libcrypto --without-ntfs-3g --without-fuse --enable-ssse3-sha1` | - |
 
 ### Custom binary
@@ -78,10 +81,11 @@ To use custom wimlib binary instead, call `Wim.GlobalInit()` with a path to the 
 #### NOTES
 
 - Create an empty file named `ManagedWimLib.Precompiled.Exclude` in the project directory to prevent copy of the package-embedded binary.
+- If you call `Wim.GlobalInit()` without `libPath` parameter on Linux or macOS, `ManagedWimLib` will search for system-installed wimlib.
+  - I recommend to use system-installed wimlib if you can, as I cannot ensure the included Linux binaries works on the every Linux distribution.
 - POSIX binaries were compiled without NTFS-3G support to make them as LGPLv3-licensed.
-  - If you want NTFS-3G functionality, load the library from system installation and make sure your program is compatible with GPLv3.
-  - On Linux, wimlib depends on `libfuse` and `libxml2`. They are searched from the system directories.
-- If you call `Wim.GlobalInit()` without `libPath` parameter on Linux or macOS, `ManagedWimLib` will search for system-installed wimlib. I recommend to use system-installed wimlib
+  - If you want NTFS-3G functionality, load the system-installed library and make sure your program is compatible with GPLv3.
+  - On Linux, wimlib depends on system-installed `libfuse`.
 
 ### Cleanup
 

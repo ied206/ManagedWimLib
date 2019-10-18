@@ -13,8 +13,13 @@ LIB_PREFIX=$HOME/wimlib-build
 LIBFUSE_SRC_DIR=$(readlink -f "$1")
 mkdir $LIB_PREFIX
 cd $LIBFUSE_SRC_DIR
+rm -rf build
 mkdir build
-CFLAGS=-Os meson . build --strip --default-library shared --prefix=$LIB_PREFIX 
+CFLAGS="-Os -fPIC" meson . build \
+    --strip --default-library static \
+    --prefix $LIB_PREFIX \
+    --buildtype release \
+    -Dutils=false -Dexamples=false -Duseroot=false -Ddisable-mtab=false
 cd build
 ninja -j 12
 ninja install
