@@ -7,6 +7,7 @@
 BASE_ABS_PATH=$(readlink -f "$0")
 # Absolute path this script is in, thus /home/user/bin
 BASE_DIR=$(dirname "$BASE_ABS_PATH")
+CORES=$(grep -c ^processor /proc/cpuinfo)
 
 # sudo apt install libfuse-dev
 pushd $PWD
@@ -19,11 +20,8 @@ make clean
 ./configure --enable-dynamic --disable-static \
     LIBXML2_CFLAGS="-I$LIB_PREFIX/include/libxml2" \
     LIBXML2_LIBS="-L$LIB_PREFIX/lib -lxml2" \
-    # LIBFUSE_CFLAGS="-I$LIB_PREFIX/include" \
-    # LIBFUSE_LIBS="-I$LIB_PREFIX/lib/x86_64-linux-gnu -lfuse" \
-    # PKG_CONFIG_PATH="$LIB_PREFIX/lib/pkgconfig:$LIB_PREFIX/lib/x86_64-linux-gnu/pkgconfig" \
     --without-libcrypto --without-ntfs-3g $extra_args
-make -j12
+make -j#CORES
 cp .libs/*.so $BASE_DIR
 strip $BASE_DIR/*.so
 popd
