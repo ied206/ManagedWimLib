@@ -21,7 +21,7 @@ make clean
     LIBXML2_CFLAGS="-I$LIB_PREFIX/include/libxml2" \
     LIBXML2_LIBS="-L$LIB_PREFIX/lib -lxml2" \
     --without-libcrypto --without-ntfs-3g $extra_args
-make -j#CORES
+make -j$CORES
 cp .libs/*.so $BASE_DIR
 strip $BASE_DIR/*.so
 popd
