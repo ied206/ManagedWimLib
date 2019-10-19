@@ -13,7 +13,7 @@ CORES=$(grep -c ^processor /proc/cpuinfo)
 pushd $PWD
 LIB_PREFIX=$HOME/wimlib-build
 cd $1
-if [ $ARCH = x86_64 ]; then
+if [ $ARCH == x86_64 ]; then
     extra_args="--enable-ssse3-sha1"
 fi
 make clean
