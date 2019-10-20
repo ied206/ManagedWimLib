@@ -53,15 +53,6 @@ namespace ManagedWimLib
         public WimLibLoader(string libPath) : base(libPath) { }
         #endregion
 
-        #region LP64 and LLP64
-        internal enum LongBits
-        {
-            Long64 = 0, // Windows, Linux 32bit (LLP64)
-            Long32 = 1, // Linux 64bit (LP64)
-        }
-        internal LongBits LongBitType;
-        #endregion 
-
         #region UTF-8 and UTF-16
         internal Utf8d Utf8 = new Utf8d();
         internal Utf16d Utf16 = new Utf16d();
@@ -1294,9 +1285,9 @@ namespace ManagedWimLib
             switch (UnicodeConvention)
             {
                 case UnicodeConvention.Utf16:
-                    switch (LongBitType)
+                    switch (PlatformLongSize)
                     {
-                        case LongBits.Long32:
+                        case PlatformLongSize.Long32:
                             Utf16d.CaptureSourceBaseL32[] capSrcsL32 = new Utf16d.CaptureSourceBaseL32[sources.Length];
                             for (int i = 0; i < sources.Length; i++)
                             {
@@ -1308,7 +1299,7 @@ namespace ManagedWimLib
                                 };
                             }
                             return Utf16.AddImageMultiSourceL32(wim, capSrcsL32, numSources, name, configFile, addFlags);
-                        case LongBits.Long64:
+                        case PlatformLongSize.Long64:
                             Utf16d.CaptureSourceBaseL64[] capSrcsL64 = new Utf16d.CaptureSourceBaseL64[sources.Length];
                             for (int i = 0; i < sources.Length; i++)
                             {
@@ -1324,9 +1315,9 @@ namespace ManagedWimLib
                     throw new PlatformNotSupportedException();
                 case UnicodeConvention.Utf8:
                 default:
-                    switch (LongBitType)
+                    switch (PlatformLongSize)
                     {
-                        case LongBits.Long32:
+                        case PlatformLongSize.Long32:
                             Utf8d.CaptureSourceBaseL32[] capSrcsL32 = new Utf8d.CaptureSourceBaseL32[sources.Length];
                             for (int i = 0; i < sources.Length; i++)
                             {
@@ -1338,7 +1329,7 @@ namespace ManagedWimLib
                                 };
                             }
                             return Utf8.AddImageMultiSourceL32(wim, capSrcsL32, numSources, name, configFile, addFlags);
-                        case LongBits.Long64:
+                        case PlatformLongSize.Long64:
                             Utf8d.CaptureSourceBaseL64[] capSrcsL64 = new Utf8d.CaptureSourceBaseL64[sources.Length];
                             for (int i = 0; i < sources.Length; i++)
                             {

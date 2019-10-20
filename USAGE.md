@@ -11,44 +11,32 @@ Put this snippet in your application's init code:
 ```cs
 public static void InitNativeLibrary()
 {
-    const string x64 = "x64";
-    const string x86 = "x86";
-    const string armhf = "armhf";
-    const string arm64 = "arm64";
-
-    const string dllName = "libwim-15.dll";
-    const string soName = "libwim.so";
-
+    string arch = null;
+    switch (RuntimeInformation.OSArchitecture)
+    {
+        case Architecture.X86:
+            arch = "x86";
+            break;
+        case Architecture.X64:
+            arch = "x64";
+            break;
+        case Architecture.Arm:
+            arch = "armhf";
+            break;
+        case Architecture.Arm64:
+            arch = "arm64";
+            break;
+    }
+    
     string libPath = null;
     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-    {
-        switch (RuntimeInformation.ProcessArchitecture)
-        {
-            case Architecture.X86:
-                libPath = Path.Combine(x86, dllName);
-                break;
-            case Architecture.X64:
-                libPath = Path.Combine(x64, dllName);
-                break;
-        }
-    }
+        libPath = Path.Combine(arch, "libwim-15.dll");
     else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-    {
-        switch (RuntimeInformation.ProcessArchitecture)
-        {
-            case Architecture.X64:
-                libPath = Path.Combine(x64, soName);
-                break;
-            case Architecture.Arm:
-                libPath = Path.Combine(armhf, soName);
-                break;
-            case Architecture.Arm64:
-                libPath = Path.Combine(arm64, soName);
-                break;
-        }
-    }
+        libPath = Path.Combine(arch, "libwim.so");
+    else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        libPath = Path.Combine(arch, "libwim.dylib");
 
-    if (libPath == null)
+    if (libPath == null || !File.Exists(libPath))
         throw new PlatformNotSupportedException();
 
     Wim.GlobalInit(libPath);
@@ -69,19 +57,22 @@ They will be copied into the build directory at build time.
 | Ubuntu 18.04 x64 | `$(OutDir)\x64\libwim.so`     | LGPLv3 (w/o NTFS-3G) |
 | Debian 9 armhf   | `$(OutDir)\armhf\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
 | Debian 9 arm64   | `$(OutDir)\arm64\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
-| macOS 10.15      | | |
+| macOS 10.15      | `$(OutDir)\x64\libwim.dylib`  | LGPLv3 (w/o NTFS-3G) |
 
 - Build Command
 
-| Platform         | Binary Source or Build Command | Dependency           |
-|------------------|--------------------------------|----------------------|
+| Platform         | Binary Source / Build Command | Dependency |
+|------------------|-------------------------------|------------|
 | Windows x86      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.1-windows-i686-bin.zip)   | -               |
 | Windows x64      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.1-windows-x86_64-bin.zip) | -               |
-| Ubuntu 18.04 x64 | `./configure --without-ntfs-3g --disable-static --enable-ssse3-sha1` | `libxml2`, `libfuse` |
-| Debian 10 armhf  | `./configure --without-ntfs-3g --disable-static` | `libxml2`, `libfuse` |
-| Debian 10 arm64  | `./configure --without-ntfs-3g --disable-static` | `libxml2`, `libfuse` |
-| macOS 10.15      | `libxml2`: `./configure --with-minimum --disable-static --with-minimum --without-lzma --with-tree --with-writer` | |
-|                  | `libwim`: `./configure --without-ntfs-3g --without-fuse --disable-static` | |
+| Ubuntu 18.04 x64 | libxml2: `./configure --enable-static CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
+|                  | libwim: `./configure --disable-static --without-libcrypto --without-ntfs-3g --enable-ssse3-sha1` | glibc, libfuse |
+| Debian 10 armhf  | libxml2: `./configure --enable-static CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
+|                  | libwim: `./configure --disable-static --without-libcrypto --without-ntfs-3g` | glibc, libfuse |
+| Debian 10 arm64  | libxml2: `./configure --enable-static CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
+|                  | libwim: `./configure --disable-static --without-libcrypto --without-ntfs-3g` | glibc, libfuse |
+| macOS 10.15      | libxml2: `./configure --enable-static CFLAGS="-Os" --with-minimum --without-lzma --with-tree --with-writer` (static linked) | - |
+|                  | libwim: `./configure --disable-static --without-libcrypto --without-ntfs-3g --without-fuse --enable-ssse3-sha1` | - |
 
 ### Custom binary
 
@@ -90,10 +81,11 @@ To use custom wimlib binary instead, call `Wim.GlobalInit()` with a path to the 
 #### NOTES
 
 - Create an empty file named `ManagedWimLib.Precompiled.Exclude` in the project directory to prevent copy of the package-embedded binary.
-- POSIX binaries were compiled without NTFS-3G support to make them as LGPLv3-licensed. If you want NTFS-3G functionality, provide the library yourself and make sure your program is compatible with GPLv3.
-  - wimlib depends on `libfuse` and `libxml2`, and it will search them from the system directories.
-- You may have to compile custom wimlib to use ManagedWimLib in untested Linux distribution.
-- If you do not specify `libPath` parameter on Linux or macOS, `ManagedWimLib` will search for system-installed wimlib.
+- If you call `Wim.GlobalInit()` without `libPath` parameter on Linux or macOS, `ManagedWimLib` will search for system-installed wimlib.
+  - I recommend to use system-installed wimlib if you can, as I cannot ensure the included Linux binaries works on the every Linux distribution.
+- POSIX binaries were compiled without NTFS-3G support to make them as LGPLv3-licensed.
+  - If you want NTFS-3G functionality, load the system-installed library and make sure your program is compatible with GPLv3.
+  - On Linux, wimlib depends on system-installed `libfuse`.
 
 ### Cleanup
 

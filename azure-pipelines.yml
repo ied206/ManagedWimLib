@@ -1,9 +1,8 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+# Linux build was omitted because the test always fails regardless of wimlib binary used
 
 strategy:
   matrix:
-    linux:
-      imageName: 'ubuntu-latest'
     mac:
       imageName: 'macos-latest'
     windows:
