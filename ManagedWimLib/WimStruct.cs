@@ -23,8 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -51,12 +49,52 @@ namespace ManagedWimLib
         #region Const
         public const int NoImage = 0;
         public const int AllImages = -1;
+        /// <summary>
+        /// Let wimlib determine best thread count to use.
+        /// </summary>
         public const int DefaultThreads = 0;
         #endregion
 
-        #region Field
+        #region Fields
         private IntPtr _ptr;
         private ManagedProgressCallback _managedCallback;
+        #endregion
+
+        #region Properties
+        /// <summary>
+        /// The error file which wimlib prints error message to. Valid only if ErrorPrintState is PrintOn, else the property returns null.
+        /// </summary>
+        public static string ErrorFile => Lib.GetErrorFilePath();
+        /// <summary>
+        /// Represents whether wimlib is printing error messages or not.
+        /// </summary>
+        public static ErrorPrintState ErrorPrintState => Lib.GetErrorPrintState();
+
+        /// <summary>
+        /// Does the same job with Path.DirectorySeparatorChar, as string. Provided for the compatibility with old releases.
+        /// </summary>
+        public static string PathSeparator
+        {
+            get
+            {
+#if !NET451
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+#endif
+                {
+                    return @"\";
+                }
+#if !NET451
+                else
+                {
+                    return @"/";
+                }
+#endif
+            }
+        }
+        /// <summary>
+        /// Does the same job with Path.DirectorySeparatorChar, as string. Provided for the compatibility with old releases.
+        /// </summary>
+        public static string RootPath => PathSeparator;
         #endregion
 
         #region Constructor (private)
@@ -93,7 +131,7 @@ namespace ManagedWimLib
         }
         #endregion
 
-        #region Error - (Static) GetErrorString, GetLastError, SetPrintErrors
+        #region Error - (Static) GetErrorString, GetErrors, GetLastError, SetPrintErrors
         /// <summary>
         /// Convert a wimlib error code into a string describing it.
         /// </summary>
@@ -110,56 +148,53 @@ namespace ManagedWimLib
             return Lib.PtrToStringAuto(ptr);
         }
 
+        /// <summary>
+        /// Returns a list of every error messages generated.
+        /// If error logging was turned off by SetPrintErrors(false), null is returned.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method does not clear old error messages.
+        /// Call ResetErrorFile() to clear them.
+        /// </remarks>
+        /// <returns>An array of error string. If SetPrintErrors(false) was called, null is returned.</returns>
         public static string[] GetErrors()
         {
-            if (Lib.ErrorFile == null)
-                return null;
-            if (!Lib.PrintErrorsEnabled)
-                return null;
+            Manager.EnsureLoaded();
 
-            using (FileStream fs = new FileStream(Lib.ErrorFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (StreamReader r = new StreamReader(fs, Lib.UnicodeEncoding, false))
-            {
-                return r.ReadToEnd().Split('\n').Select(x => x.Trim()).Where(x => 0 < x.Length).ToArray();
-            }
-        }
-
-        public static string GetLastError()
-        {
-            if (Lib.ErrorFile == null)
-                return null;
-            if (!Lib.PrintErrorsEnabled)
-                return null;
-
-            using (FileStream fs = new FileStream(Lib.ErrorFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (StreamReader r = new StreamReader(fs, Lib.UnicodeEncoding, false))
-            {
-                var lines = r.ReadToEnd().Split('\n').Select(x => x.Trim()).Where(x => 0 < x.Length);
-                return lines.LastOrDefault();
-            }
-        }
-
-        public static void ResetErrorFile()
-        {
-            if (Lib.ErrorFile == null)
-                return;
-            if (!Lib.PrintErrorsEnabled)
-                return;
-
-            // Overwrite to Empty File
-            using (FileStream fs = new FileStream(Lib.ErrorFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-            using (StreamWriter w = new StreamWriter(fs, Lib.UnicodeEncoding))
-            {
-                w.WriteLine();
-            }
+            return Lib.GetErrors();
         }
 
         /// <summary>
-        /// Set whether wimlib can print error and warning messages to the error file, which defaults to standard error.
+        /// Returns last error message.
+        /// If error logging was turned off by SetPrintErrors(false), null is returned.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method does not clear old error messages.
+        /// Call ResetErrorFile() to clear them.
+        /// </remarks>
+        /// <returns>If error had been created, an error string is returned. If error had not been generated or SetPrintErrors(false) was called, null is returned.</returns>
+        public static string GetLastError()
+        {
+            Manager.EnsureLoaded();
+
+            return Lib.GetLastError();
+        }
+
+        /// <summary>
+        /// Clear old error messages.
+        /// </summary>
+        public static void ResetErrorFile()
+        {
+            Manager.EnsureLoaded();
+
+            Lib.ResetErrorFile();
+        }
+
+        /// <summary>
+        /// Set whether wimlib can print error and warning messages to the error file, which can be retreived with GetErrors().
         /// Error and warning messages may provide information that cannot be determined only from returned error codes.
         /// 
-        /// By default, error messages are not printed.
-        /// This setting applies globally (it is not per-WIM).
+        /// This setting applies globally (not per-WIM).
         /// This can be called before Wim.GlobalInit().
         /// </summary>
         /// <param name="showMessages">
@@ -171,10 +206,7 @@ namespace ManagedWimLib
         {
             Manager.EnsureLoaded();
 
-            ErrorCode ret = Lib.SetPrintErrors(showMessages);
-            WimLibException.CheckWimLibError(ret);
-
-            Lib.PrintErrorsEnabled = showMessages;
+            Lib.SetPrintErrors(showMessages);
         }
         #endregion
 

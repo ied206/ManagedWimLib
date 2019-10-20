@@ -24,6 +24,8 @@
 using Joveler.DynLoader;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 // ReSharper disable FieldCanBeMadeReadOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -59,8 +61,24 @@ namespace ManagedWimLib
         #endregion
 
         #region Error Settings
-        internal string ErrorFile = null;
-        internal bool PrintErrorsEnabled = false;
+        private string _errorFile = null;
+        private ErrorPrintState _errorPrintState = ErrorPrintState.PrintOff;
+
+        internal static readonly object _errorFileLock = new object();
+        internal string GetErrorFilePath()
+        {
+            lock (_errorFileLock)
+            {
+                return _errorFile;
+            }
+        }
+        internal ErrorPrintState GetErrorPrintState()
+        {
+            lock (_errorFileLock)
+            {
+                return _errorPrintState;
+            }
+        }
         #endregion
 
         #region (override) DefaultLibFileName
@@ -261,7 +279,7 @@ namespace ManagedWimLib
 
             #region Error - GetErrorString, SetPrintErrors
             GetErrorString = GetFuncPtr<wimlib_get_error_string>(nameof(wimlib_get_error_string));
-            SetPrintErrors = GetFuncPtr<wimlib_set_print_errors>(nameof(wimlib_set_print_errors));
+            SetPrintErrorsPtr = GetFuncPtr<wimlib_set_print_errors>(nameof(wimlib_set_print_errors));
             #endregion
 
             #region Create - CreateWim
@@ -327,6 +345,10 @@ namespace ManagedWimLib
             #region Write - Overwrite
             Overwrite = GetFuncPtr<wimlib_overwrite>(nameof(wimlib_overwrite));
             #endregion
+
+            #region (Code) Set ErrorFile and PrintError
+            SetErrorFile();
+            #endregion
         }
 
         protected override void ResetFunctions()
@@ -340,7 +362,7 @@ namespace ManagedWimLib
             GetErrorString = null;
             Utf16.SetErrorFile = null;
             Utf8.SetErrorFile = null;
-            SetPrintErrors = null;
+            SetPrintErrorsPtr = null;
             #endregion
 
             #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
@@ -491,6 +513,10 @@ namespace ManagedWimLib
             Utf8.Write = null;
             Overwrite = null;
             #endregion
+
+            #region (Code) Cleanup ErrorFile
+            SetPrintErrors(false);
+            #endregion
         }
         #endregion
 
@@ -502,6 +528,17 @@ namespace ManagedWimLib
             internal const CharSet StructCharSet = CharSet.Unicode;
 
             #region Error - SetErrorFile
+            /// <summary>
+            /// Set the path to the file to which the library will print error and warning messages.
+            /// The library will open this file for appending.
+            /// 
+            /// This also enables error messages, as if by a call to wimlib_set_print_errors(true).
+            /// </summary>
+            /// <remarks>
+            /// WIMLIB_ERR_OPEN: The file named by @p path could not be opened for appending.
+            /// WIMLIB_ERR_UNSUPPORTED: wimlib was compiled using the <c>--without-error-messages</c> option.
+            /// </remarks>
+            /// <returns>0 on success; a ::wimlib_error_code value on failure.</returns>
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_set_error_file_by_name(
                 [MarshalAs(StrType)] string path);
@@ -853,6 +890,17 @@ namespace ManagedWimLib
             internal const CharSet StructCharSet = CharSet.Ansi;
 
             #region Error - SetErrorFile
+            /// <summary>
+            /// Set the path to the file to which the library will print error and warning messages.
+            /// The library will open this file for appending.
+            /// 
+            /// This also enables error messages, as if by a call to wimlib_set_print_errors(true).
+            /// </summary>
+            /// <remarks>
+            /// WIMLIB_ERR_OPEN: The file named by @p path could not be opened for appending.
+            /// WIMLIB_ERR_UNSUPPORTED: wimlib was compiled using the <c>--without-error-messages</c> option.
+            /// </remarks>
+            /// <returns>0 on success; a ::wimlib_error_code value on failure.</returns>
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_set_error_file_by_name(
                 [MarshalAs(StrType)] string path);
@@ -1232,27 +1280,147 @@ namespace ManagedWimLib
         internal wimlib_register_progress_function RegisterProgressFunction;
         #endregion
 
-        #region Error - GetErrorString, SetErrorFile, SetPrintErrors
+        #region Error - GetErrorString, SetErrorFile, SetPrintErrors and Helpers
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate IntPtr wimlib_get_error_string(ErrorCode code);
         internal wimlib_get_error_string GetErrorString;
 
-        internal ErrorCode SetErrorFile(string path)
+        internal void SetErrorFile()
         {
+            string errorFile = Path.GetTempFileName();
+            SetErrorFile(errorFile);
+        }
+
+        internal void SetErrorFile(string path)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
+            // wimlib_set_error_file_by_name(string path) internally calls wimlib_set_print_errors(true).
+            ErrorCode ret;
             switch (UnicodeConvention)
             {
                 case UnicodeConvention.Utf16:
-                    return Utf16.SetErrorFile(path);
+                    ret = Utf16.SetErrorFile(path);
+                    break;
                 case UnicodeConvention.Utf8:
                 default:
-                    return Utf8.SetErrorFile(path);
+                    ret = Utf8.SetErrorFile(path);
+                    break;
+            }
+
+            // When ret is ErrorCode.UNSUPPORTED, wimlib was compiled using the --without-error-messages option.
+            // In that case, ManagedWimLib must not throw WimLibException.
+            if (ret == ErrorCode.UNSUPPORTED)
+            {
+                _errorPrintState = ErrorPrintState.NotSupported;
+
+                // ErrorFile is no longer used, delete it
+                if (_errorFile != null)
+                {
+                    if (File.Exists(_errorFile))
+                        File.Delete(_errorFile);
+                    _errorFile = null;
+                }
+            }
+            else
+            {
+                WimLibException.CheckWimLibError(ret);
+
+                // Set new ErrorFile and report state as ErrorPrintState.PrintOn.
+                _errorPrintState = ErrorPrintState.PrintOn;
+                _errorFile = path;
             }
         }
 
+        /// <summary>
+        /// Set whether wimlib can print error and warning messages to the error file, which defaults to standard error.
+        /// Error and warning messages may provide information that cannot be determined only from returned error codes.
+        /// 
+        /// By default, error messages are not printed.
+        /// This setting applies globally (it is not per-WIM).
+        /// This can be called before wimlib_global_init().
+        /// </summary>
+        /// <remarks>
+        /// WIMLIB_ERR_UNSUPPORTED: wimlib was compiled using the --without-error-messages option.
+        /// </remarks>
+        /// <returns></returns>
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate ErrorCode wimlib_set_print_errors(
-            bool showMessages);
-        internal wimlib_set_print_errors SetPrintErrors;
+        internal delegate ErrorCode wimlib_set_print_errors(bool showMessages);
+        private wimlib_set_print_errors SetPrintErrorsPtr;
+
+        internal void SetPrintErrors(bool showMessages)
+        {
+            lock (_errorFileLock)
+            {
+                ErrorCode ret = SetPrintErrorsPtr(showMessages);
+
+                // When ret is ErrorCode.UNSUPPORTED, wimlib was compiled using the --without-error-messages option.
+                // In that case, ManagedWimLib must not throw WimLibException.
+                if (ret == ErrorCode.UNSUPPORTED)
+                {
+                    _errorPrintState = ErrorPrintState.NotSupported;
+                }
+                else
+                {
+                    WimLibException.CheckWimLibError(ret);
+                    _errorPrintState = showMessages ? ErrorPrintState.PrintOn : ErrorPrintState.PrintOff;
+                }
+            }
+        }
+
+        internal string[] GetErrors()
+        {
+            lock (_errorFileLock)
+            {
+                if (_errorFile == null)
+                    return null;
+                if (_errorPrintState != ErrorPrintState.PrintOn)
+                    return null;
+
+                using (FileStream fs = new FileStream(_errorFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (StreamReader r = new StreamReader(fs, UnicodeEncoding, false))
+                {
+                    return r.ReadToEnd().Split('\n').Select(x => x.Trim()).Where(x => 0 < x.Length).ToArray();
+                }
+            }
+        }
+
+        internal string GetLastError()
+        {
+            lock (_errorFileLock)
+            {
+                if (_errorFile == null)
+                    return null;
+                if (_errorPrintState != ErrorPrintState.PrintOn)
+                    return null;
+
+                using (FileStream fs = new FileStream(_errorFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (StreamReader r = new StreamReader(fs, UnicodeEncoding, false))
+                {
+                    var lines = r.ReadToEnd().Split('\n').Select(x => x.Trim()).Where(x => 0 < x.Length);
+                    return lines.LastOrDefault();
+                }
+            }
+        }
+
+        internal void ResetErrorFile()
+        {
+            lock (_errorFileLock)
+            {
+                if (_errorFile == null)
+                    return;
+                if (_errorPrintState != ErrorPrintState.PrintOn)
+                    return;
+
+                // Overwrite to Empty File
+                using (FileStream fs = new FileStream(_errorFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                using (StreamWriter w = new StreamWriter(fs, UnicodeEncoding))
+                {
+                    w.WriteLine();
+                }
+            }
+        }
         #endregion
 
         #region Add - AddEmptyImage, AddImage, AddImageMultiSource, AddTree
@@ -1861,4 +2029,25 @@ namespace ManagedWimLib
         }
         #endregion
     }
+
+    #region enum ErrorPrintState
+    /// <summary>
+    /// Represents whether wimlib is printing error messages or not.
+    /// </summary>
+    public enum ErrorPrintState
+    {
+        /// <summary>
+        /// Error messages are not being printed to ErrorFile.
+        /// </summary>
+        PrintOff = 0,
+        /// <summary>
+        /// Error messages are being printed to ErrorFile.
+        /// </summary>
+        PrintOn = 1,
+        /// <summary>
+        /// wimlib was not built with --without-error-messages option.
+        /// </summary>
+        NotSupported = 2,
+    }
+    #endregion
 }

@@ -5,7 +5,7 @@
     <PackageId>ManagedWimLib</PackageId>
     <Title>ManagedWimLib</Title>
     <LangVersion>latest</LangVersion>
-    <Version>1.4.0</Version>
+    <Version>1.4.1</Version>
     <Authors>Eric Biggers, Hajin Jang</Authors>
     <Company>Joveler</Company>
     <Description>Native wimlib wrapper library for .Net.
@@ -16,20 +16,23 @@ Supports Windows, Linux and macOS.</Description>
     <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
     <PackageIcon>images\Logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/ied206/ManagedWimLib</RepositoryUrl>
-    <PackageReleaseNotes>- Support macOS platform
-- Apply improved native library loader (Joveler.DynLoader)</PackageReleaseNotes>
+    <PackageReleaseNotes>- (v1.4) Support macOS platform
+- Fix Wim.GetErrors(), Wim.GetLastError() regression
+- Fix Wim.RootPath, Wim.PathSeparator regression
+- Error print state is now readable from Wim.ErrorPrintState</PackageReleaseNotes>
     <PackageTags>wim wimlib dism imagex archive native pinvoke interop</PackageTags>
   </PropertyGroup>
   <Import Project="$(MSBuildProjectDirectory)\ManagedWimLib.targets" />
   <ItemGroup>
     <PackageReference Include="Joveler.DynLoader" Version="1.2.0" />
+    <!-- Nuget Pacakge Icon -->
     <None Include="..\Image\Logo.png" Pack="true" PackagePath="images\" />
     <!-- .Net Framework 4.5.1 -->
-    <None Include="ManagedWimLib.targets" Pack="true" PackagePath="build\net451\ManagedWimLib.targets" />
+    <None Include="ManagedWimLib.targets" Pack="true" PackagePath="build\net451" />
     <None Include="Precompiled\x86\*.dll" Pack="true" PackagePath="build\net451\Precompiled\x86" />
     <None Include="Precompiled\x64\*.dll" Pack="true" PackagePath="build\net451\Precompiled\x64" />
     <!-- .Net Standard 2.0 -->
-    <None Include="ManagedWimLib.targets" Pack="true" PackagePath="build\netstandard2.0\ManagedWimLib.targets" />
+    <None Include="ManagedWimLib.targets" Pack="true" PackagePath="build\netstandard2.0" />
     <None Include="Precompiled\x86\*" Pack="true" PackagePath="build\netstandard2.0\Precompiled\x86" />
     <None Include="Precompiled\x64\*" Pack="true" PackagePath="build\netstandard2.0\Precompiled\x64" />
     <None Include="Precompiled\armhf\*" Pack="true" PackagePath="build\netstandard2.0\Precompiled\armhf" />

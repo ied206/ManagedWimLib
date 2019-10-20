@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2018 Hajin Jang
+    Copyright (C) 2017-2019 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -29,11 +29,11 @@ using System.IO;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
+    [TestCategory("WimLib")]
     public class IterateTests
     {
         #region IterateDirTree
         [TestMethod]
-        [TestCategory("WimLib")]
         public void IterateDirTree()
         {
             IterateDirTree_Template("XPRESS.wim");
@@ -57,7 +57,7 @@ namespace ManagedWimLib.Tests
             string wimFile = Path.Combine(TestSetup.SampleDir, wimFileName);
             using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
             {
-                wim.IterateDirTree(1, TestHelper.RootPath, IterateFlags.RECURSIVE, IterateCallback);
+                wim.IterateDirTree(1, Wim.RootPath, IterateFlags.RECURSIVE, IterateCallback);
             }
 
             TestHelper.CheckPathList(SampleSet.Src01, entries);
