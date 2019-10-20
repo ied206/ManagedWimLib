@@ -47,8 +47,8 @@ If you need .Net Standard 1.3 support, use [1.2.x version](https://www.nuget.org
 | Architecture | Distribution | Note |
 |--------------|--------------|------|
 | x64          | Ubuntu 18.04 | Tested on AppVeyor CI         |
-| armhf        | Debian 9     | Emulated on QEMU's virt board |
-| arm64        | Debian 9     | Emulated on QEMU's virt board |
+| armhf        | Debian 10    | Emulated on QEMU's virt board |
+| arm64        | Debian 10    | Emulated on QEMU's virt board |
 
 ### Supported wimlib version
 
