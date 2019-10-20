@@ -6,22 +6,23 @@
 # Absolute path to this script, e.g. /home/user/bin/foo.sh
 BASE_ABS_PATH=$(readlink -f "$0")
 # Absolute path this script is in, thus /home/user/bin
-BASE_DIR=$(dirname "$BASE_ABS_PATH")
+BASE_DIR=$(dirname "${BASE_ABS_PATH}")
 CORES=$(grep -c ^processor /proc/cpuinfo)
+ARCH=$(uname -m)
 
 # sudo apt install libfuse-dev
-pushd $PWD
-LIB_PREFIX=$HOME/wimlib-build
+pushd "${PWD}"
+LIB_PREFIX="${HOME}/wimlib-build"
 cd $1
-if [ $ARCH == x86_64 ]; then
-    extra_args="--enable-ssse3-sha1"
+if [ "${ARCH}" = "x86_64" ]; then
+    EXTRA_ARGS="--enable-ssse3-sha1"
 fi
 make clean
 ./configure --enable-dynamic --disable-static \
-    LIBXML2_CFLAGS="-I$LIB_PREFIX/include/libxml2" \
-    LIBXML2_LIBS="-L$LIB_PREFIX/lib -lxml2" \
-    --without-libcrypto --without-ntfs-3g $extra_args
-make -j$CORES
-cp .libs/*.so $BASE_DIR
-strip $BASE_DIR/*.so
+    LIBXML2_CFLAGS="-I${LIB_PREFIX}/include/libxml2" \
+    LIBXML2_LIBS="-L${LIB_PREFIX}/lib -lxml2" \
+    --without-libcrypto --without-ntfs-3g "${EXTRA_ARGS}"
+make "-j${CORES}"
+cp ".libs/libwim.so" "${BASE_DIR}"
+strip "${BASE_DIR}/libwim.so"
 popd
