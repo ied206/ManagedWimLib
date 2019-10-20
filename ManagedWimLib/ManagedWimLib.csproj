@@ -12,7 +12,7 @@
 Provides every capabilities of wimlib.
 Supports Windows, Linux and macOS.</Description>
     <Copyright>Copyright (c) 2018-2019 Hajin Jang</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
     <PackageIcon>images\Logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/ied206/ManagedWimLib</RepositoryUrl>
