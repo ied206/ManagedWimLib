@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2018 Hajin Jang
+    Copyright (C) 2017-2019 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -145,17 +145,6 @@ namespace ManagedWimLib.Tests
         public static Tuple<string, bool>[] NormalizePaths(IEnumerable<Tuple<string, bool>> tuples)
         {
             return tuples.Select(x => new Tuple<string, bool>(NormalizePath(x.Item1), x.Item2)).ToArray();
-        }
-
-        public static string RootPath
-        {
-            get
-            {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                    return @"\";
-                else
-                    return @"/";
-            }
         }
         #endregion
 
@@ -384,7 +373,7 @@ namespace ManagedWimLib.Tests
 
             using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
             {
-                wim.IterateDirTree(1, TestHelper.RootPath, IterateFlags.RECURSIVE, IterateCallback);
+                wim.IterateDirTree(1, Wim.RootPath, IterateFlags.RECURSIVE, IterateCallback);
             }
 
             return entries;

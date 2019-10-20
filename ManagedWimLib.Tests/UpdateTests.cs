@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2018 Hajin Jang
+    Copyright (C) 2017-2019 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -130,7 +130,7 @@ namespace ManagedWimLib.Tests
 
                 using (Wim wim = Wim.OpenWim(destWimFile, OpenFlags.DEFAULT))
                 {
-                    wim.IterateDirTree(1, TestHelper.RootPath, IterateFlags.RECURSIVE, IterateCallback, entries);
+                    wim.IterateDirTree(1, Wim.RootPath, IterateFlags.RECURSIVE, IterateCallback, entries);
                 }
 
                 Assert.IsTrue(tested.Value);
@@ -141,19 +141,19 @@ namespace ManagedWimLib.Tests
                         case UpdateOp.ADD:
                             {
                                 UpdateCommand.UpdateAdd add = cmd.Add;
-                                Assert.IsTrue(entries.Contains(Path.Combine(TestHelper.RootPath, add.WimTargetPath), StringComparer.Ordinal));
+                                Assert.IsTrue(entries.Contains(Path.Combine(Wim.RootPath, add.WimTargetPath), StringComparer.Ordinal));
                             }
                             break;
                         case UpdateOp.DELETE:
                             {
                                 UpdateCommand.UpdateDelete del = cmd.Delete;
-                                Assert.IsFalse(entries.Contains(Path.Combine(TestHelper.RootPath, del.WimPath), StringComparer.Ordinal));
+                                Assert.IsFalse(entries.Contains(Path.Combine(Wim.RootPath, del.WimPath), StringComparer.Ordinal));
                             }
                             break;
                         case UpdateOp.RENAME:
                             {
                                 UpdateCommand.UpdateRename ren = cmd.Rename;
-                                Assert.IsTrue(entries.Contains(Path.Combine(TestHelper.RootPath, ren.WimTargetPath), StringComparer.Ordinal));
+                                Assert.IsTrue(entries.Contains(Path.Combine(Wim.RootPath, ren.WimTargetPath), StringComparer.Ordinal));
                             }
                             break;
                     }
