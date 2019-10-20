@@ -4,7 +4,7 @@
     <img src="./Image/Logo.svg" height="128">
 </div>
 
-C# pinvoke library for native [wimlib](https://wimlib.net).
+Cross-platform [wimlib](https://wimlib.net) pinvoke library for .Net.
 
 wimlib is a library that handles Windows Imaging (WIM) archives, written by Eric Biggers.
 

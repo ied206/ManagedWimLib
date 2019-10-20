@@ -55,8 +55,8 @@ They will be copied into the build directory at build time.
 | Windows x86      | `$(OutDir)\x86\libwim-15.dll` | LGPLv3               |
 | Windows x64      | `$(OutDir)\x64\libwim-15.dll` | LGPLv3               |
 | Ubuntu 18.04 x64 | `$(OutDir)\x64\libwim.so`     | LGPLv3 (w/o NTFS-3G) |
-| Debian 9 armhf   | `$(OutDir)\armhf\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
-| Debian 9 arm64   | `$(OutDir)\arm64\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
+| Debian 10 armhf  | `$(OutDir)\armhf\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
+| Debian 10 arm64  | `$(OutDir)\arm64\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
 | macOS 10.15      | `$(OutDir)\x64\libwim.dylib`  | LGPLv3 (w/o NTFS-3G) |
 
 - Build Command
