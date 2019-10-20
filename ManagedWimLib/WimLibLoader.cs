@@ -61,9 +61,24 @@ namespace ManagedWimLib
         #endregion
 
         #region Error Settings
-        internal string ErrorFile = null;
-        internal ErrorPrintState ErrorPrintState = ErrorPrintState.PrintOff;
+        private string _errorFile = null;
+        private ErrorPrintState _errorPrintState = ErrorPrintState.PrintOff;
+
         internal static readonly object _errorFileLock = new object();
+        internal string GetErrorFilePath()
+        {
+            lock (_errorFileLock)
+            {
+                return _errorFile;
+            }
+        }
+        internal ErrorPrintState GetErrorPrintState()
+        {
+            lock (_errorFileLock)
+            {
+                return _errorPrintState;
+            }
+        }
         #endregion
 
         #region (override) DefaultLibFileName
@@ -332,7 +347,7 @@ namespace ManagedWimLib
             #endregion
 
             #region (Code) Set ErrorFile and PrintError
-            SetupErrorFile();
+            SetErrorFile();
             #endregion
         }
 
@@ -500,23 +515,8 @@ namespace ManagedWimLib
             #endregion
 
             #region (Code) Cleanup ErrorFile
-            CleanupErrorFile();
-            #endregion
-        }
-        #endregion
-
-        #region ErrorFile Handling
-        private void SetupErrorFile()
-        {
-            ErrorFile = Path.GetTempFileName();
-            SetErrorFile(ErrorFile);
-        }
-
-        private void CleanupErrorFile()
-        {
             SetPrintErrors(false);
-            if (File.Exists(ErrorFile))
-                File.Delete(ErrorFile);
+            #endregion
         }
         #endregion
 
@@ -1285,6 +1285,12 @@ namespace ManagedWimLib
         internal delegate IntPtr wimlib_get_error_string(ErrorCode code);
         internal wimlib_get_error_string GetErrorString;
 
+        internal void SetErrorFile()
+        {
+            string errorFile = Path.GetTempFileName();
+            SetErrorFile(errorFile);
+        }
+
         internal void SetErrorFile(string path)
         {
             if (path == null)
@@ -1307,12 +1313,23 @@ namespace ManagedWimLib
             // In that case, ManagedWimLib must not throw WimLibException.
             if (ret == ErrorCode.UNSUPPORTED)
             {
-                ErrorPrintState = ErrorPrintState.NotSupported;
+                _errorPrintState = ErrorPrintState.NotSupported;
+
+                // ErrorFile is no longer used, delete it
+                if (_errorFile != null)
+                {
+                    if (File.Exists(_errorFile))
+                        File.Delete(_errorFile);
+                    _errorFile = null;
+                }
             }
             else
             {
                 WimLibException.CheckWimLibError(ret);
-                ErrorPrintState = ErrorPrintState.PrintOn;
+
+                // Set new ErrorFile and report state as ErrorPrintState.PrintOn.
+                _errorPrintState = ErrorPrintState.PrintOn;
+                _errorFile = path;
             }
         }
 
@@ -1342,12 +1359,12 @@ namespace ManagedWimLib
                 // In that case, ManagedWimLib must not throw WimLibException.
                 if (ret == ErrorCode.UNSUPPORTED)
                 {
-                    ErrorPrintState = ErrorPrintState.NotSupported;
+                    _errorPrintState = ErrorPrintState.NotSupported;
                 }
                 else
                 {
                     WimLibException.CheckWimLibError(ret);
-                    ErrorPrintState = showMessages ? ErrorPrintState.PrintOn : ErrorPrintState.PrintOff;
+                    _errorPrintState = showMessages ? ErrorPrintState.PrintOn : ErrorPrintState.PrintOff;
                 }
             }
         }
@@ -1356,12 +1373,12 @@ namespace ManagedWimLib
         {
             lock (_errorFileLock)
             {
-                if (ErrorFile == null)
+                if (_errorFile == null)
                     return null;
-                if (ErrorPrintState != ErrorPrintState.PrintOn)
+                if (_errorPrintState != ErrorPrintState.PrintOn)
                     return null;
 
-                using (FileStream fs = new FileStream(ErrorFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (FileStream fs = new FileStream(_errorFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (StreamReader r = new StreamReader(fs, UnicodeEncoding, false))
                 {
                     return r.ReadToEnd().Split('\n').Select(x => x.Trim()).Where(x => 0 < x.Length).ToArray();
@@ -1373,12 +1390,12 @@ namespace ManagedWimLib
         {
             lock (_errorFileLock)
             {
-                if (ErrorFile == null)
+                if (_errorFile == null)
                     return null;
-                if (ErrorPrintState != ErrorPrintState.PrintOn)
+                if (_errorPrintState != ErrorPrintState.PrintOn)
                     return null;
 
-                using (FileStream fs = new FileStream(ErrorFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (FileStream fs = new FileStream(_errorFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (StreamReader r = new StreamReader(fs, UnicodeEncoding, false))
                 {
                     var lines = r.ReadToEnd().Split('\n').Select(x => x.Trim()).Where(x => 0 < x.Length);
@@ -1391,13 +1408,13 @@ namespace ManagedWimLib
         {
             lock (_errorFileLock)
             {
-                if (ErrorFile == null)
+                if (_errorFile == null)
                     return;
-                if (ErrorPrintState != ErrorPrintState.PrintOn)
+                if (_errorPrintState != ErrorPrintState.PrintOn)
                     return;
 
                 // Overwrite to Empty File
-                using (FileStream fs = new FileStream(ErrorFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                using (FileStream fs = new FileStream(_errorFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
                 using (StreamWriter w = new StreamWriter(fs, UnicodeEncoding))
                 {
                     w.WriteLine();
@@ -2014,10 +2031,22 @@ namespace ManagedWimLib
     }
 
     #region enum ErrorPrintState
+    /// <summary>
+    /// Represents whether wimlib is printing error messages or not.
+    /// </summary>
     public enum ErrorPrintState
     {
+        /// <summary>
+        /// Error messages are not being printed to ErrorFile.
+        /// </summary>
         PrintOff = 0,
+        /// <summary>
+        /// Error messages are being printed to ErrorFile.
+        /// </summary>
         PrintOn = 1,
+        /// <summary>
+        /// wimlib was not built with --without-error-messages option.
+        /// </summary>
         NotSupported = 2,
     }
     #endregion

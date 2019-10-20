@@ -37,11 +37,18 @@ namespace ManagedWimLib.Tests
         public void GetLastError()
         {
             string[] paths = new string[] { @"\NOTEXIST.bin", @"NOTGLOB?.cue" };
-            CheckErrorTemplate("XPRESS.wim", paths);
-            CheckErrorTemplate("XPRESS.wim", paths);
+
+            // Default is Wim.SetPrintErrors(true);
+            CheckErrorTemplate("XPRESS.wim", paths, true);
+
+            Wim.SetPrintErrors(false);
+            CheckErrorTemplate("LZX.wim", paths, false);
+
+            Wim.SetPrintErrors(true);
+            CheckErrorTemplate("LZMS.wim", paths, true);
         }
 
-        public void CheckErrorTemplate(string fileName, string[] paths)
+        public void CheckErrorTemplate(string fileName, string[] paths, bool printError)
         {
             string destDir = TestHelper.GetTempDir();
             try
@@ -127,10 +134,20 @@ namespace ManagedWimLib.Tests
 
                 // Read error message
                 string[] errorMsgs = Wim.GetErrors();
-                Assert.IsNotNull(errorMsgs);
-                Assert.IsTrue(0 < errorMsgs.Length);
-                foreach (string errorMsg in errorMsgs)
-                    Console.WriteLine(errorMsg);
+                ErrorPrintState printState = Wim.ErrorPrintState;
+                if (printError)
+                {
+                    Assert.IsNotNull(errorMsgs);
+                    Assert.AreEqual(ErrorPrintState.PrintOn, printState);
+                    Assert.IsTrue(0 < errorMsgs.Length);
+                    foreach (string errorMsg in errorMsgs)
+                        Console.WriteLine(errorMsg);
+                }
+                else
+                {
+                    Assert.IsNull(errorMsgs);
+                    Assert.AreEqual(ErrorPrintState.PrintOff, printState);
+                }
             }
             finally
             {

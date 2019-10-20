@@ -49,6 +49,9 @@ namespace ManagedWimLib
         #region Const
         public const int NoImage = 0;
         public const int AllImages = -1;
+        /// <summary>
+        /// Let wimlib determine best thread count to use.
+        /// </summary>
         public const int DefaultThreads = 0;
         #endregion
 
@@ -58,9 +61,18 @@ namespace ManagedWimLib
         #endregion
 
         #region Properties
-        public static string ErrorFile => Lib.ErrorFile;
-        public static ErrorPrintState ErrorPrintState => Lib.ErrorPrintState;
+        /// <summary>
+        /// The error file which wimlib prints error message to. Valid only if ErrorPrintState is PrintOn, else the property returns null.
+        /// </summary>
+        public static string ErrorFile => Lib.GetErrorFilePath();
+        /// <summary>
+        /// Represents whether wimlib is printing error messages or not.
+        /// </summary>
+        public static ErrorPrintState ErrorPrintState => Lib.GetErrorPrintState();
 
+        /// <summary>
+        /// Does the same job with Path.DirectorySeparatorChar, as string. Provided for the compatibility with old releases.
+        /// </summary>
         public static string PathSeparator
         {
             get
@@ -79,6 +91,9 @@ namespace ManagedWimLib
 #endif
             }
         }
+        /// <summary>
+        /// Does the same job with Path.DirectorySeparatorChar, as string. Provided for the compatibility with old releases.
+        /// </summary>
         public static string RootPath => PathSeparator;
         #endregion
 
