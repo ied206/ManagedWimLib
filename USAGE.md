@@ -65,14 +65,14 @@ They will be copied into the build directory at build time.
 |------------------|-------------------------------|------------|
 | Windows x86      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.1-windows-i686-bin.zip)   | -               |
 | Windows x64      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.1-windows-x86_64-bin.zip) | -               |
-| Ubuntu 18.04 x64 | libxml2: `./configure --enable-static --disable-shared CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
-|                  | libwim:  `./configure --enable-dynamic --disable-static --without-libcrypto --without-ntfs-3g --enable-ssse3-sha1` | glibc, libfuse |
-| Debian 10 armhf  | libxml2: `./configure --enable-static --disable-shared CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
-|                  | libwim:  `./configure --enable-dynamic --disable-static --without-libcrypto --without-ntfs-3g` | glibc, libfuse |
-| Debian 10 arm64  | libxml2: `./configure --enable-static --disable-shared CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
-|                  | libwim:  `./configure --enable-dynamic --disable-static --without-libcrypto --without-ntfs-3g` | glibc, libfuse |
-| macOS 10.15      | libxml2: `./configure --enable-static --disable-shared CFLAGS="-Os" --with-minimum --without-lzma --with-tree --with-writer` (static linked) | - |
-|                  | libwim: `./configure --enable-dynamic --disable-static --without-libcrypto --without-ntfs-3g --without-fuse --enable-ssse3-sha1` | - |
+| Ubuntu 18.04 x64 | libxml2: `./configure --enable-static CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
+|                  | libwim: `./configure --disable-static --without-libcrypto --without-ntfs-3g --enable-ssse3-sha1` | glibc, libfuse |
+| Debian 10 armhf  | libxml2: `./configure --enable-static CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
+|                  | libwim: `./configure --disable-static --without-libcrypto --without-ntfs-3g` | glibc, libfuse |
+| Debian 10 arm64  | libxml2: `./configure --enable-static CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
+|                  | libwim: `./configure --disable-static --without-libcrypto --without-ntfs-3g` | glibc, libfuse |
+| macOS 10.15      | libxml2: `./configure --enable-static CFLAGS="-Os" --with-minimum --without-lzma --with-tree --with-writer` (static linked) | - |
+|                  | libwim: `./configure --disable-static --without-libcrypto --without-ntfs-3g --without-fuse --enable-ssse3-sha1` | - |
 
 ### Custom binary
 

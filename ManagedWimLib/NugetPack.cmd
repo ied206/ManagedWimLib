@@ -3,10 +3,10 @@ SETLOCAL ENABLEEXTENSIONS
 
 REM %~dp0 => absolute path of directory where batch file exists
 cd %~dp0
-SET NUGET="%cd%\..\res\nuget.exe"
+SET BASE=%~dp0
 
 dotnet clean -c Release
 dotnet build -c Release
-%NUGET% pack ManagedWimLib.nuspec
+dotnet pack -c Release -o %BASE%
 
 ENDLOCAL

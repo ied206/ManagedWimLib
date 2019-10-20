@@ -2,25 +2,37 @@
   <PropertyGroup>
     <TargetFrameworks>net451;netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0</TargetFrameworks>
+    <PackageId>ManagedWimLib</PackageId>
     <Title>ManagedWimLib</Title>
     <LangVersion>latest</LangVersion>
-    <Version>1.3.0</Version>
+    <Version>1.4.0</Version>
     <Authors>Eric Biggers, Hajin Jang</Authors>
-    <Description>C# wrapper library for native wimlib.
-Supports Windows and Linux.</Description>
-    <Copyright>Copyright (c) 2018-2019 Hajin Jang</Copyright>
     <Company>Joveler</Company>
-    <PackageReleaseNotes>- Update included wimlib to 1.13.1
-- Support dll with additional dependency
-- Drop .Net Standard 1.3 support</PackageReleaseNotes>
-    <PackageLicenseUrl>https://github.com/ied206/ManagedWimLib/blob/master/LICENSE</PackageLicenseUrl>
+    <Description>Native wimlib wrapper library for .Net.
+Provides every capabilities of wimlib.
+Supports Windows, Linux and macOS.</Description>
+    <Copyright>Copyright (c) 2018-2019 Hajin Jang</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
-    <RepositoryUrl></RepositoryUrl>
-    <PackageTags>wim wimlib imagex pinvoke interop</PackageTags>
-    <PackageIconUrl>https://raw.githubusercontent.com/ied206/ManagedWimLib/master/Image/Logo.png</PackageIconUrl>
+    <PackageIcon>images\Logo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/ied206/ManagedWimLib</RepositoryUrl>
+    <PackageReleaseNotes>- Support macOS platform
+- Apply improved native library loader (Joveler.DynLoader)</PackageReleaseNotes>
+    <PackageTags>wim wimlib dism imagex archive native pinvoke interop</PackageTags>
   </PropertyGroup>
   <Import Project="$(MSBuildProjectDirectory)\ManagedWimLib.targets" />
   <ItemGroup>
     <PackageReference Include="Joveler.DynLoader" Version="1.2.0" />
+    <None Include="..\Image\Logo.png" Pack="true" PackagePath="images\" />
+    <!-- .Net Framework 4.5.1 -->
+    <None Include="ManagedWimLib.targets" Pack="true" PackagePath="build\net451\ManagedWimLib.targets" />
+    <None Include="Precompiled\x86\*.dll" Pack="true" PackagePath="build\net451\Precompiled\x86" />
+    <None Include="Precompiled\x64\*.dll" Pack="true" PackagePath="build\net451\Precompiled\x64" />
+    <!-- .Net Standard 2.0 -->
+    <None Include="ManagedWimLib.targets" Pack="true" PackagePath="build\netstandard2.0\ManagedWimLib.targets" />
+    <None Include="Precompiled\x86\*" Pack="true" PackagePath="build\netstandard2.0\Precompiled\x86" />
+    <None Include="Precompiled\x64\*" Pack="true" PackagePath="build\netstandard2.0\Precompiled\x64" />
+    <None Include="Precompiled\armhf\*" Pack="true" PackagePath="build\netstandard2.0\Precompiled\armhf" />
+    <None Include="Precompiled\arm64\*" Pack="true" PackagePath="build\netstandard2.0\Precompiled\arm64" />
   </ItemGroup>
 </Project>
