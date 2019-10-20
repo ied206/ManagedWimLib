@@ -2,8 +2,6 @@
 
 strategy:
   matrix:
-    linux:
-      imageName: 'ubuntu-latest'
     mac:
       imageName: 'macos-latest'
     windows:
@@ -26,12 +24,6 @@ steps:
   displayName: 'Install .NET Core SDK 3.0'
   inputs:
     version: 3.0.100
-- bash: |
-    sudo apt install -y libfuse-dev fuse
-    sudo apt install -y libxml2-dev libxml2
-    ldd -v ManagedWimLib/Precompiled/x64/libwim.so
-  condition: eq( variables['Agent.OS'], 'Linux')
-  displayName: 'Install libfuse2'
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'Build Projects'
 - task: DotNetCoreCLI@2
