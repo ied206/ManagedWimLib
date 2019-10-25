@@ -353,6 +353,10 @@ namespace ManagedWimLib
 
         protected override void ResetFunctions()
         {
+            #region (Code) Cleanup ErrorFile
+            SetPrintErrors(false);
+            #endregion
+
             #region Global - GlobalInit, GlobalCleanup
             GlobalInit = null;
             GlobalCleanup = null;
@@ -512,10 +516,6 @@ namespace ManagedWimLib
             Utf16.Write = null;
             Utf8.Write = null;
             Overwrite = null;
-            #endregion
-
-            #region (Code) Cleanup ErrorFile
-            SetPrintErrors(false);
             #endregion
         }
         #endregion

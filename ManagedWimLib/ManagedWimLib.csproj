@@ -5,7 +5,7 @@
     <PackageId>ManagedWimLib</PackageId>
     <Title>ManagedWimLib</Title>
     <LangVersion>latest</LangVersion>
-    <Version>1.4.1</Version>
+    <Version>1.4.2</Version>
     <Authors>Eric Biggers, Hajin Jang</Authors>
     <Company>Joveler</Company>
     <Description>Native wimlib wrapper library for .Net.
@@ -17,9 +17,7 @@ Supports Windows, Linux and macOS.</Description>
     <PackageIcon>images\Logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/ied206/ManagedWimLib</RepositoryUrl>
     <PackageReleaseNotes>- (v1.4) Support macOS platform
-- Fix Wim.GetErrors(), Wim.GetLastError() regression
-- Fix Wim.RootPath, Wim.PathSeparator regression
-- Error print state is now readable from Wim.ErrorPrintState</PackageReleaseNotes>
+- Fix Wim.GlobalCleanup() crash</PackageReleaseNotes>
     <PackageTags>wim wimlib dism imagex archive native pinvoke interop</PackageTags>
   </PropertyGroup>
   <Import Project="$(MSBuildProjectDirectory)\ManagedWimLib.targets" />
