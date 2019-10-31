@@ -5,7 +5,7 @@
     <PackageId>ManagedWimLib</PackageId>
     <Title>ManagedWimLib</Title>
     <LangVersion>latest</LangVersion>
-    <Version>1.4.2</Version>
+    <Version>1.4.3</Version>
     <Authors>Eric Biggers, Hajin Jang</Authors>
     <Company>Joveler</Company>
     <Description>Native wimlib wrapper library for .Net.
@@ -16,13 +16,12 @@ Supports Windows, Linux and macOS.</Description>
     <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
     <PackageIcon>images\Logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/ied206/ManagedWimLib</RepositoryUrl>
-    <PackageReleaseNotes>- (v1.4) Support macOS platform
-- Fix Wim.GlobalCleanup() crash</PackageReleaseNotes>
+    <PackageReleaseNotes>- - Improve RHEL/CentOS compatibility</PackageReleaseNotes>
     <PackageTags>wim wimlib dism imagex archive native pinvoke interop</PackageTags>
   </PropertyGroup>
   <Import Project="$(MSBuildProjectDirectory)\ManagedWimLib.targets" />
   <ItemGroup>
-    <PackageReference Include="Joveler.DynLoader" Version="1.2.0" />
+    <PackageReference Include="Joveler.DynLoader" Version="1.2.1" />
     <!-- Nuget Pacakge Icon -->
     <None Include="..\Image\Logo.png" Pack="true" PackagePath="images\" />
     <!-- .Net Framework 4.5.1 -->
