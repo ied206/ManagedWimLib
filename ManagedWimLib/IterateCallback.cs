@@ -32,7 +32,7 @@ namespace ManagedWimLib
     /// </summary>
     public delegate CallbackStatus IterateDirTreeCallback(DirEntry dentry, object userData);
 
-    public class ManagedIterateDirTreeCallback
+    internal class ManagedIterateDirTreeCallback
     {
         private readonly IterateDirTreeCallback _callback;
         private readonly object _userData;
@@ -98,7 +98,7 @@ namespace ManagedWimLib
     /// </summary>
     public delegate CallbackStatus IterateLookupTableCallback(ResourceEntry resource, object userCtx);
 
-    public class ManagedIterateLookupTableCallback
+    internal class ManagedIterateLookupTableCallback
     {
         private readonly IterateLookupTableCallback _callback;
         private readonly object _userData;

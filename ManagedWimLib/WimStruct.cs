@@ -778,6 +778,73 @@ namespace ManagedWimLib
         }
 
         /// <summary>
+        /// Special variant of IterateDirTree which returns ErrorCode without throwing WimLibException.
+        /// </summary>
+        /// <param name="image">
+        /// The 1-based index of the image that contains the files or directories to iterate over,
+        /// or Wim.AllImages to iterate over all images.
+        /// </param>
+        /// <param name="path">
+        /// Path in the image at which to do the iteration.
+        /// </param>
+        /// <param name="iterateFlags">
+        /// Bitwise OR of IterateFlags.
+        /// </param>
+        /// <param name="callback">
+        /// A callback function that will receive each directory entry.
+        /// </param>
+        /// <returns>Raw ErrorCode of the operation.</returns>
+        public ErrorCode IterateDirTreeNoExcept(int image, string path, IterateFlags iterateFlags, IterateDirTreeCallback callback)
+        {
+            return IterateDirTreeNoExcept(image, path, iterateFlags, callback, null);
+        }
+
+        /// <summary>
+        /// Special variant of IterateDirTree which returns ErrorCode without throwing WimLibException.
+        /// </summary>
+        /// <param name="image">
+        /// The 1-based index of the image that contains the files or directories to iterate over,
+        /// or Wim.AllImages to iterate over all images.
+        /// </param>
+        /// <param name="path">
+        /// Path in the image at which to do the iteration.
+        /// </param>
+        /// <param name="iterateFlags">
+        /// Bitwise OR of IterateFlags.
+        /// </param>
+        /// <param name="callback">
+        /// A callback function that will receive each directory entry.
+        /// </param>
+        /// <param name="userData">
+        /// An extra parameter that will always be passed to the callback function.
+        /// </param>
+        /// <returns>
+        /// Normally, returns 0 if all calls to callback returned 0; otherwise the first nonzero value that was returned from callback.
+        /// 
+        /// However, additional wimlib_error_code values may be returned, including the following:
+        /// * ErrorCode.INVALID_IMAGE
+        /// * @p image does not exist in @p wim.
+        /// * @retval::WIMLIB_ERR_PATH_DOES_NOT_EXIST
+        /// * @p path does not exist in the image.
+        /// * @retval::WIMLIB_ERR_RESOURCE_NOT_FOUND
+        /// *  ::WIMLIB_ITERATE_DIR_TREE_FLAG_RESOURCES_NEEDED was specified, but the
+        /// *	data for some files could not be found in the blob lookup table of @p
+        /// *	wim.
+        /// *
+        /// * This function can additionally return ::WIMLIB_ERR_DECOMPRESSION,
+        /// * ::WIMLIB_ERR_INVALID_METADATA_RESOURCE, ::WIMLIB_ERR_METADATA_NOT_FOUND,
+        /// * ::WIMLIB_ERR_READ, or::WIMLIB_ERR_UNEXPECTED_END_OF_FILE, all of which
+        /// * indicate failure (for different reasons) to read the metadata resource for an
+        /// * image over which iteration needed to be done.
+        /// </returns>
+        public ErrorCode IterateDirTreeNoExcept(int image, string path, IterateFlags iterateFlags, IterateDirTreeCallback callback, object userData)
+        {
+            ManagedIterateDirTreeCallback cb = new ManagedIterateDirTreeCallback(callback, userData);
+
+            return Lib.IterateDirTree(_ptr, image, path, iterateFlags, cb.NativeFunc, IntPtr.Zero);
+        }
+
+        /// <summary>
         /// Iterate through the blob lookup table of a WimStruct.
         /// This can be used to directly get a listing of the unique "blobs" contained in a WIM file, 
         /// which are deduplicated over all images.
@@ -800,6 +867,26 @@ namespace ManagedWimLib
 
             ErrorCode ret = Lib.IterateLookupTable(_ptr, 0, cb.NativeFunc, IntPtr.Zero);
             WimLibException.CheckWimLibError(ret);
+        }
+
+        /// <summary>
+        /// Special variant of IterateLookupTable which returns ErrorCode without throwing WimLibException.
+        /// </summary>
+        /// <param name="callback">A callback function that will receive each blob.</param>
+        /// <returns>Raw ErrorCode of the operation.</returns>
+        public ErrorCode IterateLookupTableNoExcept(IterateLookupTableCallback callback) => IterateLookupTableNoExcept(callback, null);
+
+        /// <summary>
+        /// Special variant of IterateLookupTable which returns ErrorCode without throwing WimLibException.
+        /// </summary>
+        /// <param name="callback">A callback function that will receive each blob.</param>
+        /// <param name="userData">An extra parameter that will always be passed to the callback function</param>
+        /// <returns>Raw ErrorCode of the operation.</returns>
+        public ErrorCode IterateLookupTableNoExcept(IterateLookupTableCallback callback, object userData)
+        {
+            ManagedIterateLookupTableCallback cb = new ManagedIterateLookupTableCallback(callback, userData);
+
+            return Lib.IterateLookupTable(_ptr, 0, cb.NativeFunc, IntPtr.Zero);
         }
         #endregion
 
@@ -1709,24 +1796,22 @@ namespace ManagedWimLib
         /// <returns></returns>
         public bool FileExists(int image, string wimFilePath)
         {
-            bool exists = false;
-            CallbackStatus ExistCallback(DirEntry dentry, object userData)
+            static CallbackStatus FileExistCallback(DirEntry dentry, object userData)
             {
                 if ((dentry.Attributes & FileAttribute.DIRECTORY) == 0)
-                    exists = true;
-
-                return CallbackStatus.CONTINUE;
+                    return CallbackStatus.ABORT;
+                else
+                    return CallbackStatus.CONTINUE;
             }
 
-            try
+            ErrorCode ret = IterateDirTreeNoExcept(image, wimFilePath, IterateFlags.DEFAULT, FileExistCallback, null);
+            return ret switch
             {
-                IterateDirTree(image, wimFilePath, IterateFlags.DEFAULT, ExistCallback, null);
-                return exists;
-            }
-            catch (WimLibException e) when (e.ErrorCode == ErrorCode.PATH_DOES_NOT_EXIST)
-            {
-                return false;
-            }
+                ErrorCode.CALLBACK_ABORT => true,
+                ErrorCode.SUCCESS => false,
+                ErrorCode.PATH_DOES_NOT_EXIST => false,
+                _ => throw new WimLibException(ret),
+            };
         }
 
         /// <summary>
@@ -1741,24 +1826,22 @@ namespace ManagedWimLib
         /// <returns></returns>
         public bool DirExists(int image, string wimDirPath)
         {
-            bool exists = false;
-            CallbackStatus ExistCallback(DirEntry dentry, object userData)
+            static CallbackStatus DirExistCallback(DirEntry dentry, object userData)
             {
                 if ((dentry.Attributes & FileAttribute.DIRECTORY) != 0)
-                    exists = true;
-
-                return CallbackStatus.CONTINUE;
+                    return CallbackStatus.ABORT;
+                else
+                    return CallbackStatus.CONTINUE;
             }
 
-            try
+            ErrorCode ret = IterateDirTreeNoExcept(image, wimDirPath, IterateFlags.DEFAULT, DirExistCallback, null);
+            return ret switch
             {
-                IterateDirTree(image, wimDirPath, IterateFlags.DEFAULT, ExistCallback, null);
-                return exists;
-            }
-            catch (WimLibException e) when (e.ErrorCode == ErrorCode.PATH_DOES_NOT_EXIST)
-            {
-                return false;
-            }
+                ErrorCode.CALLBACK_ABORT => true,
+                ErrorCode.SUCCESS => false,
+                ErrorCode.PATH_DOES_NOT_EXIST => false,
+                _ => throw new WimLibException(ret),
+            };
         }
 
         /// <summary>
@@ -1773,15 +1856,13 @@ namespace ManagedWimLib
         /// <returns></returns>
         public bool PathExists(int image, string wimPath)
         {
-            try
+            ErrorCode ret = IterateDirTreeNoExcept(image, wimPath, IterateFlags.DEFAULT, null, null);
+            return ret switch
             {
-                IterateDirTree(image, wimPath, IterateFlags.DEFAULT, null, null);
-                return true;
-            }
-            catch (WimLibException e) when (e.ErrorCode == ErrorCode.PATH_DOES_NOT_EXIST)
-            {
-                return false;
-            }
+                ErrorCode.SUCCESS => true,
+                ErrorCode.PATH_DOES_NOT_EXIST => false,
+                _ => throw new WimLibException(ret),
+            };
         }
         #endregion
     }

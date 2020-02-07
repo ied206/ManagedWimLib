@@ -281,8 +281,10 @@ namespace ManagedWimLib
         /// </summary>
         CONTINUE = 0,
         /// <summary>
-        /// he operation should be aborted.  This will cause the current
-        /// operation to fail with ErrorCode.ABORTED_BY_PROGRESS.
+        /// The operation should be aborted.
+        /// In case of ProgressCallback, this will cause the current operation to fail with ErrorCode.ABORTED_BY_PROGRESS.
+        /// In case of IterateDirTreeCallback and IterateLookupTableCallback, this will cause the Iterate methods to abort 
+        /// the process with value 1, which is ErrorCode.CALLBACK_ABORT.
         /// </summary>
         ABORT = 1,
     }
@@ -292,8 +294,18 @@ namespace ManagedWimLib
     public enum ErrorCode : int
     {
         SUCCESS = 0,
+        /// <summary>
+        /// Another process is currently modifying the WIM file.
+        /// </summary>
         ALREADY_LOCKED = 1,
+        /// <summary>
+        /// (ManagedWimLib Only) Aborted by callback function in Iterate methods.
+        /// </summary>
+        CALLBACK_ABORT = 1,
         DECOMPRESSION = 2,
+        /// <summary>
+        /// A non-zero status code was returned by fuse_main().
+        /// </summary>
         FUSE = 6,
         GLOB_HAD_NO_MATCHES = 8,
         /// <summary>
@@ -320,6 +332,9 @@ namespace ManagedWimLib
         /// The header of the WIM was otherwise invalid.
         /// </summary>
         INVALID_HEADER = 17,
+        /// <summary>
+        /// An image does not exist in a WimStruct.
+        /// </summary>
         INVALID_IMAGE = 18,
         /// <summary>
         /// OpenFlags.CHECK_INTEGRITY was specified in openFlags and the WIM contained an integrity table,
@@ -349,6 +364,9 @@ namespace ManagedWimLib
         IS_SPLIT_WIM = 33,
         LINK = 35,
         METADATA_NOT_FOUND = 36,
+        /// <summary>
+        /// MountFlag.READWRITE was specified in mountFlags, but the staging directory could not be created.
+        /// </summary>
         MKDIR = 37,
         MQUEUE = 38,
         NOMEM = 39,
@@ -424,6 +442,10 @@ namespace ManagedWimLib
         /// </summary>
         WIM_IS_INCOMPLETE = 84,
         COMPACTION_NOT_POSSIBLE = 85,
+        /// <summary>
+        /// There are currently multiple references to the image as a result of a call to wimlib_export_image().
+        /// Free one before attempting the read-write mount.
+        /// </summary>
         IMAGE_HAS_MULTIPLE_REFERENCES = 86,
         DUPLICATE_EXPORTED_IMAGE = 87,
         CONCURRENT_MODIFICATION_DETECTED = 88,
