@@ -12,7 +12,7 @@ Put this snippet in your application's init code:
 public static void InitNativeLibrary()
 {
     string arch = null;
-    switch (RuntimeInformation.OSArchitecture)
+    switch (RuntimeInformation.ProcessArchitecture)
     {
         case Architecture.X86:
             arch = "x86";
