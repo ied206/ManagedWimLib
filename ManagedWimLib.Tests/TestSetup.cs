@@ -61,7 +61,7 @@ namespace ManagedWimLib.Tests
                     arch = "arm64";
                     break;
             }
-            
+
             string libPath = null;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 libPath = Path.Combine(absPath, arch, "libwim-15.dll");
