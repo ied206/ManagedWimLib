@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -28,19 +28,19 @@ using System.Linq;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
+    [TestCategory(TestSetup.WimLib)]
     public class RenameTests
     {
         #region RenamePath
         [TestMethod]
-        [TestCategory("WimLib")]
         public void RenamePath()
         {
-            RenamePath_Template("XPRESS.wim", "ACDE.txt");
-            RenamePath_Template("LZX.wim", "ABCD");
-            RenamePath_Template("LZMS.wim", "ABDE");
+            RenamePathTemplate("XPRESS.wim", "ACDE.txt");
+            RenamePathTemplate("LZX.wim", "ABCD");
+            RenamePathTemplate("LZMS.wim", "ABDE");
         }
 
-        public void RenamePath_Template(string wimFileName, string srcPath)
+        public void RenamePathTemplate(string wimFileName, string srcPath)
         {
             string srcWim = Path.Combine(TestSetup.SampleDir, wimFileName);
             string destDir = TestHelper.GetTempDir();
@@ -57,26 +57,26 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.WRITE_METADATA_BEGIN:
+                        case ProgressMsg.WriteMetadataBegin:
                             Assert.IsNull(info);
                             _checked[0] = true;
                             break;
-                        case ProgressMsg.WRITE_METADATA_END:
+                        case ProgressMsg.WriteMetadataEnd:
                             Assert.IsNull(info);
                             _checked[1] = true;
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
-                using (Wim wim = Wim.OpenWim(destWim, OpenFlags.WRITE_ACCESS))
+                using (Wim wim = Wim.OpenWim(destWim, OpenFlags.WriteAccess))
                 {
                     wim.RegisterCallback(ProgressCallback);
 
                     Assert.IsTrue(wim.PathExists(1, srcPath));
 
                     wim.RenamePath(1, srcPath, "REN");
-                    wim.Overwrite(WriteFlags.DEFAULT, Wim.DefaultThreads);
+                    wim.Overwrite(WriteFlags.None, Wim.DefaultThreads);
 
                     Assert.IsTrue(_checked.All(x => x));
 

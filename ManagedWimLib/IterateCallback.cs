@@ -28,9 +28,14 @@ namespace ManagedWimLib
 {
     #region IterateDirTreeCallback
     /// <summary>
-    /// Type of a callback function to wimlib_iterate_dir_tree().  Must return 0 on success.
+    /// Type of a callback function to <see cref="Wim.IterateDirTree()"/>.
+    /// Must return <see cref="Wim.IterateCallbackSuccess"/> (0) on success. 
+    /// 
+    /// Use negative integer for custom non-sucess return value.
+    /// <see cref="Wim.IterateDirTree()"/> may return positive integer when the error occured,
+    /// and it is hard to distinct it from user-returned positive integer.
     /// </summary>
-    public delegate CallbackStatus IterateDirTreeCallback(DirEntry dentry, object userData);
+    public delegate int IterateDirTreeCallback(DirEntry dentry, object userData);
 
     internal class ManagedIterateDirTreeCallback
     {
@@ -48,12 +53,12 @@ namespace ManagedWimLib
             NativeFunc = NativeCallback;
         }
 
-        private CallbackStatus NativeCallback(IntPtr entryPtr, IntPtr userCtx)
+        private int NativeCallback(IntPtr entryPtr, IntPtr userCtx)
         {
-            CallbackStatus ret = CallbackStatus.CONTINUE;
             if (_callback == null)
-                return ret;
+                return Wim.IterateCallbackSuccess; // Default return value is a value represents Success/Continue.
 
+            int ret;
             DirEntryBase b = Marshal.PtrToStructure<DirEntryBase>(entryPtr);
             DirEntry dentry = new DirEntry
             {
@@ -94,9 +99,10 @@ namespace ManagedWimLib
 
     #region IterateLookupTableCallback
     /// <summary>
-    /// Type of a callback function to wimlib_iterate_lookup_table().  Must return 0 on success.
+    /// Type of a callback function to <see cref="Wim.IterateLookupTable()"/>.
+    /// Must return <see cref="Wim.IterateCallbackSuccess"/> (0) on success. 
     /// </summary>
-    public delegate CallbackStatus IterateLookupTableCallback(ResourceEntry resource, object userCtx);
+    public delegate int IterateLookupTableCallback(ResourceEntry resource, object userCtx);
 
     internal class ManagedIterateLookupTableCallback
     {
@@ -114,10 +120,10 @@ namespace ManagedWimLib
             NativeFunc = NativeCallback;
         }
 
-        private CallbackStatus NativeCallback(ResourceEntry resource, IntPtr userCtx)
+        private int NativeCallback(ResourceEntry resource, IntPtr userCtx)
         {
             if (_callback == null)
-                return CallbackStatus.CONTINUE;
+                return Wim.IterateCallbackSuccess;
 
             return _callback(resource, _userData);
         }

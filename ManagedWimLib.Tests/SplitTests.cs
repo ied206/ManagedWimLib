@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -30,17 +30,17 @@ using System.Linq;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
+    [TestCategory(TestSetup.WimLib)]
     public class SplitTests
     {
         #region SplitImage
         [TestMethod]
-        [TestCategory("WimLib")]
         public void Split()
         {
-            Split_Template("Src03", (1024 + 512) * 1024);
+            SplitTemplate("Src03", (1024 + 512) * 1024);
         }
 
-        public void Split_Template(string testSet, ulong partSize)
+        public void SplitTemplate(string testSet, ulong partSize)
         {
             string srcDir = Path.Combine(TestSetup.SampleDir, testSet);
             string destDir = TestHelper.GetTempDir();
@@ -59,59 +59,59 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.SPLIT_BEGIN_PART:
+                        case ProgressMsg.SplitBeginPart:
                             {
-                                ProgressInfo_Split m = (ProgressInfo_Split)info;
+                                SplitProgress m = (SplitProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[0] = true;
                             }
                             break;
-                        case ProgressMsg.SPLIT_END_PART:
+                        case ProgressMsg.SplitEndPart:
                             {
-                                ProgressInfo_Split m = (ProgressInfo_Split)info;
+                                SplitProgress m = (SplitProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[1] = true;
                             }
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
                 using (Wim wim = Wim.CreateNewWim(CompressionType.LZX))
                 {
-                    wim.AddImage(srcDir, "UnitTest", null, AddFlags.NO_ACLS);
-                    wim.Write(wimFile, Wim.AllImages, WriteFlags.DEFAULT, Wim.DefaultThreads);
+                    wim.AddImage(srcDir, "UnitTest", null, AddFlags.NoAcls);
+                    wim.Write(wimFile, Wim.AllImages, WriteFlags.None, Wim.DefaultThreads);
                 }
 
                 TestHelper.CheckWimPath(SampleSet.Src03, wimFile);
 
-                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT, ProgressCallback))
+                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None, ProgressCallback))
                 {
-                    wim.Split(splitWimFile, partSize, WriteFlags.DEFAULT);
+                    wim.Split(splitWimFile, partSize, WriteFlags.None);
                 }
 
                 Assert.IsTrue(_checked.All(x => x));
 
                 List<Tuple<string, bool>> entries = new List<Tuple<string, bool>>();
-                CallbackStatus IterateCallback(DirEntry dentry, object userData)
+                int IterateCallback(DirEntry dentry, object userData)
                 {
                     string path = dentry.FullPath;
-                    bool isDir = (dentry.Attributes & FileAttribute.DIRECTORY) != 0;
+                    bool isDir = (dentry.Attributes & FileAttributes.Directory) != 0;
                     entries.Add(new Tuple<string, bool>(path, isDir));
 
-                    return CallbackStatus.CONTINUE;
+                    return Wim.IterateCallbackSuccess;
                 }
 
-                using (Wim wim = Wim.OpenWim(splitWimFile, OpenFlags.DEFAULT))
+                using (Wim wim = Wim.OpenWim(splitWimFile, OpenFlags.None))
                 {
-                    wim.ReferenceResourceFile(splitWildcard, RefFlags.GLOB_ENABLE | RefFlags.GLOB_ERR_ON_NOMATCH, OpenFlags.DEFAULT);
+                    wim.ReferenceResourceFile(splitWildcard, RefFlags.GlobEnable | RefFlags.GlobErrOnNoMatch, OpenFlags.None);
 
                     WimInfo wi = wim.GetWimInfo();
                     Assert.IsTrue(wi.ImageCount == 1);
 
-                    wim.IterateDirTree(1, Wim.RootPath, IterateFlags.RECURSIVE, IterateCallback);
+                    wim.IterateDirTree(1, Wim.RootPath, IterateDirTreeFlags.Recursive, IterateCallback);
                 }
 
                 TestHelper.CheckPathList(SampleSet.Src03, entries);

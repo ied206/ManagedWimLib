@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -35,6 +35,7 @@ namespace ManagedWimLib.Tests
     [TestClass]
     public class TestSetup
     {
+        public const string WimLib = nameof(WimLib);
         public static string BaseDir;
         public static string SampleDir;
 
@@ -286,7 +287,7 @@ namespace ManagedWimLib.Tests
             switch (set)
             {
                 case SampleSet.Src01:
-                    using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+                    using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
                     {
                         Assert.IsTrue(wim.DirExists(1, Path.Combine(@"\", "ABCD")));
                         Assert.IsTrue(wim.DirExists(1, Path.Combine(@"\", "ABCD", "Z")));
@@ -310,7 +311,7 @@ namespace ManagedWimLib.Tests
                     }
                     break;
                 case SampleSet.Src02:
-                    using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+                    using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
                     {
                         Assert.IsTrue(wim.DirExists(1, Path.Combine(@"\", "B")));
                         Assert.IsTrue(wim.FileExists(1, Path.Combine(@"\", "A.txt")));
@@ -494,24 +495,24 @@ namespace ManagedWimLib.Tests
         {
             List<Tuple<string, bool>> entries = new List<Tuple<string, bool>>();
 
-            CallbackStatus IterateCallback(DirEntry dentry, object userData)
+            int IterateCallback(DirEntry dentry, object userData)
             {
                 string path = dentry.FullPath;
-                bool isDir = (dentry.Attributes & FileAttribute.DIRECTORY) != 0;
+                bool isDir = (dentry.Attributes & FileAttributes.Directory) != 0;
                 entries.Add(new Tuple<string, bool>(path, isDir));
 
-                return CallbackStatus.CONTINUE;
+                return Wim.IterateCallbackSuccess;
             }
 
-            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
             {
-                wim.IterateDirTree(1, Wim.RootPath, IterateFlags.RECURSIVE, IterateCallback);
+                wim.IterateDirTree(1, Wim.RootPath, IterateDirTreeFlags.Recursive, IterateCallback);
             }
 
             return entries;
         }
 
-        public class CheckWimPathComparer : IEqualityComparer<Tuple<string, bool>>
+        internal class CheckWimPathComparer : IEqualityComparer<Tuple<string, bool>>
         {
             public bool Equals(Tuple<string, bool> x, Tuple<string, bool> y)
             {

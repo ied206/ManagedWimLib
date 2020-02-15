@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -80,6 +80,10 @@ namespace ManagedWimLib
                 return _errorPrintState;
             }
         }
+        #endregion
+
+        #region Platform Bitness
+        internal static int PlatformBitness { get; private set; } = GetPlatformBitness();
         #endregion
 
         #region (override) DefaultLibFileName
@@ -521,7 +525,7 @@ namespace ManagedWimLib
         }
         #endregion
 
-        #region WimLib Function Pointer
+        #region WimLib Function Pointers
         [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
         internal class Utf16d
         {
@@ -669,11 +673,11 @@ namespace ManagedWimLib
 
             #region Iterate - IterateDirTree
             [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-            internal delegate ErrorCode wimlib_iterate_dir_tree(
+            internal delegate int wimlib_iterate_dir_tree(
                 IntPtr wim,
                 int image,
                 [MarshalAs(StrType)] string path,
-                IterateFlags flags,
+                IterateDirTreeFlags flags,
                 [MarshalAs(UnmanagedType.FunctionPtr)] NativeIterateDirTreeCallback cb,
                 IntPtr user_ctx);
             internal wimlib_iterate_dir_tree IterateDirTree;
@@ -819,15 +823,16 @@ namespace ManagedWimLib
             internal wimlib_write Write;
             #endregion
 
-            #region Struct CaptureSourceBase
+            #region struct CaptureSourceBase
             /// <summary>
-            /// An array of these structures is passed to Wim.AddImageMultiSource() to specify the sources from which to create a WIM image. 
+            /// An array of these structures is passed to <see cref="Wim.AddImage(string, string, string, AddFlags)"/>
+            /// to specify the sources from which to create a WIM image. 
             /// </summary>
             /// <remarks>
             /// For LLP64 platforms (Windows)
             /// </remarks>
             [StructLayout(LayoutKind.Sequential, CharSet = StructCharSet)]
-            public struct CaptureSourceBaseL32
+            internal struct CaptureSourceBaseL32
             {
                 /// <summary>
                 /// Absolute or relative path to a file or directory on the external filesystem to be included in the image.
@@ -835,7 +840,7 @@ namespace ManagedWimLib
                 public string FsSourcePath;
                 /// <summary>
                 /// Destination path in the image.
-                /// To specify the root directory of the image, use @"\". 
+                /// To specify the root directory of the image, use <see cref="Path.DirectorySeparatorChar"/>. 
                 /// </summary>
                 public string WimTargetPath;
                 /// <summary>
@@ -852,13 +857,14 @@ namespace ManagedWimLib
             };
 
             /// <summary>
-            /// An array of these structures is passed to Wim.AddImageMultiSource() to specify the sources from which to create a WIM image. 
+            /// An array of these structures is passed to <see cref="Wim.AddImage(string, string, string, AddFlags)"/>
+            /// to specify the sources from which to create a WIM image. 
             /// </summary>
             /// <remarks>
             /// For LP64 platforms (64bit POSIX)
             /// </remarks>
             [StructLayout(LayoutKind.Sequential, CharSet = StructCharSet)]
-            public struct CaptureSourceBaseL64
+            internal struct CaptureSourceBaseL64
             {
                 /// <summary>
                 /// Absolute or relative path to a file or directory on the external filesystem to be included in the image.
@@ -866,7 +872,7 @@ namespace ManagedWimLib
                 public string FsSourcePath;
                 /// <summary>
                 /// Destination path in the image.
-                /// To specify the root directory of the image, use @"\". 
+                /// To specify the root directory of the image, use <see cref="Path.DirectorySeparatorChar"/>. 
                 /// </summary>
                 public string WimTargetPath;
                 /// <summary>
@@ -1031,11 +1037,11 @@ namespace ManagedWimLib
 
             #region Iterate - IterateDirTree
             [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-            internal delegate ErrorCode wimlib_iterate_dir_tree(
+            internal delegate int wimlib_iterate_dir_tree(
                 IntPtr wim,
                 int image,
                 [MarshalAs(StrType)] string path,
-                IterateFlags flags,
+                IterateDirTreeFlags flags,
                 [MarshalAs(UnmanagedType.FunctionPtr)] NativeIterateDirTreeCallback cb,
                 IntPtr user_ctx);
             internal wimlib_iterate_dir_tree IterateDirTree;
@@ -1181,15 +1187,16 @@ namespace ManagedWimLib
             internal wimlib_write Write;
             #endregion
 
-            #region Struct CaptureSourceBase
+            #region struct CaptureSourceBase
             /// <summary>
-            /// An array of these structures is passed to Wim.AddImageMultiSource() to specify the sources from which to create a WIM image. 
+            /// An array of these structures is passed to <see cref="Wim.AddImage(string, string, string, AddFlags)"/>
+            /// to specify the sources from which to create a WIM image. 
             /// </summary>
             /// <remarks>
             /// For LLP64 platforms (Windows)
             /// </remarks>
             [StructLayout(LayoutKind.Sequential, CharSet = StructCharSet)]
-            public struct CaptureSourceBaseL32
+            internal struct CaptureSourceBaseL32
             {
                 /// <summary>
                 /// Absolute or relative path to a file or directory on the external filesystem to be included in the image.
@@ -1197,7 +1204,7 @@ namespace ManagedWimLib
                 public string FsSourcePath;
                 /// <summary>
                 /// Destination path in the image.
-                /// To specify the root directory of the image, use @"\". 
+                /// To specify the root directory of the image, use <see cref="Path.DirectorySeparatorChar"/>. 
                 /// </summary>
                 public string WimTargetPath;
                 /// <summary>
@@ -1214,13 +1221,14 @@ namespace ManagedWimLib
             };
 
             /// <summary>
-            /// An array of these structures is passed to Wim.AddImageMultiSource() to specify the sources from which to create a WIM image. 
+            /// An array of these structures is passed to <see cref="Wim.AddImage(string, string, string, AddFlags)"/>
+            /// to specify the sources from which to create a WIM image. 
             /// </summary>
             /// <remarks>
             /// For LP64 platforms (64bit POSIX)
             /// </remarks>
             [StructLayout(LayoutKind.Sequential, CharSet = StructCharSet)]
-            public struct CaptureSourceBaseL64
+            internal struct CaptureSourceBaseL64
             {
                 /// <summary>
                 /// Absolute or relative path to a file or directory on the external filesystem to be included in the image.
@@ -1228,7 +1236,7 @@ namespace ManagedWimLib
                 public string FsSourcePath;
                 /// <summary>
                 /// Destination path in the image.
-                /// To specify the root directory of the image, use Wim.RootPath. 
+                /// To specify the root directory of the image, use <see cref="Path.DirectorySeparatorChar"/>. 
                 /// </summary>
                 public string WimTargetPath;
                 /// <summary>
@@ -1302,9 +1310,9 @@ namespace ManagedWimLib
                 _ => Utf8.SetErrorFile(path),
             };
 
-            // When ret is ErrorCode.UNSUPPORTED, wimlib was compiled using the --without-error-messages option.
-            // In that case, ManagedWimLib must not throw WimLibException.
-            if (ret == ErrorCode.UNSUPPORTED)
+            // When ret is ErrorCode.NotSupported, wimlib was compiled using the --without-error-messages option.
+            // In that case, ManagedWimLib must not throw WimException.
+            if (ret == ErrorCode.Unsupported)
             {
                 _errorPrintState = ErrorPrintState.NotSupported;
 
@@ -1318,7 +1326,7 @@ namespace ManagedWimLib
             }
             else
             {
-                WimLibException.CheckWimLibError(ret);
+                WimException.CheckErrorCode(ret);
 
                 // Set new ErrorFile and report state as ErrorPrintState.PrintOn.
                 _errorPrintState = ErrorPrintState.PrintOn;
@@ -1348,15 +1356,15 @@ namespace ManagedWimLib
             {
                 ErrorCode ret = SetPrintErrorsPtr(showMessages);
 
-                // When ret is ErrorCode.UNSUPPORTED, wimlib was compiled using the --without-error-messages option.
-                // In that case, ManagedWimLib must not throw WimLibException.
-                if (ret == ErrorCode.UNSUPPORTED)
+                // When ret is ErrorCode.Unsupported, wimlib was compiled using the --without-error-messages option.
+                // In that case, ManagedWimLib must not throw WimException.
+                if (ret == ErrorCode.Unsupported)
                 {
                     _errorPrintState = ErrorPrintState.NotSupported;
                 }
                 else
                 {
-                    WimLibException.CheckWimLibError(ret);
+                    WimException.CheckErrorCode(ret);
                     _errorPrintState = showMessages ? ErrorPrintState.PrintOn : ErrorPrintState.PrintOff;
                 }
             }
@@ -1660,11 +1668,11 @@ namespace ManagedWimLib
 
         #region Iterate - IterateDirTree, IterateLookupTable
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        internal delegate CallbackStatus NativeIterateDirTreeCallback(
+        internal delegate int NativeIterateDirTreeCallback(
             IntPtr dentry,
             IntPtr progctx);
 
-        internal ErrorCode IterateDirTree(IntPtr wim, int image, string path, IterateFlags flags, NativeIterateDirTreeCallback cb, IntPtr userCtx)
+        internal int IterateDirTree(IntPtr wim, int image, string path, IterateDirTreeFlags flags, NativeIterateDirTreeCallback cb, IntPtr userCtx)
         {
             return UnicodeConvention switch
             {
@@ -1674,14 +1682,14 @@ namespace ManagedWimLib
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        internal delegate CallbackStatus NativeIterateLookupTableCallback(
+        internal delegate int NativeIterateLookupTableCallback(
             ResourceEntry resource,
             IntPtr progctx);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        internal delegate ErrorCode wimlib_iterate_lookup_table(
+        internal delegate int wimlib_iterate_lookup_table(
             IntPtr wim,
-            int image,
+            IterateLookupTableFlags flags,
             [MarshalAs(UnmanagedType.FunctionPtr)] NativeIterateLookupTableCallback cb,
             IntPtr user_ctx);
         internal wimlib_iterate_lookup_table IterateLookupTable;
@@ -1817,7 +1825,7 @@ namespace ManagedWimLib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_set_wim_info(
             IntPtr wim,
-            ref WimInfo info,
+            WimInfo info,
             ChangeFlags which);
         internal wimlib_set_wim_info SetWimInfo;
         #endregion
@@ -1938,6 +1946,24 @@ namespace ManagedWimLib
         internal static bool GetBitField(uint bitField, int bitShift)
         {
             return (bitField & (1 << bitShift)) != 0;
+        }
+
+        private static int GetPlatformBitness()
+        {
+#if NET451
+            return Environment.Is64BitProcess ? 64 : 32;
+#else
+            switch (RuntimeInformation.ProcessArchitecture)
+            {
+                case Architecture.Arm:
+                case Architecture.X86:
+                    return 32;
+                case Architecture.Arm64:
+                case Architecture.X64:
+                default:
+                    return 64;
+            }
+#endif
         }
         #endregion
     }

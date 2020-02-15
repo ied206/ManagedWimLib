@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -28,19 +28,19 @@ using System.Linq;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
+    [TestCategory(TestSetup.WimLib)]
     public class VerifyTests
     {
         #region Verify
         [TestMethod]
-        [TestCategory("WimLib")]
         public void Verify()
         {
-            Verify_Template("VerifySuccess.wim", true);
-            Verify_Template("VerifyFail.wim", false);
-            VerifySplit_Template("Split.swm", "Split*.swm", true);
+            VerifyTemplate("VerifySuccess.wim", true);
+            VerifyTemplate("VerifyFail.wim", false);
+            VerifySplitTemplate("Split.swm", "Split*.swm", true);
         }
 
-        public void Verify_Template(string wimFileName, bool result)
+        public void VerifyTemplate(string wimFileName, bool result)
         {
             string wimFile = Path.Combine(TestSetup.SampleDir, wimFileName);
 
@@ -51,44 +51,44 @@ namespace ManagedWimLib.Tests
             {
                 switch (msg)
                 {
-                    case ProgressMsg.BEGIN_VERIFY_IMAGE:
+                    case ProgressMsg.BeginVerifyImage:
                         {
-                            ProgressInfo_VerifyImage m = (ProgressInfo_VerifyImage)info;
+                            VerifyImageProgress m = (VerifyImageProgress)info;
                             Assert.IsNotNull(info);
 
                             _checked[0] = true;
                         }
                         break;
-                    case ProgressMsg.END_VERIFY_IMAGE:
+                    case ProgressMsg.EndVerifyImage:
                         {
-                            ProgressInfo_VerifyImage m = (ProgressInfo_VerifyImage)info;
+                            VerifyImageProgress m = (VerifyImageProgress)info;
                             Assert.IsNotNull(info);
 
                             _checked[1] = true;
                         }
                         break;
-                    case ProgressMsg.VERIFY_STREAMS:
+                    case ProgressMsg.VerifyStreams:
                         {
-                            ProgressInfo_VerifyStreams m = (ProgressInfo_VerifyStreams)info;
+                            VerifyStreamsProgress m = (VerifyStreamsProgress)info;
                             Assert.IsNotNull(info);
 
                             _checked[2] = true;
                         }
                         break;
                 }
-                return CallbackStatus.CONTINUE;
+                return CallbackStatus.Continue;
             }
 
             try
             {
-                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
                 {
                     wim.RegisterCallback(ProgressCallback);
 
                     wim.VerifyWim();
                 }
             }
-            catch (WimLibException)
+            catch (WimException)
             {
                 if (result)
                     Assert.Fail();
@@ -99,7 +99,7 @@ namespace ManagedWimLib.Tests
             Assert.IsTrue(_checked.All(x => x));
         }
 
-        public void VerifySplit_Template(string wimFileName, string splitWildcard, bool result)
+        public void VerifySplitTemplate(string wimFileName, string splitWildcard, bool result)
         {
             string wimFile = Path.Combine(TestSetup.SampleDir, wimFileName);
             string splitWimFiles = Path.Combine(TestSetup.SampleDir, splitWildcard);
@@ -111,46 +111,46 @@ namespace ManagedWimLib.Tests
             {
                 switch (msg)
                 {
-                    case ProgressMsg.BEGIN_VERIFY_IMAGE:
+                    case ProgressMsg.BeginVerifyImage:
                         {
-                            ProgressInfo_VerifyImage m = (ProgressInfo_VerifyImage)info;
+                            VerifyImageProgress m = (VerifyImageProgress)info;
                             Assert.IsNotNull(info);
 
                             _checked[0] = true;
                         }
                         break;
-                    case ProgressMsg.END_VERIFY_IMAGE:
+                    case ProgressMsg.EndVerifyImage:
                         {
-                            ProgressInfo_VerifyImage m = (ProgressInfo_VerifyImage)info;
+                            VerifyImageProgress m = (VerifyImageProgress)info;
                             Assert.IsNotNull(info);
 
                             _checked[1] = true;
                         }
                         break;
-                    case ProgressMsg.VERIFY_STREAMS:
+                    case ProgressMsg.VerifyStreams:
                         {
-                            ProgressInfo_VerifyStreams m = (ProgressInfo_VerifyStreams)info;
+                            VerifyStreamsProgress m = (VerifyStreamsProgress)info;
                             Assert.IsNotNull(info);
 
                             _checked[2] = true;
                         }
                         break;
                 }
-                return CallbackStatus.CONTINUE;
+                return CallbackStatus.Continue;
             }
 
             try
             {
-                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
                 {
                     wim.RegisterCallback(ProgressCallback);
 
-                    wim.ReferenceResourceFile(splitWimFiles, RefFlags.GLOB_ENABLE | RefFlags.GLOB_ERR_ON_NOMATCH, OpenFlags.DEFAULT);
+                    wim.ReferenceResourceFile(splitWimFiles, RefFlags.GlobEnable | RefFlags.GlobErrOnNoMatch, OpenFlags.None);
 
                     wim.VerifyWim();
                 }
             }
-            catch (WimLibException)
+            catch (WimException)
             {
                 if (result)
                     Assert.Fail();

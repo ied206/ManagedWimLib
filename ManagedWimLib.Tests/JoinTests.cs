@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -28,17 +28,17 @@ using System.Linq;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
+    [TestCategory(TestSetup.WimLib)]
     public class JoinTests
     {
         #region Join
         [TestMethod]
-        [TestCategory("WimLib")]
         public void Join()
         {
-            Join_Template(new string[] { "Split.swm", "Split2.swm" });
+            JoinTemplate(new string[] { "Split.swm", "Split2.swm" });
         }
 
-        public void Join_Template(string[] splitWimNames)
+        public static void JoinTemplate(string[] splitWimNames)
         {
             string[] splitWims = splitWimNames.Select(x => Path.Combine(TestSetup.SampleDir, x)).ToArray();
             string destDir = TestHelper.GetTempDir();
@@ -47,7 +47,7 @@ namespace ManagedWimLib.Tests
             {
                 Directory.CreateDirectory(destDir);
 
-                Wim.Join(splitWims, destWim, OpenFlags.DEFAULT, WriteFlags.DEFAULT);
+                Wim.Join(splitWims, destWim, OpenFlags.None, WriteFlags.None);
 
                 TestHelper.CheckWimPath(SampleSet.Src03, destWim);
             }
@@ -61,13 +61,12 @@ namespace ManagedWimLib.Tests
 
         #region JoinProgress
         [TestMethod]
-        [TestCategory("WimLib")]
         public void JoinProgress()
         {
-            JoinProgress_Template(new string[] { "Split.swm", "Split2.swm" });
+            JoinProgressTemplate(new string[] { "Split.swm", "Split2.swm" });
         }
 
-        public void JoinProgress_Template(string[] splitWimNames)
+        public void JoinProgressTemplate(string[] splitWimNames)
         {
             string[] splitWims = splitWimNames.Select(x => Path.Combine(TestSetup.SampleDir, x)).ToArray();
             string destDir = TestHelper.GetTempDir();
@@ -83,17 +82,17 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.WRITE_METADATA_BEGIN:
+                        case ProgressMsg.WriteMetadataBegin:
                             Assert.IsNull(info);
                             _checked[0] = true;
                             break;
-                        case ProgressMsg.WRITE_METADATA_END:
+                        case ProgressMsg.WriteMetadataEnd:
                             Assert.IsNull(info);
                             _checked[1] = true;
                             break;
-                        case ProgressMsg.WRITE_STREAMS:
+                        case ProgressMsg.WriteStreams:
                             {
-                                ProgressInfo_WriteStreams m = (ProgressInfo_WriteStreams)info;
+                                WriteStreamsProgress m = (WriteStreamsProgress)info;
                                 Assert.IsNotNull(m);
 
                                 Assert.AreEqual(m.CompressionType, CompressionType.LZX);
@@ -101,10 +100,10 @@ namespace ManagedWimLib.Tests
                             }
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
-                Wim.Join(splitWims, destWim, OpenFlags.DEFAULT, WriteFlags.DEFAULT, ProgressCallback);
+                Wim.Join(splitWims, destWim, OpenFlags.None, WriteFlags.None, ProgressCallback);
 
                 Assert.IsTrue(_checked.All(x => x));
 

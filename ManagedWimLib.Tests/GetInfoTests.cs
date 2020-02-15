@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -29,23 +29,23 @@ using System.IO;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
+    [TestCategory(TestSetup.WimLib)]
     public class GetInfoTests
     {
         #region GetImageInfo
         [TestMethod]
-        [TestCategory("WimLib")]
         public void GetImageInfo()
         {
-            GetImageInfo_Template("MultiImage.wim", 1, "Base", null);
-            GetImageInfo_Template("MultiImage.wim", 2, "Changes", null);
-            GetImageInfo_Template("MultiImage.wim", 3, "Delta", null);
+            GetImageInfoTemplate("MultiImage.wim", 1, "Base", null);
+            GetImageInfoTemplate("MultiImage.wim", 2, "Changes", null);
+            GetImageInfoTemplate("MultiImage.wim", 3, "Delta", null);
         }
 
-        public void GetImageInfo_Template(string wimFileName, int imageIndex, string imageName, string imageDesc)
+        public static void GetImageInfoTemplate(string wimFileName, int imageIndex, string imageName, string imageDesc)
         {
             string wimFile = Path.Combine(TestSetup.SampleDir, wimFileName);
 
-            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
             {
                 Assert.IsTrue(imageName.Equals(wim.GetImageName(imageIndex), StringComparison.Ordinal));
                 Assert.IsNull(wim.GetImageDescription(imageIndex));
@@ -56,20 +56,19 @@ namespace ManagedWimLib.Tests
 
         #region GetWimInfo
         [TestMethod]
-        [TestCategory("WimLib")]
         public void GetWimInfo()
         {
-            GetWimInfo_Template("XPRESS.wim", CompressionType.XPRESS, false);
-            GetWimInfo_Template("LZX.wim", CompressionType.LZX, false);
-            GetWimInfo_Template("LZMS.wim", CompressionType.LZMS, false);
-            GetWimInfo_Template("BootXPRESS.wim", CompressionType.XPRESS, true);
-            GetWimInfo_Template("BootLZX.wim", CompressionType.LZX, true);
+            GetWimInfoTemplate("XPRESS.wim", CompressionType.XPRESS, false);
+            GetWimInfoTemplate("LZX.wim", CompressionType.LZX, false);
+            GetWimInfoTemplate("LZMS.wim", CompressionType.LZMS, false);
+            GetWimInfoTemplate("BootXPRESS.wim", CompressionType.XPRESS, true);
+            GetWimInfoTemplate("BootLZX.wim", CompressionType.LZX, true);
         }
 
-        public void GetWimInfo_Template(string fileName, CompressionType compType, bool boot)
+        public static void GetWimInfoTemplate(string fileName, CompressionType compType, bool boot)
         {
             string wimFile = Path.Combine(TestSetup.SampleDir, fileName);
-            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
             {
                 WimInfo info = wim.GetWimInfo();
 
@@ -85,19 +84,18 @@ namespace ManagedWimLib.Tests
 
         #region GetXmlData
         [TestMethod]
-        [TestCategory("WimLib")]
         public void GetXmlData()
         {
-            GetXmlData_Template("XPRESS.wim", @"<WIM><IMAGE INDEX=""1""><NAME>Sample</NAME><DIRCOUNT>5</DIRCOUNT><FILECOUNT>10</FILECOUNT><TOTALBYTES>13</TOTALBYTES><HARDLINKBYTES>0</HARDLINKBYTES><CREATIONTIME><HIGHPART>0x01D386AC</HIGHPART><LOWPART>0xFC4DC1F4</LOWPART></CREATIONTIME><LASTMODIFICATIONTIME><HIGHPART>0x01D386AC</HIGHPART><LOWPART>0xFC4E2202</LOWPART></LASTMODIFICATIONTIME></IMAGE><TOTALBYTES>1411</TOTALBYTES></WIM>");
-            GetXmlData_Template("LZX.wim", @"<WIM><IMAGE INDEX=""1""><NAME>Sample</NAME><DIRCOUNT>5</DIRCOUNT><FILECOUNT>10</FILECOUNT><TOTALBYTES>13</TOTALBYTES><HARDLINKBYTES>0</HARDLINKBYTES><CREATIONTIME><HIGHPART>0x01D386AD</HIGHPART><LOWPART>0x036C2DDA</LOWPART></CREATIONTIME><LASTMODIFICATIONTIME><HIGHPART>0x01D386AD</HIGHPART><LOWPART>0x036C6899</LOWPART></LASTMODIFICATIONTIME></IMAGE><TOTALBYTES>1239</TOTALBYTES></WIM>");
-            GetXmlData_Template("LZMS.wim", @"﻿<WIM><IMAGE INDEX=""1""><NAME>Sample</NAME><DIRCOUNT>5</DIRCOUNT><FILECOUNT>10</FILECOUNT><TOTALBYTES>13</TOTALBYTES><HARDLINKBYTES>0</HARDLINKBYTES><CREATIONTIME><HIGHPART>0x01D3A8A8</HIGHPART><LOWPART>0xF8F70E9B</LOWPART></CREATIONTIME><LASTMODIFICATIONTIME><HIGHPART>0x01D3A8A8</HIGHPART><LOWPART>0xF8F7D129</LOWPART></LASTMODIFICATIONTIME></IMAGE><TOTALBYTES>1251</TOTALBYTES></WIM>");
-            GetXmlData_Template("MultiImage.wim", @"<WIM><IMAGE INDEX=""1""><NAME>Base</NAME><DIRCOUNT>2</DIRCOUNT><FILECOUNT>3</FILECOUNT><TOTALBYTES>3</TOTALBYTES><HARDLINKBYTES>0</HARDLINKBYTES><CREATIONTIME><HIGHPART>0x01D3A74E</HIGHPART><LOWPART>0x97C28976</LOWPART></CREATIONTIME><LASTMODIFICATIONTIME><HIGHPART>0x01D3A74E</HIGHPART><LOWPART>0x97C5056B</LOWPART></LASTMODIFICATIONTIME></IMAGE><IMAGE INDEX=""2""><NAME>Changes</NAME><DIRCOUNT>2</DIRCOUNT><FILECOUNT>3</FILECOUNT><TOTALBYTES>3</TOTALBYTES><HARDLINKBYTES>0</HARDLINKBYTES><CREATIONTIME><HIGHPART>0x01D3A74E</HIGHPART><LOWPART>0xBC468ECE</LOWPART></CREATIONTIME><LASTMODIFICATIONTIME><HIGHPART>0x01D3A74E</HIGHPART><LOWPART>0xBC470453</LOWPART></LASTMODIFICATIONTIME></IMAGE><IMAGE INDEX=""3""><NAME>Delta</NAME><DIRCOUNT>2</DIRCOUNT><FILECOUNT>4</FILECOUNT><TOTALBYTES>4</TOTALBYTES><HARDLINKBYTES>0</HARDLINKBYTES><CREATIONTIME><HIGHPART>0x01D3A74E</HIGHPART><LOWPART>0xC58E4622</LOWPART></CREATIONTIME><LASTMODIFICATIONTIME><HIGHPART>0x01D3A74E</HIGHPART><LOWPART>0xC58E947B</LOWPART></LASTMODIFICATIONTIME></IMAGE><TOTALBYTES>4332</TOTALBYTES></WIM>");
+            GetXmlDataTemplate("XPRESS.wim", @"<WIM><IMAGE INDEX=""1""><NAME>Sample</NAME><DIRCOUNT>5</DIRCOUNT><FILECOUNT>10</FILECOUNT><TOTALBYTES>13</TOTALBYTES><HARDLINKBYTES>0</HARDLINKBYTES><CREATIONTIME><HIGHPART>0x01D386AC</HIGHPART><LOWPART>0xFC4DC1F4</LOWPART></CREATIONTIME><LASTMODIFICATIONTIME><HIGHPART>0x01D386AC</HIGHPART><LOWPART>0xFC4E2202</LOWPART></LASTMODIFICATIONTIME></IMAGE><TOTALBYTES>1411</TOTALBYTES></WIM>");
+            GetXmlDataTemplate("LZX.wim", @"<WIM><IMAGE INDEX=""1""><NAME>Sample</NAME><DIRCOUNT>5</DIRCOUNT><FILECOUNT>10</FILECOUNT><TOTALBYTES>13</TOTALBYTES><HARDLINKBYTES>0</HARDLINKBYTES><CREATIONTIME><HIGHPART>0x01D386AD</HIGHPART><LOWPART>0x036C2DDA</LOWPART></CREATIONTIME><LASTMODIFICATIONTIME><HIGHPART>0x01D386AD</HIGHPART><LOWPART>0x036C6899</LOWPART></LASTMODIFICATIONTIME></IMAGE><TOTALBYTES>1239</TOTALBYTES></WIM>");
+            GetXmlDataTemplate("LZMS.wim", @"﻿<WIM><IMAGE INDEX=""1""><NAME>Sample</NAME><DIRCOUNT>5</DIRCOUNT><FILECOUNT>10</FILECOUNT><TOTALBYTES>13</TOTALBYTES><HARDLINKBYTES>0</HARDLINKBYTES><CREATIONTIME><HIGHPART>0x01D3A8A8</HIGHPART><LOWPART>0xF8F70E9B</LOWPART></CREATIONTIME><LASTMODIFICATIONTIME><HIGHPART>0x01D3A8A8</HIGHPART><LOWPART>0xF8F7D129</LOWPART></LASTMODIFICATIONTIME></IMAGE><TOTALBYTES>1251</TOTALBYTES></WIM>");
+            GetXmlDataTemplate("MultiImage.wim", @"<WIM><IMAGE INDEX=""1""><NAME>Base</NAME><DIRCOUNT>2</DIRCOUNT><FILECOUNT>3</FILECOUNT><TOTALBYTES>3</TOTALBYTES><HARDLINKBYTES>0</HARDLINKBYTES><CREATIONTIME><HIGHPART>0x01D3A74E</HIGHPART><LOWPART>0x97C28976</LOWPART></CREATIONTIME><LASTMODIFICATIONTIME><HIGHPART>0x01D3A74E</HIGHPART><LOWPART>0x97C5056B</LOWPART></LASTMODIFICATIONTIME></IMAGE><IMAGE INDEX=""2""><NAME>Changes</NAME><DIRCOUNT>2</DIRCOUNT><FILECOUNT>3</FILECOUNT><TOTALBYTES>3</TOTALBYTES><HARDLINKBYTES>0</HARDLINKBYTES><CREATIONTIME><HIGHPART>0x01D3A74E</HIGHPART><LOWPART>0xBC468ECE</LOWPART></CREATIONTIME><LASTMODIFICATIONTIME><HIGHPART>0x01D3A74E</HIGHPART><LOWPART>0xBC470453</LOWPART></LASTMODIFICATIONTIME></IMAGE><IMAGE INDEX=""3""><NAME>Delta</NAME><DIRCOUNT>2</DIRCOUNT><FILECOUNT>4</FILECOUNT><TOTALBYTES>4</TOTALBYTES><HARDLINKBYTES>0</HARDLINKBYTES><CREATIONTIME><HIGHPART>0x01D3A74E</HIGHPART><LOWPART>0xC58E4622</LOWPART></CREATIONTIME><LASTMODIFICATIONTIME><HIGHPART>0x01D3A74E</HIGHPART><LOWPART>0xC58E947B</LOWPART></LASTMODIFICATIONTIME></IMAGE><TOTALBYTES>4332</TOTALBYTES></WIM>");
         }
 
-        public void GetXmlData_Template(string fileName, string compXml)
+        public static void GetXmlDataTemplate(string fileName, string compXml)
         {
             string wimFile = Path.Combine(TestSetup.SampleDir, fileName);
-            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
             {
                 string wimXml = wim.GetXmlData();
 
@@ -108,17 +106,16 @@ namespace ManagedWimLib.Tests
 
         #region IsImageNameInUse
         [TestMethod]
-        [TestCategory("WimLib")]
         public void IsImageNameInUse()
         {
-            IsImageNameInUse_Template("LZX.wim", "Sample", true);
-            IsImageNameInUse_Template("MultiImage.wim", "Alpha", false);
+            IsImageNameInUseTemplate("LZX.wim", "Sample", true);
+            IsImageNameInUseTemplate("MultiImage.wim", "Alpha", false);
         }
 
-        public void IsImageNameInUse_Template(string fileName, string imageName, bool comp)
+        public static void IsImageNameInUseTemplate(string fileName, string imageName, bool comp)
         {
             string wimFile = Path.Combine(TestSetup.SampleDir, fileName);
-            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
             {
                 bool ret = wim.IsImageNameInUse(imageName);
                 Assert.AreEqual(ret, comp);
@@ -128,22 +125,21 @@ namespace ManagedWimLib.Tests
 
         #region ResolveImage
         [TestMethod]
-        [TestCategory("WimLib")]
         public void ResolveImage()
         {
-            ResolveImage_Template("LZX.wim", "Sample", 1);
-            ResolveImage_Template("LZX.wim", "1", 1);
-            ResolveImage_Template("LZX.wim", "2", Wim.NoImage);
-            ResolveImage_Template("MultiImage.wim", "Delta", 3);
-            ResolveImage_Template("MultiImage.wim", "Alpha", Wim.NoImage);
-            ResolveImage_Template("MultiImage.wim", "all", Wim.AllImages);
-            ResolveImage_Template("MultiImage.wim", "*", Wim.AllImages);
+            ResolveImageTemplate("LZX.wim", "Sample", 1);
+            ResolveImageTemplate("LZX.wim", "1", 1);
+            ResolveImageTemplate("LZX.wim", "2", Wim.NoImage);
+            ResolveImageTemplate("MultiImage.wim", "Delta", 3);
+            ResolveImageTemplate("MultiImage.wim", "Alpha", Wim.NoImage);
+            ResolveImageTemplate("MultiImage.wim", "all", Wim.AllImages);
+            ResolveImageTemplate("MultiImage.wim", "*", Wim.AllImages);
         }
 
-        public void ResolveImage_Template(string fileName, string imageNameOrNum, int comp)
+        public void ResolveImageTemplate(string fileName, string imageNameOrNum, int comp)
         {
             string wimFile = Path.Combine(TestSetup.SampleDir, fileName);
-            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
             {
                 int imageIndex = wim.ResolveImage(imageNameOrNum);
                 Assert.AreEqual(imageIndex, comp);

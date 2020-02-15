@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -28,19 +28,19 @@ using System.IO;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
+    [TestCategory(TestSetup.WimLib)]
     public class ExportTests
     {
         #region ExportImage
         [TestMethod]
-        [TestCategory("WimLib")]
         public void ExportImage()
         {
-            ExportImage_Template("MultiImage.wim", 1, "Base");
-            ExportImage_Template("MultiImage.wim", 2, "Changes");
-            ExportImage_Template("MultiImage.wim", 3, "Delta");
+            ExportImageTemplate("MultiImage.wim", 1, "Base");
+            ExportImageTemplate("MultiImage.wim", 2, "Changes");
+            ExportImageTemplate("MultiImage.wim", 3, "Delta");
         }
 
-        public void ExportImage_Template(string wimFileName, int imageIndex, string destImageName)
+        public void ExportImageTemplate(string wimFileName, int imageIndex, string destImageName)
         {
             string srcWimPath = Path.Combine(TestSetup.SampleDir, wimFileName);
             string destDir = TestHelper.GetTempDir();
@@ -57,28 +57,28 @@ namespace ManagedWimLib.Tests
 
                     switch (msg)
                     {
-                        case ProgressMsg.WRITE_STREAMS:
+                        case ProgressMsg.WriteStreams:
                             {
-                                ProgressInfo_WriteStreams m = (ProgressInfo_WriteStreams)info;
+                                WriteStreamsProgress m = (WriteStreamsProgress)info;
                                 Assert.IsNotNull(m);
 
                                 Assert.AreEqual(m.CompressionType, CompressionType.LZMS);
                                 _checked[0] = true;
                             }
                             break;
-                        case ProgressMsg.WRITE_METADATA_BEGIN:
+                        case ProgressMsg.WriteMetadataBegin:
                             Assert.IsNull(info);
                             _checked[1] = true;
                             break;
-                        case ProgressMsg.WRITE_METADATA_END:
+                        case ProgressMsg.WriteMetadataEnd:
                             Assert.IsNull(info);
                             _checked[2] = true;
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
-                using (Wim srcWim = Wim.OpenWim(srcWimPath, OpenFlags.DEFAULT))
+                using (Wim srcWim = Wim.OpenWim(srcWimPath, OpenFlags.None))
                 {
                     WimInfo swi = srcWim.GetWimInfo();
                     Assert.IsTrue(swi.ImageCount == 3);
@@ -90,15 +90,15 @@ namespace ManagedWimLib.Tests
                     {
                         destWim.RegisterCallback(ProgressCallback);
 
-                        srcWim.ExportImage(imageIndex, destWim, destImageName, null, ExportFlags.GIFT);
-                        destWim.Write(destWimPath, Wim.AllImages, WriteFlags.DEFAULT, Wim.DefaultThreads);
+                        srcWim.ExportImage(imageIndex, destWim, destImageName, null, ExportFlags.Gift);
+                        destWim.Write(destWimPath, Wim.AllImages, WriteFlags.None, Wim.DefaultThreads);
                     }
 
                     for (int i = 0; i < _checked.Length; i++)
                         _checked[i] = false;
                 }
 
-                using (Wim destWim = Wim.OpenWim(destWimPath, OpenFlags.DEFAULT))
+                using (Wim destWim = Wim.OpenWim(destWimPath, OpenFlags.None))
                 {
                     WimInfo dwi = destWim.GetWimInfo();
                     Assert.IsTrue(dwi.ImageCount == 1);

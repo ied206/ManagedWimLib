@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -27,18 +27,15 @@ using System;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
+    [TestCategory(TestSetup.WimLib)]
     public class GetVersionTests
     {
         #region GetVersion
         [TestMethod]
-        [TestCategory("WimLib")]
         public void GetImageInfo()
         {
             Version ver = Wim.GetVersion();
             Assert.AreEqual(new Version(1, 13, 1), ver);
-
-            Tuple<ushort, ushort, ushort> tuple = Wim.GetVersionTuple();
-            Assert.AreEqual(new Tuple<ushort, ushort, ushort>(1, 13, 1), tuple);
 
             string str = Wim.GetVersionString();
             Assert.IsTrue(str.Equals("1.13.1", StringComparison.Ordinal));

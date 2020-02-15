@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -30,17 +30,17 @@ using System.Linq;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
+    [TestCategory(TestSetup.WimLib)]
     public class ReferenceTests
     {
         #region ReferenceTemplateImage
         [TestMethod]
-        [TestCategory("WimLib")]
         public void ReferenceTemplateImage()
         {
-            ReferenceTemplateImage_Template("MultiImage.wim", "Src02_2", SampleSet.Src02_2);
+            ReferenceTemplateImageTemplate("MultiImage.wim", "Src02_2", SampleSet.Src02_2);
         }
 
-        public void ReferenceTemplateImage_Template(string wimFileName, string captureDir, SampleSet set)
+        public void ReferenceTemplateImageTemplate(string wimFileName, string captureDir, SampleSet set)
         {
             string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             try
@@ -53,32 +53,32 @@ namespace ManagedWimLib.Tests
                 File.Copy(srcWimFile, destWimFile, true);
 
                 int imageCount;
-                using (Wim wim = Wim.OpenWim(destWimFile, OpenFlags.WRITE_ACCESS))
+                using (Wim wim = Wim.OpenWim(destWimFile, OpenFlags.WriteAccess))
                 {
                     WimInfo wi = wim.GetWimInfo();
                     imageCount = (int)wi.ImageCount;
 
-                    wim.AddImage(srcDir, "UnitTest", null, AddFlags.DEFAULT);
+                    wim.AddImage(srcDir, "UnitTest", null, AddFlags.None);
                     wim.ReferenceTemplateImage(imageCount + 1, 1);
 
-                    wim.Overwrite(WriteFlags.DEFAULT, Wim.DefaultThreads);
+                    wim.Overwrite(WriteFlags.None, Wim.DefaultThreads);
                 }
 
                 List<Tuple<string, bool>> entries = new List<Tuple<string, bool>>();
 
-                CallbackStatus IterateCallback(DirEntry dentry, object userData)
+                int IterateCallback(DirEntry dentry, object userData)
                 {
                     string path = dentry.FullPath;
-                    bool isDir = (dentry.Attributes & FileAttribute.DIRECTORY) != 0;
+                    bool isDir = (dentry.Attributes & FileAttributes.Directory) != 0;
                     entries.Add(new Tuple<string, bool>(path, isDir));
 
-                    return CallbackStatus.CONTINUE;
+                    return Wim.IterateCallbackSuccess;
                 }
 
                 string wimFile = Path.Combine(TestSetup.SampleDir, wimFileName);
-                using (Wim wim = Wim.OpenWim(destWimFile, OpenFlags.DEFAULT))
+                using (Wim wim = Wim.OpenWim(destWimFile, OpenFlags.None))
                 {
-                    wim.IterateDirTree(imageCount + 1, Wim.RootPath, IterateFlags.RECURSIVE, IterateCallback);
+                    wim.IterateDirTree(imageCount + 1, Wim.RootPath, IterateDirTreeFlags.Recursive, IterateCallback);
                 }
 
                 TestHelper.CheckPathList(set, entries);
@@ -90,7 +90,7 @@ namespace ManagedWimLib.Tests
             }
         }
 
-        public void ReferenceTemplateImage_Template(string[] splitWimNames, RefFlags refFlags = RefFlags.DEFAULT, bool failure = false)
+        public void ReferenceTemplateImageTemplate(string[] splitWimNames, RefFlags refFlags = RefFlags.None, bool failure = false)
         {
             string[] splitWims = splitWimNames.Select(x => Path.Combine(TestSetup.SampleDir, x)).ToArray();
             string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
@@ -105,61 +105,61 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.EXTRACT_IMAGE_BEGIN:
+                        case ProgressMsg.ExtractImageBegin:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[0] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_IMAGE_END:
+                        case ProgressMsg.ExtractImageEnd:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[1] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_FILE_STRUCTURE:
+                        case ProgressMsg.ExtractFileStructure:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[2] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_STREAMS:
+                        case ProgressMsg.ExtractStreams:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[3] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_METADATA:
+                        case ProgressMsg.ExtractMetadata:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[4] = true;
                             }
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
                 try
                 {
-                    using (Wim wim = Wim.OpenWim(splitWims[0], OpenFlags.DEFAULT, ProgressCallback))
+                    using (Wim wim = Wim.OpenWim(splitWims[0], OpenFlags.None, ProgressCallback))
                     {
                         var leftSplitWims = splitWims.Skip(1);
-                        wim.ReferenceResourceFiles(leftSplitWims, refFlags, OpenFlags.DEFAULT);
+                        wim.ReferenceResourceFiles(leftSplitWims, refFlags, OpenFlags.None);
 
-                        wim.ExtractImage(1, destDir, ExtractFlags.NO_ACLS);
+                        wim.ExtractImage(1, destDir, ExtractFlags.NoAcls);
                     }
                 }
-                catch (WimLibException)
+                catch (WimException)
                 {
                     if (failure)
                         return;
@@ -181,15 +181,14 @@ namespace ManagedWimLib.Tests
 
         #region ReferenceResourceFiles
         [TestMethod]
-        [TestCategory("WimLib")]
         public void ReferenceResourceFiles()
         {
-            ReferenceResourceFiles_Template(new[] { "Split.swm", "Split2.swm" });
-            ReferenceResourceFiles_Template(new[] { "Split.swm", "Split*.swm" }, RefFlags.GLOB_ENABLE | RefFlags.GLOB_ERR_ON_NOMATCH);
-            ReferenceResourceFiles_Template(new[] { "Split.swm", "Split*.swm" }, RefFlags.GLOB_ENABLE | RefFlags.GLOB_ERR_ON_NOMATCH, true);
+            ReferenceResourceFilesTemplate(new[] { "Split.swm", "Split2.swm" });
+            ReferenceResourceFilesTemplate(new[] { "Split.swm", "Split*.swm" }, RefFlags.GlobEnable | RefFlags.GlobErrOnNoMatch);
+            ReferenceResourceFilesTemplate(new[] { "Split.swm", "Split*.swm" }, RefFlags.GlobEnable | RefFlags.GlobErrOnNoMatch, true);
         }
 
-        public void ReferenceResourceFiles_Template(string[] splitWimNames, RefFlags refFlags = RefFlags.DEFAULT, bool failure = false)
+        public void ReferenceResourceFilesTemplate(string[] splitWimNames, RefFlags refFlags = RefFlags.None, bool failure = false)
         {
             string[] splitWims = splitWimNames.Select(x => Path.Combine(TestSetup.SampleDir, x)).ToArray();
             string destDir = TestHelper.GetTempDir();
@@ -204,63 +203,63 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.EXTRACT_IMAGE_BEGIN:
+                        case ProgressMsg.ExtractImageBegin:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[0] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_IMAGE_END:
+                        case ProgressMsg.ExtractImageEnd:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[1] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_FILE_STRUCTURE:
+                        case ProgressMsg.ExtractFileStructure:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[2] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_STREAMS:
+                        case ProgressMsg.ExtractStreams:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[3] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_METADATA:
+                        case ProgressMsg.ExtractMetadata:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[4] = true;
                             }
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
                 try
                 {
-                    using (Wim wim = Wim.OpenWim(splitWims[0], OpenFlags.DEFAULT))
+                    using (Wim wim = Wim.OpenWim(splitWims[0], OpenFlags.None))
                     {
                         wim.RegisterCallback(ProgressCallback);
 
                         var leftSplitWims = splitWims.Skip(1);
-                        wim.ReferenceResourceFiles(leftSplitWims, refFlags, OpenFlags.DEFAULT);
+                        wim.ReferenceResourceFiles(leftSplitWims, refFlags, OpenFlags.None);
 
-                        wim.ExtractImage(1, destDir, ExtractFlags.NO_ACLS);
+                        wim.ExtractImage(1, destDir, ExtractFlags.NoAcls);
                     }
                 }
-                catch (WimLibException)
+                catch (WimException)
                 {
                     if (failure)
                         return;
@@ -282,13 +281,12 @@ namespace ManagedWimLib.Tests
 
         #region ReferenceResources
         [TestMethod]
-        [TestCategory("WimLib")]
         public void ReferenceResources()
         {
-            ReferenceResources_Template(new[] { "Split.swm", "Split2.swm" });
+            ReferenceResourcesTemplate(new[] { "Split.swm", "Split2.swm" });
         }
 
-        public void ReferenceResources_Template(string[] splitWimNames, RefFlags refFlags = RefFlags.DEFAULT, bool failure = false)
+        public void ReferenceResourcesTemplate(string[] splitWimNames, RefFlags refFlags = RefFlags.None, bool failure = false)
         {
             string[] splitWimPaths = splitWimNames.Select(x => Path.Combine(TestSetup.SampleDir, x)).ToArray();
             string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
@@ -303,62 +301,62 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.EXTRACT_IMAGE_BEGIN:
+                        case ProgressMsg.ExtractImageBegin:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[0] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_IMAGE_END:
+                        case ProgressMsg.ExtractImageEnd:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[1] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_FILE_STRUCTURE:
+                        case ProgressMsg.ExtractFileStructure:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[2] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_STREAMS:
+                        case ProgressMsg.ExtractStreams:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[3] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_METADATA:
+                        case ProgressMsg.ExtractMetadata:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[4] = true;
                             }
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
                 try
                 {
-                    using (Wim wim = Wim.OpenWim(splitWimPaths[0], OpenFlags.DEFAULT, ProgressCallback))
+                    using (Wim wim = Wim.OpenWim(splitWimPaths[0], OpenFlags.None, ProgressCallback))
                     {
                         Wim[] splitWims = new Wim[splitWimPaths.Length - 1];
                         try
                         {
                             for (int i = 0; i < splitWims.Length; i++)
-                                splitWims[i] = Wim.OpenWim(splitWimPaths[i + 1], OpenFlags.DEFAULT);
+                                splitWims[i] = Wim.OpenWim(splitWimPaths[i + 1], OpenFlags.None);
 
                             wim.ReferenceResources(splitWims);
-                            wim.ExtractImage(1, destDir, ExtractFlags.NO_ACLS);
+                            wim.ExtractImage(1, destDir, ExtractFlags.NoAcls);
                         }
                         finally
                         {
@@ -367,7 +365,7 @@ namespace ManagedWimLib.Tests
                         }
                     }
                 }
-                catch (WimLibException)
+                catch (WimException)
                 {
                     if (failure)
                         return;
