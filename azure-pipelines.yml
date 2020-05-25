@@ -1,12 +1,13 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-# Linux build was omitted because the test always fails regardless of wimlib binary used
 
 strategy:
   matrix:
-    mac:
-      imageName: 'macos-latest'
     windows:
       imageName: 'windows-latest'
+    linux:
+      imageName: 'ubuntu-latest'
+    mac:
+      imageName: 'macos-latest'
 
 trigger:
   branches:
@@ -22,14 +23,26 @@ variables:
 
 steps:
 - task: UseDotNet@2
-  displayName: 'Install .NET Core SDK 3.0'
+  displayName: 'Install .NET Core SDK 2.1'
   inputs:
-    version: 3.0.100
+    packageType: 'sdk'
+    version: '2.1.x'
+- task: UseDotNet@2
+  displayName: 'Install .NET Core SDK 3.1'
+  inputs:
+    packageType: 'sdk'
+    version: '3.1.x'
+- task: DotNetCoreCLI@2
+  displayName: 'Restore Nuget Pacakges'
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+    feedsToUse: 'select'
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'Build Projects'
 - task: DotNetCoreCLI@2
   displayName: 'Run Tests'
   inputs:
-    command: test
+    command: 'test'
     projects: '**/*.Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+    arguments: '--configuration $(buildConfiguration) --logger="console;verbosity=detailed"'
