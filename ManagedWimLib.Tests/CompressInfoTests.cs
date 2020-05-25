@@ -37,7 +37,7 @@ namespace ManagedWimLib.Tests
         [TestMethod]
         public void SetDefaultCompressionLevel()
         {
-            static void ShouldFailTemplate(Action action)
+            void ShouldFailTemplate(Action action)
             {
                 bool success = false;
                 try
@@ -77,7 +77,7 @@ namespace ManagedWimLib.Tests
         [TestMethod]
         public void GetCompressorNeededMemory()
         {
-            static void Template(CompressionType ctype, ulong maxBlockSize, uint compLevel, CompressorFlags flags, bool success, bool expectExcept = false)
+            void Template(CompressionType ctype, ulong maxBlockSize, uint compLevel, CompressorFlags flags, bool success, bool expectExcept = false)
             {
                 string msg = $"({ctype}, {maxBlockSize}, {success}, {flags})";
 

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net451;netstandard2.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net451;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0;netstandard2.1</TargetFrameworks>
     <PackageId>ManagedWimLib</PackageId>
     <Title>ManagedWimLib</Title>
     <LangVersion>latest</LangVersion>
@@ -9,10 +9,10 @@
     <Version>2.0.0</Version>
     <Authors>Eric Biggers, Hajin Jang</Authors>
     <Company>Joveler</Company>
-    <Description>Native wimlib wrapper library for .Net.
+    <Description>Native wimlib wrapper library for .NET.
 Provides every capabilities of wimlib.
 Supports Windows, Linux and macOS.</Description>
-    <Copyright>Copyright (c) 2018-2019 Hajin Jang</Copyright>
+    <Copyright>Copyright (c) 2018-220 Hajin Jang</Copyright>
     <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
     <PackageIcon>images\Logo.png</PackageIcon>
@@ -20,21 +20,61 @@ Supports Windows, Linux and macOS.</Description>
     <PackageReleaseNotes>- Improve RHEL/CentOS compatibility</PackageReleaseNotes>
     <PackageTags>wim wimlib dism imagex archive native pinvoke interop</PackageTags>
   </PropertyGroup>
-  <Import Project="$(MSBuildProjectDirectory)\ManagedWimLib.targets" />
+  <!-- PackageReference -->
   <ItemGroup>
-    <PackageReference Include="Joveler.DynLoader" Version="1.3.0" />
-    <PackageReference Include="System.Memory" Version="4.5.3" />
-    <!-- Nuget Pacakge Icon -->
-    <None Include="..\Image\Logo.png" Pack="true" PackagePath="images\" />
-    <!-- .Net Framework 4.5.1 -->
-    <None Include="ManagedWimLib.targets" Pack="true" PackagePath="build\net451" />
-    <None Include="Precompiled\x86\*.dll" Pack="true" PackagePath="build\net451\Precompiled\x86" />
-    <None Include="Precompiled\x64\*.dll" Pack="true" PackagePath="build\net451\Precompiled\x64" />
-    <!-- .Net Standard 2.0 -->
-    <None Include="ManagedWimLib.targets" Pack="true" PackagePath="build\netstandard2.0" />
-    <None Include="Precompiled\x86\*" Pack="true" PackagePath="build\netstandard2.0\Precompiled\x86" />
-    <None Include="Precompiled\x64\*" Pack="true" PackagePath="build\netstandard2.0\Precompiled\x64" />
-    <None Include="Precompiled\armhf\*" Pack="true" PackagePath="build\netstandard2.0\Precompiled\armhf" />
-    <None Include="Precompiled\arm64\*" Pack="true" PackagePath="build\netstandard2.0\Precompiled\arm64" />
+    <PackageReference Include="Joveler.DynLoader" Version="2.0.0" />
+    <PackageReference Include="System.Memory" Version="4.5.4" Condition=" '$(TargetFramework)' == 'net451' or '$(TargetFramework)' == 'netstandard2.0' "/>
+  </ItemGroup>
+  <!-- Native Library for .NET Framework 4.5.1 -->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
+    <None Include="runtimes\win-x86\*.dll">
+      <Link>x86\%(FileName)%(Extension)</Link> <!-- Project Reference -->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="runtimes\win-x64\*.dll">
+      <Link>x64\%(FileName)%(Extension)</Link> <!-- Project Reference -->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <!-- Native Library for .NET Standard 2.0 & 2.1 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1'">
+    <None Include="runtimes\win-x86\*.dll">
+      <Link>runtimes\win-x86\native\%(FileName)%(Extension)</Link> <!-- Project Reference -->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="runtimes\win-x64\*.dll">
+      <Link>runtimes\win-x64\native\%(FileName)%(Extension)</Link> <!-- Project Reference -->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="runtimes\linux-x64\*.so">
+      <Link>runtimes\linux-x64\native\%(FileName)%(Extension)</Link> <!-- Project Reference -->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="runtimes\linux-arm\*.so">
+      <Link>runtimes\linux-arm\native\%(FileName)%(Extension)</Link> <!-- Project Reference -->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="runtimes\linux-arm64\*.so">
+      <Link>runtimes\linux-arm64\native\%(FileName)%(Extension)</Link> <!-- Project Reference -->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="runtimes\osx-x64\*.dylib">
+      <Link>runtimes\osx-x64\native\%(FileName)%(Extension)</Link> <!-- Project Reference -->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <!-- NuGet Pacakge -->
+  <ItemGroup>
+    <!-- Build Script for .NET Framework -->
+    <None Include="ManagedWimLib.netfx.targets" Pack="true" PackagePath="build\net451\ManagedWimLib.targets"/>
+    <!-- NuGet Pacakge Icon -->
+    <None Include="..\Image\Logo.png"         Pack="true" PackagePath="images\Logo.png" />
+    <!-- Native Library -->
+    <None Include="runtimes\win-x86\*.dll"    Pack="true" PackagePath="runtimes\win-x86\native"/>
+    <None Include="runtimes\win-x64\*.dll"    Pack="true" PackagePath="runtimes\win-x64\native"/>
+    <None Include="runtimes\linux-x64\*.so"   Pack="true" PackagePath="runtimes\linux-x64\native"/>
+    <None Include="runtimes\linux-arm\*.so"   Pack="true" PackagePath="runtimes\linux-arm\native"/>
+    <None Include="runtimes\linux-arm64\*.so" Pack="true" PackagePath="runtimes\linux-arm64\native"/>
+    <None Include="runtimes\osx-x64\*.dylib"  Pack="true" PackagePath="runtimes\osx-x64\native"/>
   </ItemGroup>
 </Project>

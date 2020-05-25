@@ -1979,7 +1979,7 @@ namespace ManagedWimLib
             Manager.EnsureLoaded();
 
             compressionLevel |= (uint)compressorFlags;
-            UIntPtr maxBlockSizeInterop = Lib.ToSizeT(maxBlockSize);
+            UIntPtr maxBlockSizeInterop = new UIntPtr(maxBlockSize);
             return Lib.GetCompressorNeededMemory(ctype, maxBlockSizeInterop, compressionLevel);
         }
         #endregion

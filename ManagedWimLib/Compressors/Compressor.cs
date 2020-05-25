@@ -149,7 +149,7 @@ namespace ManagedWimLib.Compressors
                 compressedBytes = Lib.Compress(uncompressedBuf, uncompressedSize, compressedBuf, compressedSizeAvail, _ptr);
             }
 
-            ulong ret = Lib.FromSizeT(compressedBytes);
+            ulong ret = compressedBytes.ToUInt64();
             Debug.Assert(ret <= (ulong)uncompressedSpan.Length); // See <returns> doc
             return (int)ret;
         }
@@ -223,11 +223,11 @@ namespace ManagedWimLib.Compressors
         /// <exception cref="PlatformNotSupportedException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
         public unsafe ulong Compress(byte* uncompressedBuf, ulong uncompressedSize, byte* compressedBuf, ulong compressedSizeAvail)
         {
-            UIntPtr uncompressedSizeInterop = Lib.ToSizeT(uncompressedSize);
-            UIntPtr compressedSizeAvailInterop = Lib.ToSizeT(compressedSizeAvail);
+            UIntPtr uncompressedSizeInterop = new UIntPtr(uncompressedSize);
+            UIntPtr compressedSizeAvailInterop = new UIntPtr(compressedSizeAvail);
             UIntPtr compressedBytes = Lib.Compress(uncompressedBuf, uncompressedSizeInterop, compressedBuf, compressedSizeAvailInterop, _ptr);
 
-            ulong ret = Lib.FromSizeT(compressedBytes);
+            ulong ret = compressedBytes.ToUInt64();
             Debug.Assert(ret <= uncompressedSize); // See <returns> doc
             return ret;
         }

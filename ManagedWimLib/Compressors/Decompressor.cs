@@ -203,8 +203,8 @@ namespace ManagedWimLib.Compressors
         /// <exception cref="PlatformNotSupportedException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
         public unsafe bool Decompress(byte* compressedBuf, ulong compressedSize, byte* uncompressedBuf, ulong exactUncompressedSize)
         {
-            UIntPtr compressedSizeInterop = Lib.ToSizeT(compressedSize);
-            UIntPtr uncompressedSizeInterop = Lib.ToSizeT(exactUncompressedSize);
+            UIntPtr compressedSizeInterop = new UIntPtr(compressedSize);
+            UIntPtr uncompressedSizeInterop = new UIntPtr(exactUncompressedSize);
 
             // 0 on success, Non-0 on failure.
             int ret = Lib.Decompress(compressedBuf, compressedSizeInterop, uncompressedBuf, uncompressedSizeInterop, _ptr);
