@@ -29,16 +29,25 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ManagedWimLib.Tests
 {
+    #region TestSetup
     [TestClass]
     public class TestSetup
     {
+        #region Const
         public const string WimLib = nameof(WimLib);
-        public static string BaseDir;
-        public static string SampleDir;
+        #endregion
 
+        #region Test Environment
+        public static string BaseDir { get; private set; }
+        public static string SampleDir { get; private set; }
+        public static int PlatformBitness { get; private set; }
+        #endregion
+
+        #region AssemblyInitialize, AssemblyCleanup
         [AssemblyInitialize]
         public static void Init(TestContext context)
         {
@@ -51,15 +60,19 @@ namespace ManagedWimLib.Tests
             {
                 case Architecture.X86:
                     arch = "x86";
+                    PlatformBitness = 32;
                     break;
                 case Architecture.X64:
+                    PlatformBitness = 64;
                     arch = "x64";
                     break;
                 case Architecture.Arm:
                     arch = "armhf";
+                    PlatformBitness = 32;
                     break;
                 case Architecture.Arm64:
                     arch = "arm64";
+                    PlatformBitness = 64;
                     break;
             }
 
@@ -82,9 +95,11 @@ namespace ManagedWimLib.Tests
         {
             Wim.GlobalCleanup();
         }
+        #endregion
     }
+    #endregion
 
-    #region Helper
+    #region TestHelper
     public enum SampleSet
     {
         // TestSet Src01 is created for basic test and compresstion type test

@@ -82,10 +82,6 @@ namespace ManagedWimLib
         }
         #endregion
 
-        #region Platform Bitness
-        internal static int PlatformBitness { get; private set; } = GetPlatformBitness();
-        #endregion
-
         #region (override) DefaultLibFileName
         protected override string DefaultLibFileName
         {
@@ -351,6 +347,23 @@ namespace ManagedWimLib
             Overwrite = GetFuncPtr<wimlib_overwrite>(nameof(wimlib_overwrite));
             #endregion
 
+            #region CompressInfo - SetDefaultCompressionLevel, GetCompressorNeededMemory
+            SetDefaultCompressionLevel = GetFuncPtr<wimlib_set_default_compression_level>(nameof(wimlib_set_default_compression_level));
+            GetCompressorNeededMemory = GetFuncPtr<wimlib_get_compressor_needed_memory>(nameof(wimlib_get_compressor_needed_memory));
+            #endregion
+
+            #region Compressor - CreateCompressor, FreeCompressor, Compress
+            CreateCompressor = GetFuncPtr<wimlib_create_compressor>(nameof(wimlib_create_compressor));
+            FreeCompressor = GetFuncPtr<wimlib_free_compressor>(nameof(wimlib_free_compressor));
+            Compress = GetFuncPtr<wimlib_compress>(nameof(wimlib_compress));
+            #endregion
+
+            #region Decompressor - CreateDecompressor, FreeDecompressor, Decompress
+            CreateDecompressor = GetFuncPtr<wimlib_create_decompressor>(nameof(wimlib_create_decompressor));
+            FreeDecompressor = GetFuncPtr<wimlib_free_decompressor>(nameof(wimlib_free_decompressor));
+            Decompress = GetFuncPtr<wimlib_decompress>(nameof(wimlib_decompress));
+            #endregion
+
             #region (Code) Set ErrorFile and PrintError
             SetErrorFile();
             #endregion
@@ -522,10 +535,28 @@ namespace ManagedWimLib
             Utf8.Write = null;
             Overwrite = null;
             #endregion
+
+            #region CompressInfo - SetDefaultCompressionLevel, GetCompressorNeededMemory
+            SetDefaultCompressionLevel = null;
+            GetCompressorNeededMemory = null;
+            #endregion
+
+            #region Compressor - CreateCompressor, FreeCompressor, Compress
+            CreateCompressor = null;
+            FreeCompressor = null;
+            Compress = null;
+            #endregion
+
+            #region Decompressor - CreateDecompressor, FreeDecompressor, Decompress
+            CreateDecompressor = null;
+            FreeDecompressor = null;
+            Decompress = null;
+            #endregion
         }
         #endregion
 
         #region WimLib Function Pointers
+        #region UTF-16 Instances
         [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
         internal class Utf16d
         {
@@ -889,7 +920,9 @@ namespace ManagedWimLib
             };
             #endregion
         }
+        #endregion
 
+        #region UTF-8 Instances
         [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
         internal class Utf8d
         {
@@ -1253,6 +1286,7 @@ namespace ManagedWimLib
             };
             #endregion
         }
+        #endregion
 
         #region GlobalInit, GlobalCleanup
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -1932,6 +1966,66 @@ namespace ManagedWimLib
             uint numThreads);
         internal wimlib_overwrite Overwrite;
         #endregion
+
+        #region CompressInfo - SetDefaultCompressionLevel, GetCompressorNeededMemory
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate ErrorCode wimlib_set_default_compression_level(
+            int ctype,
+            uint compression_level);
+        internal wimlib_set_default_compression_level SetDefaultCompressionLevel;
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate ulong wimlib_get_compressor_needed_memory(
+            CompressionType ctype,
+            UIntPtr max_block_size, // size_t
+            uint compression_level);
+        internal wimlib_get_compressor_needed_memory GetCompressorNeededMemory;
+        #endregion
+
+        #region Compressor - CreateCompressor, FreeCompressor, Compress
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate ErrorCode wimlib_create_compressor(
+            CompressionType ctype,
+            UIntPtr max_block_size, // size_t
+            uint compression_level,
+            out IntPtr compressor_ret);
+        internal wimlib_create_compressor CreateCompressor;
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void wimlib_free_compressor(IntPtr compressor);
+        internal wimlib_free_compressor FreeCompressor;
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal unsafe delegate UIntPtr wimlib_compress( // size_t
+            byte* uncompressed_data,
+            UIntPtr uncompressed_size, // size_t
+            byte* compressed_data,
+            UIntPtr compressed_size_avail, // size_t
+            IntPtr compressor);
+        internal wimlib_compress Compress;
+        #endregion
+
+        #region Decompressor - CreateDecompressor, FreeDecompressor, Decompress
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate ErrorCode wimlib_create_decompressor(
+            CompressionType ctype,
+            UIntPtr max_block_size, // size_t
+            out IntPtr decompressor_ret);
+        internal wimlib_create_decompressor CreateDecompressor;
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void wimlib_free_decompressor(IntPtr decompressor);
+        internal wimlib_free_decompressor FreeDecompressor;
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal unsafe delegate int wimlib_decompress( // size_t
+            byte* compressed_data,
+            UIntPtr compressed_size, // size_t
+            byte* uncompressed_data,
+            UIntPtr uncompressed_size_avail, // size_t
+            IntPtr decompressor);
+        internal wimlib_decompress Decompress;
+        #endregion
         #endregion
 
         #region Utility
@@ -1946,24 +2040,6 @@ namespace ManagedWimLib
         internal static bool GetBitField(uint bitField, int bitShift)
         {
             return (bitField & (1 << bitShift)) != 0;
-        }
-
-        private static int GetPlatformBitness()
-        {
-#if NET451
-            return Environment.Is64BitProcess ? 64 : 32;
-#else
-            switch (RuntimeInformation.ProcessArchitecture)
-            {
-                case Architecture.Arm:
-                case Architecture.X86:
-                    return 32;
-                case Architecture.Arm64:
-                case Architecture.X64:
-                default:
-                    return 64;
-            }
-#endif
         }
         #endregion
     }

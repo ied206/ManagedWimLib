@@ -21,6 +21,7 @@
     along with this file; if not, see http://www.gnu.org/licenses/.
 */
 
+using Joveler.DynLoader;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
@@ -429,10 +430,10 @@ namespace ManagedWimLib
         {
             get
             {
-                return (WimLibLoader.PlatformBitness) switch
+                return (Wim.Lib.PlatformBitness) switch
                 {
-                    32 => Cmd32.ToManagedClass(),
-                    64 => Cmd64.ToManagedClass(),
+                    PlatformBitness.Bit32 => Cmd32.ToManagedClass(),
+                    PlatformBitness.Bit64 => Cmd64.ToManagedClass(),
                     _ => throw new PlatformNotSupportedException(),
                 };
             }

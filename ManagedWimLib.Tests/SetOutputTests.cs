@@ -40,7 +40,7 @@ namespace ManagedWimLib.Tests
 
         public void SetOutputChunkSizeTemplate(string wimFileName, CompressionType compType, uint chunkSize, bool success)
         {
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             try
             {
                 Directory.CreateDirectory(destDir);

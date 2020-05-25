@@ -5,7 +5,8 @@
     <PackageId>ManagedWimLib</PackageId>
     <Title>ManagedWimLib</Title>
     <LangVersion>latest</LangVersion>
-    <Version>1.4.3</Version>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Version>2.0.0</Version>
     <Authors>Eric Biggers, Hajin Jang</Authors>
     <Company>Joveler</Company>
     <Description>Native wimlib wrapper library for .Net.
@@ -21,7 +22,8 @@ Supports Windows, Linux and macOS.</Description>
   </PropertyGroup>
   <Import Project="$(MSBuildProjectDirectory)\ManagedWimLib.targets" />
   <ItemGroup>
-    <PackageReference Include="Joveler.DynLoader" Version="1.2.1" />
+    <PackageReference Include="Joveler.DynLoader" Version="1.3.0" />
+    <PackageReference Include="System.Memory" Version="4.5.3" />
     <!-- Nuget Pacakge Icon -->
     <None Include="..\Image\Logo.png" Pack="true" PackagePath="images\" />
     <!-- .Net Framework 4.5.1 -->

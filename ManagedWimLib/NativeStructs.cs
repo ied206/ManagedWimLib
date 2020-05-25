@@ -31,6 +31,7 @@
 // ReSharper disable FieldCanBeMadeReadOnly.Local
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
 
+using Joveler.DynLoader;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -57,37 +58,45 @@ namespace ManagedWimLib
     /// In addition, a WIM with the new version number of 3584, or "ESD file",
     /// might contain solid resources with different compression types.
     /// </summary>
-    public enum CompressionType
+    public enum CompressionType : int
     {
         /// <summary>
         /// No compression.
+        /// <para>This is a valid argument to <see cref="Wim.CreateNewWim(CompressionType)"/> and <see cref="Wim.SetOutputCompressionType(CompressionType)"/>,
+        /// but not to the functions in the compression API such as <see cref="Compressor.Compressor.CreateCompressor(CompressionType, uint, uint, CompressorFlags)"/>.</para>
         /// </summary>
-        None = 0x00000000,
+        None = 0,
         /// <summary>
         /// The XPRESS compression format.
-        /// This format combines Lempel-Ziv factorization with Huffman encoding.
-        /// Compression and decompression are both fast. 
+        /// <para>This format combines Lempel-Ziv factorization with Huffman encoding.
+        /// Compression and decompression are both fast. </para>
         /// 
-        /// This format supports chunk sizes that are powers of 2 between 2^12 and 2^16, inclusively.
+        /// <para>This format supports chunk sizes that are powers of 2 between 2^12 and 2^16, inclusively.</para>
+        /// <para>If using <see cref="Compressor.Compressor.CreateCompressor(CompressionType, ulong, uint, CompressorFlags)"/> to create
+        /// an XPRESS compressor directly, the maxBlockSize parameter may be any positive value up to and including 2^16.</para>
         /// </summary>
         XPRESS = 1,
         /// <summary>
         /// The LZX compression format.
-        /// This format combines Lempel-Ziv factorization with Huffman encoding, but with more features and complexity than XPRESS.
+        /// <para>This format combines Lempel-Ziv factorization with Huffman encoding, but with more features and complexity than XPRESS.
         /// Compression is slow to somewhat fast, depending on the settings.
-        /// Decompression is fast but slower than XPRESS.
+        /// Decompression is fast but slower than XPRESS.</para>
         /// 
-        /// This format supports chunk sizes that are powers of 2 between 2^15 and 2^21, inclusively.
-        /// Note: chunk sizes other than 2^15 are not compatible with the Microsoft implementation.
+        /// <para>This format supports chunk sizes that are powers of 2 between 2^15 and 2^21, inclusively.
+        /// Note: chunk sizes other than 2^15 are not compatible with the Microsoft implementation.</para>
+        /// <para>If using <see cref="Compressor.Compressor.CreateCompressor(CompressionType, ulong, uint, CompressorFlags)"/> to create
+        /// an LZX compressor directly, the maxBlockSize parameter may be any positive value up to and including 2^21.</para>
         /// </summary>
         LZX = 2,
         /// <summary>
         /// The LZMS compression format.
-        /// This format combines Lempel-Ziv factorization with adaptive Huffman encoding and range coding.
-        /// Compression and decompression are both fairly slow.
+        /// <para>This format combines Lempel-Ziv factorization with adaptive Huffman encoding and range coding.
+        /// Compression and decompression are both fairly slow.</para>
         /// 
-        /// This format supports chunk sizes that are powers of 2 between 2^15 and 2^30, inclusively.
-        /// This format is best used for large chunk sizes.
+        /// <para>This format supports chunk sizes that are powers of 2 between 2^15 and 2^30, inclusively.
+        /// This format is best used for large chunk sizes.</para>
+        /// <para>If using <see cref="Compressor.Compressor.CreateCompressor(CompressionType, ulong, uint, CompressorFlags)"/> to create
+        /// an LZMS compressor directly, the maxBlockSize parameter may be any positive value up to and including 2^30.</para>
         /// </summary>
         LZMS = 3,
     }
@@ -1253,9 +1262,18 @@ namespace ManagedWimLib
         GlobErrOnNoMatch = 0x00000002,
     }
     #endregion
+
+    #region enum CompressorFlags
+    [Flags]
+    public enum CompressorFlags: uint
+    {
+        None = 0x0,
+        Destructive = 0x80000000,
+    }
+    #endregion
     #endregion
 
-    #region Native wimlib Structs
+    #region Native wimlib structures
     #region WimInfo
     [StructLayout(LayoutKind.Sequential)]
     [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local")]
@@ -2353,7 +2371,7 @@ namespace ManagedWimLib
             genesis = genesis.AddTicks(NanoSeconds / 100);
 
             // wimlib provide high 32bit separately if timespec.tv_sec is only 32bit
-            if (WimLibLoader.PlatformBitness == 32)
+            if (Wim.Lib.PlatformBitness == PlatformBitness.Bit32)
             {
                 long high64 = (long)high << 32;
                 genesis = genesis.AddSeconds(high64);

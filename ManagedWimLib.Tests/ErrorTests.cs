@@ -30,7 +30,7 @@ using System.Linq;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
-    [TestCategory("WimLib")]
+    [TestCategory(TestSetup.WimLib)]
     public class ErrorTests
     {
         [TestMethod]

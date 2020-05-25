@@ -23,6 +23,7 @@
 
 #define DIRTY_HACK_REF_RSRC_FILES
 
+using Joveler.DynLoader;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -69,6 +70,13 @@ namespace ManagedWimLib
         /// </summary>
         public const int DefaultThreads = 0;
         public const int IterateCallbackSuccess = 0;
+        /// <summary>
+        /// A string containing a single path separator; use this to specify the root directory of a WIM image.
+        /// </summary>
+        public static string RootPath => Path.DirectorySeparatorChar.ToString();
+
+        public const uint DefaultCompressionLevel = 0;
+        private const int EveryCompressionType = -1;
         #endregion
 
         #region Fields
@@ -85,13 +93,6 @@ namespace ManagedWimLib
         /// Represents whether wimlib is printing error messages or not.
         /// </summary>
         public static ErrorPrintState ErrorPrintState => Lib.GetErrorPrintState();
-        #endregion
-
-        #region RootPath
-        /// <summary>
-        /// A string containing a single path separator; use this to specify the root directory of a WIM image.
-        /// </summary>
-        public static string RootPath => Path.DirectorySeparatorChar.ToString();
         #endregion
 
         #region Constructor (private)
@@ -322,16 +323,16 @@ namespace ManagedWimLib
         /// <summary>
         /// Create a <see cref="Wim"> which initially contains no images and is not backed by an on-disk file.
         /// </summary>
-        /// <param name="compType">
+        /// <param name="type">
         /// The "output compression type" to assign to the <see cref="Wim">.
         /// This is the compression type that will be used if the <see cref="Wim"> is later persisted to an on-disk file using <see cref="Wim.Write()"/>.
         /// </param>
         /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
-        public static Wim CreateNewWim(CompressionType compType)
+        public static Wim CreateNewWim(CompressionType type)
         {
             Manager.EnsureLoaded();
 
-            ErrorCode ret = Lib.CreateNewWim(compType, out IntPtr wimPtr);
+            ErrorCode ret = Lib.CreateNewWim(type, out IntPtr wimPtr);
             WimException.CheckErrorCode(ret);
 
             return new Wim(wimPtr);
@@ -1666,9 +1667,9 @@ namespace ManagedWimLib
         public void UpdateImage(int image, UpdateCommand cmd, UpdateFlags updateFlags)
         {
             ErrorCode ret;
-            switch (WimLibLoader.PlatformBitness)
+            switch (Lib.PlatformBitness)
             {
-                case 32:
+                case PlatformBitness.Bit32:
                     UpdateCommand32[] cmds32 = new UpdateCommand32[1] { cmd.ToNativeStruct32() };
                     try
                     {
@@ -1679,7 +1680,7 @@ namespace ManagedWimLib
                         cmds32[0].Free();
                     }
                     break;
-                case 64:
+                case PlatformBitness.Bit64:
                     UpdateCommand64[] cmds64 = new UpdateCommand64[1] { cmd.ToNativeStruct64() };
                     try
                     {
@@ -1712,9 +1713,9 @@ namespace ManagedWimLib
         public void UpdateImage(int image, IEnumerable<UpdateCommand> cmds, UpdateFlags updateFlags)
         {
             ErrorCode ret;
-            switch (WimLibLoader.PlatformBitness)
+            switch (Lib.PlatformBitness)
             {
-                case 32:
+                case PlatformBitness.Bit32:
                     UpdateCommand32[] cmds32 = cmds.Select(x => x.ToNativeStruct32()).ToArray();
                     try
                     {
@@ -1726,7 +1727,7 @@ namespace ManagedWimLib
                             cmd32.Free();
                     }
                     break;
-                case 64:
+                case PlatformBitness.Bit64:
                     UpdateCommand64[] cmds64 = cmds.Select(x => x.ToNativeStruct64()).ToArray();
                     try
                     {
@@ -1814,7 +1815,7 @@ namespace ManagedWimLib
         }
         #endregion
 
-        #region Existence Check (ManagedWimLib Only)
+        #region Existence Check (ManagedWimLib specific)
         /// <summary>
         /// Check if a file exists in wim.
         /// </summary>
@@ -1898,6 +1899,88 @@ namespace ManagedWimLib
                 ErrorCode.PathDoesNotExist => false,
                 _ => throw new WimException(ret),
             };
+        }
+        #endregion
+
+        #region CompressInfo - SetDefaultCompressionLevel, GetCompressorNeededMemory
+        /// <summary>
+        /// Set the default compression level for the specified compression type.
+        /// <para>This is the compression level that <see cref="Compressor.Compressor.CreateCompressor(CompressionType, uint, uint)"/>
+        /// assumes if it is called with compLevel specified as 0.<br/>
+        /// wimlib's WIM writing code (e.g. <see cref="Write(string, int, WriteFlags, uint)"/>) will pass 0
+        /// to <see cref="Compressor.Compressor.CreateCompressor(CompressionType, uint, uint)"/> internally.<br/>
+        /// Therefore, calling this function will affect the compression level of any data later
+        /// written to WIM files using the specified compression type.</para>
+        /// 
+        /// <para>The initial state, before this function is called, is that all compression types have a default compression level of 50.</para>
+        /// </summary>
+        /// <param name="ctype">
+        /// Compression type for which to set the default compression level, as one of the <see cref="CompressionType"/>.
+        /// </param>
+        /// <param name="compressionLevel">
+        /// <para>The default compression level to set. If <see cref="DefaultCompressionLevel"/> (0), the "default default" level of 50 is restored.</para>
+        /// <para>Otherwise, a higher value indicates higher compression, whereas a lower value indicates lower compression.</para>
+        /// </param>
+        /// <param name="compressorFlags">
+        /// Flag <see cref="CompressorFlags.Destructive"/> creates the compressor in a mode where it is allowed to modify the input buffer.
+        /// <para>Specifically, in this mode, if compression succeeds, the input buffer may have been modified,
+        /// whereas if compression does not succeed the input buffer still may have been written to but will have been restored exactly to its original state.</para>
+        /// <para>This mode is designed to save some memory when using large buffer sizes.</para>
+        /// </param>
+        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        public static void SetDefaultCompressionLevel(CompressionType ctype, uint compressionLevel, CompressorFlags compressorFlags)
+        {
+            Manager.EnsureLoaded();
+
+            compressionLevel |= (uint)compressorFlags;
+            ErrorCode ret = Lib.SetDefaultCompressionLevel((int)ctype, compressionLevel);
+            WimException.CheckErrorCode(ret);
+        }
+
+        /// <summary>
+        /// Set the default compression level for the specified compression type.
+        /// <para>This is the compression level that <see cref="Compressor.Compressor.CreateCompressor(CompressionType, uint, uint)"/>
+        /// assumes if it is called with compLevel specified as 0.<br/>
+        /// wimlib's WIM writing code (e.g. <see cref="Write(string, int, WriteFlags, uint)"/>) will pass 0
+        /// to <see cref="Compressor.Compressor.CreateCompressor(CompressionType, uint, uint)"/> internally.<br/>
+        /// Therefore, calling this function will affect the compression level of any data later
+        /// written to WIM files using the specified compression type.</para>
+        /// 
+        /// <para>The initial state, before this function is called, is that all compression types have a default compression level of 50.</para>
+        /// </summary>
+        /// <param name="compressionLevel">
+        /// <para>The default compression level to set. If <see cref="DefaultCompressionLevel"/> (0), the "default default" level of 50 is restored.</para>
+        /// <para>Otherwise, a higher value indicates higher compression, whereas a lower value indicates lower compression.</para>
+        /// </param>
+        /// <param name="compressorFlags">
+        /// Flag <see cref="CompressorFlags.Destructive"/> creates the compressor in a mode where it is allowed to modify the input buffer.
+        /// <para>Specifically, in this mode, if compression succeeds, the input buffer may have been modified,
+        /// whereas if compression does not succeed the input buffer still may have been written to but will have been restored exactly to its original state.</para>
+        /// <para>This mode is designed to save some memory when using large buffer sizes.</para>
+        /// </param>
+        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        public static void SetEveryDefaultCompressionLevel(uint compressionLevel, CompressorFlags compressorFlags)
+        {
+            Manager.EnsureLoaded();
+
+            compressionLevel |= (uint)compressorFlags;
+            ErrorCode ret = Lib.SetDefaultCompressionLevel(EveryCompressionType, compressionLevel);
+            WimException.CheckErrorCode(ret);
+        }
+
+        /// <summary>
+        /// Return the approximate number of bytes needed to allocate a compressor with <see cref="Compressor.Compressor.CreateCompressor(CompressionType, uint, uint, CompressorFlags)"/> for the specified compression type, maximum block size, and compression level. 
+        /// <paramref name="compressionLevel"/> may be <see cref="DefaultCompressionLevel"/> (0), in which case the current default compression level for <paramref name="compressionLevel"/> is used.
+        /// </summary>
+        /// <returns>Returns 0 if the compression type is invalid, or the <paramref name="maxBlockSize"/> for that compression type is invalid.</returns>
+        /// <exception cref="PlatformNotSupportedException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
+        public static ulong GetCompressorNeededMemory(CompressionType ctype, ulong maxBlockSize, uint compressionLevel, CompressorFlags compressorFlags)
+        {
+            Manager.EnsureLoaded();
+
+            compressionLevel |= (uint)compressorFlags;
+            UIntPtr maxBlockSizeInterop = Lib.ToSizeT(maxBlockSize);
+            return Lib.GetCompressorNeededMemory(ctype, maxBlockSizeInterop, compressionLevel);
         }
         #endregion
     }
