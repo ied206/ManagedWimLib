@@ -4,9 +4,9 @@
 
 ManagedWimLib requires explicit loading of a wimlib library.
 
-You must call  `Wim.GlobalInit()` before using `ManagedWimLib`.
+You must call  `Wim.GlobalInit()` before using `ManagedWimLib`. Please put this code snippet in your application init code:
 
-Put this snippet in your application's init code:
+#### For .NET Framework 4.5.1+
 
 ```cs
 public static void InitNativeLibrary()
@@ -27,19 +27,59 @@ public static void InitNativeLibrary()
             arch = "arm64";
             break;
     }
-    
+    string libPath = Path.Combine(arch, "libwim-15.dll");
+
+    if (!File.Exists(libPath))
+        throw new PlatformNotSupportedException($"Unable to find native library [{libPath}].");
+
+    Magic.GlobalInit(libPath);
+}
+```
+
+#### For .NET Standard 2.0+:
+
+```cs
+public static void InitNativeLibrary()
+{
+    string libDir = "runtimes";
+    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        libDir = Path.Combine(libDir, "win-");
+    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        libDir = Path.Combine(libDir, "linux-");
+    else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        libDir = Path.Combine(libDir, "osx-");
+
+    switch (RuntimeInformation.ProcessArchitecture)
+    {
+        case Architecture.X86:
+            libDir += "x86";
+            break;
+        case Architecture.X64:
+            libDir += "x64";
+            break;
+        case Architecture.Arm:
+            libDir += "arm";
+            break;
+        case Architecture.Arm64:
+            libDir += "arm64";
+            break;
+    }
+    libDir = Path.Combine(libDir, "native");
+
     string libPath = null;
     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        libPath = Path.Combine(arch, "libwim-15.dll");
+        libPath = Path.Combine(libDir, "libwim-15.dll");
     else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        libPath = Path.Combine(arch, "libwim.so");
+        libPath = Path.Combine(libDir, "libwim.so");
     else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        libPath = Path.Combine(arch, "libwim.dylib");
+        libPath = Path.Combine(libDir, "libwim.dylib");
 
-    if (libPath == null || !File.Exists(libPath))
-        throw new PlatformNotSupportedException();
+    if (libPath == null)
+        throw new PlatformNotSupportedException($"Unable to find native library.");
+    if (!File.Exists(libPath))
+        throw new PlatformNotSupportedException($"Unable to find native library [{libPath}].");
 
-    Wim.GlobalInit(libPath);
+    Magic.GlobalInit(libPath);
 }
 ```
 
@@ -47,19 +87,35 @@ public static void InitNativeLibrary()
 
 ### Embedded binary
 
-ManagedWimLib comes with sets of binaries of `wimlib 1.13.1`.  
-They will be copied into the build directory at build time.
+ManagedWimLib comes with sets of binaries of `wimlib 1.13.2`. They will be copied into the build directory at build time.
 
-| Platform         | Binary                        | License              |
-|------------------|-------------------------------|----------------------|
-| Windows x86      | `$(OutDir)\x86\libwim-15.dll` | LGPLv3               |
-| Windows x64      | `$(OutDir)\x64\libwim-15.dll` | LGPLv3               |
-| Ubuntu 18.04 x64 | `$(OutDir)\x64\libwim.so`     | LGPLv3 (w/o NTFS-3G) |
-| Debian 10 armhf  | `$(OutDir)\armhf\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
-| Debian 10 arm64  | `$(OutDir)\arm64\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
-| macOS 10.15      | `$(OutDir)\x64\libwim.dylib`  | LGPLv3 (w/o NTFS-3G) |
+#### For .NET Framework 4.5.1+
 
-- Build Command
+| Platform         | Binary                        | License |
+|------------------|-------------------------------|---------|
+| Windows x86      | `$(OutDir)\x86\libwim-15.dll` | LGPLv3  |
+| Windows x64      | `$(OutDir)\x64\libwim-15.dll` | LGPLv3  |
+
+- Create an empty file named `ManagedWimLib.Precompiled.Exclude` in the project directory to prevent copy of the package-embedded binary.
+
+#### For .NET Standard 2.0+
+
+| Platform         | Binary                                     | License              |
+|------------------|--------------------------------------------|----------------------|
+| Windows x86      | `$(OutDir)\runtimes\win-x86\libwim-15.dll` | LGPLv3               |
+| Windows x64      | `$(OutDir)\runtimes\win-x64\libwim-15.dll` | LGPLv3               |
+| Ubuntu 18.04 x64 | `$(OutDir)\runtimes\linux-x64\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
+| Debian 10 armhf  | `$(OutDir)\runtimes\linux-arm\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
+| Debian 10 arm64  | `$(OutDir)\runtimes\linux-arm64\libwim.so` | LGPLv3 (w/o NTFS-3G) |
+| macOS 10.15      | `$(OutDir)\runtimes\osx-x64\libwim.dylib`  | LGPLv3 (w/o NTFS-3G) |
+
+- If you call `Wim.GlobalInit()` without `libPath` parameter on Linux or macOS, `ManagedWimLib` will search for system-installed wimlib.
+  - I recommend to use system-installed wimlib if you can, as I cannot ensure the included Linux binaries works on the every Linux distribution.
+- POSIX binaries were compiled without NTFS-3G support to make them as LGPLv3-licensed.
+  - If you want NTFS-3G functionality, load the system-installed library and make sure your program is compatible with **GPLv3**.
+  - On Linux, wimlib depends on system-installed `libfuse`.
+
+#### Build Command
 
 | Platform         | Binary Source / Build Command | Dependency |
 |------------------|-------------------------------|------------|
@@ -77,15 +133,6 @@ They will be copied into the build directory at build time.
 ### Custom binary
 
 To use custom wimlib binary instead, call `Wim.GlobalInit()` with a path to the custom binary.
-
-#### NOTES
-
-- Create an empty file named `ManagedWimLib.Precompiled.Exclude` in the project directory to prevent copy of the package-embedded binary.
-- If you call `Wim.GlobalInit()` without `libPath` parameter on Linux or macOS, `ManagedWimLib` will search for system-installed wimlib.
-  - I recommend to use system-installed wimlib if you can, as I cannot ensure the included Linux binaries works on the every Linux distribution.
-- POSIX binaries were compiled without NTFS-3G support to make them as LGPLv3-licensed.
-  - If you want NTFS-3G functionality, load the system-installed library and make sure your program is compatible with GPLv3.
-  - On Linux, wimlib depends on system-installed `libfuse`.
 
 ### Cleanup
 
