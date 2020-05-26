@@ -79,7 +79,7 @@ if [ "${OS}" = Darwin ]; then
     EXTRA_ARGS="${EXTRA_ARGS} --without-fuse"
 fi
 
-# Compile and copy wimlib binary
+# Compile wimlib
 # Adapted from https://wimlib.net/git/?p=wimlib;a=tree;f=tools/make-windows-release;
 pushd "${PWD}" > /dev/null
 cd $1

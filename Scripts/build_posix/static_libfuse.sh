@@ -41,7 +41,7 @@ PKGCONF_DIR="${LIB_PREFIX}/lib/pkgconfig"
 # Create prefix directory
 mkdir "${LIB_PREFIX}"
 
-# Compile and copy wimlib binary
+# Compile libfuse
 # Adapted from https://wimlib.net/git/?p=wimlib;a=tree;f=tools/windeps/Makefile;
 pushd "${PWD}" > /dev/null
 cd $1

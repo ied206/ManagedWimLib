@@ -73,11 +73,11 @@ namespace ManagedWimLib.Tests
                 WimInfo info = wim.GetWimInfo();
 
                 if (boot)
-                    Assert.IsTrue(info.BootIndex == 1);
+                    Assert.AreEqual(1u, info.BootIndex);
                 else
-                    Assert.IsTrue(info.BootIndex == 0);
-                Assert.IsTrue(info.ImageCount == 1);
-                Assert.IsTrue(info.CompressionType == compType);
+                    Assert.AreEqual(0u, info.BootIndex);
+                Assert.AreEqual(1u, info.ImageCount);
+                Assert.AreEqual(compType, info.CompressionType);
             }
         }
         #endregion
@@ -109,16 +109,22 @@ namespace ManagedWimLib.Tests
         public void IsImageNameInUse()
         {
             IsImageNameInUseTemplate("LZX.wim", "Sample", true);
+            IsImageNameInUseTemplate("LZX.wim", "", false);
+            IsImageNameInUseTemplate("LZX.wim", null, false);
+            IsImageNameInUseTemplate("MultiImage.wim", "Delta", true);
+            IsImageNameInUseTemplate("MultiImage.wim", "", false);
+            IsImageNameInUseTemplate("MultiImage.wim", null, false);
+            IsImageNameInUseTemplate("MultiImage.wim", "None", false);
             IsImageNameInUseTemplate("MultiImage.wim", "Alpha", false);
         }
 
-        public static void IsImageNameInUseTemplate(string fileName, string imageName, bool comp)
+        public static void IsImageNameInUseTemplate(string fileName, string imageName, bool expected)
         {
             string wimFile = Path.Combine(TestSetup.SampleDir, fileName);
             using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
             {
                 bool ret = wim.IsImageNameInUse(imageName);
-                Assert.AreEqual(ret, comp);
+                Assert.AreEqual(expected, ret);
             }
         }
         #endregion
@@ -136,13 +142,13 @@ namespace ManagedWimLib.Tests
             ResolveImageTemplate("MultiImage.wim", "*", Wim.AllImages);
         }
 
-        public void ResolveImageTemplate(string fileName, string imageNameOrNum, int comp)
+        public void ResolveImageTemplate(string fileName, string imageNameOrNum, int expected)
         {
             string wimFile = Path.Combine(TestSetup.SampleDir, fileName);
             using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
             {
                 int imageIndex = wim.ResolveImage(imageNameOrNum);
-                Assert.AreEqual(imageIndex, comp);
+                Assert.AreEqual(expected, imageIndex);
             }
         }
         #endregion
