@@ -6,7 +6,7 @@ if [[ "$#" -ne 1 ]]; then
     echo "Usage: $0 <WIMLIB_SRCDIR>" >&2
     exit 1
 fi
-if ![[ -d "$1" ]]; then
+if ! [[ -d "$1" ]]; then
     echo "[$1] is not a directory!" >&2
     exit 1
 fi
@@ -39,17 +39,17 @@ LIB_PREFIX="${HOME}/wimlib-build"
 PKGCONF_DIR="${LIB_PREFIX}/lib/pkgconfig"
 
 # Check if libxml2 was properly compiled
-if ![[ -d "${LIB_PREFIX}" ]]; then
+if ! [[ -d "${LIB_PREFIX}" ]]; then
     echo "Prefix directory [${LIB_PREFIX}] not found!" >&2
     echo "Please run static_wimlib.sh first." >&2
     exit 1
 fi
-if ![[ -d "${PKGCONF_DIR}" ]]; then
+if ! [[ -d "${PKGCONF_DIR}" ]]; then
     echo "PKGCONFIG directory [${PKGCONF_DIR}] not found!" >&2
     echo "Please run static_wimlib.sh first. " >&2
     exit 1
 fi
-if ![[ -s "${PKGCONF_DIR}/libxml-2.0.pc" ]]; then
+if ! [[ -s "${PKGCONF_DIR}/libxml-2.0.pc" ]]; then
     echo "libxml2 not installed in [${LIB_PREFIX}]!" >&2
     echo "Please run static_wimlib.sh first. " >&2
     exit 1
@@ -58,7 +58,7 @@ fi
 # Required dependencies
 # Debian/Ubuntu: sudo apt install libfuse-dev nasm
 # macOS:         brew install nasm
-which nasm
+which nasm > /dev/null
 if [[ $? -ne 0 ]]; then # Unable to find nasm
     echo "Please install nasm!" >&2
     if [ "${OS}" = Linux ]; then 

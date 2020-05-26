@@ -6,7 +6,7 @@ if [[ "$#" -ne 1 ]]; then
     echo "Usage: $0 <LIBFUSE_SRCDIR>" >&2
     exit 1
 fi
-if ![[ -d "$1" ]]; then
+if ! [[ -d "$1" ]]; then
     echo "[$1] is not a directory!" >&2
     exit 1
 fi
