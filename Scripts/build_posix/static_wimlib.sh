@@ -86,7 +86,7 @@ cd $1
 make clean
 ./configure --disable-static \
     PKG_CONFIG_PATH="${PKGCONF_DIR}" \
-    --without-libcrypto --without-ntfs-3g "${EXTRA_ARGS}"
+    --without-libcrypto --without-ntfs-3g ${EXTRA_ARGS}
 make "-j${CORES}"
 cp ".libs/${DEST_LIB}" "${BASE_DIR}/${DEST_LIB}"
 popd > /dev/null
