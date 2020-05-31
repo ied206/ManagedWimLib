@@ -675,6 +675,7 @@ namespace ManagedWimLib
         /// This will be false by default.
         /// The progress function can set this to true if it decides that the file needs to be excluded.
         /// </summary>
+        [MarshalAs(UnmanagedType.I1)]
         public bool WillExclude;
     }
     #endregion
@@ -699,6 +700,7 @@ namespace ManagedWimLib
         /// Indicates whether the error will be ignored or not.
         /// This will be false by default; the progress function may set it to true.
         /// </summary>
+        [MarshalAs(UnmanagedType.I1)]
         public bool WillIgnore;
     }
     #endregion
