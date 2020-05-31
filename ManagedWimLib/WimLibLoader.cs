@@ -690,6 +690,7 @@ namespace ManagedWimLib
 
             #region GetWimInfo - IsImageNameInUse, ResolveImage
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
             internal delegate bool wimlib_image_name_in_use(
                 IntPtr wim,
                 [MarshalAs(StrType)] string name);
@@ -1056,6 +1057,7 @@ namespace ManagedWimLib
 
             #region GetWimInfo - IsImageNameInUse, ResolveImage
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
             internal delegate bool wimlib_image_name_in_use(
                 IntPtr wim,
                 [MarshalAs(StrType)] string name);
@@ -1381,7 +1383,7 @@ namespace ManagedWimLib
         /// </remarks>
         /// <returns></returns>
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate ErrorCode wimlib_set_print_errors(bool showMessages);
+        internal delegate ErrorCode wimlib_set_print_errors([MarshalAs(UnmanagedType.I1)] bool showMessages);
         private wimlib_set_print_errors SetPrintErrorsPtr;
 
         internal void SetPrintErrors(bool showMessages)
