@@ -21,7 +21,7 @@
     along with this file; if not, see http://www.gnu.org/licenses/.
 */
 
-#define DIRTY_HACK_REF_RSRC_FILES
+#define NATIVE_REF_RSRC_FILES_GLOBS
 
 using Joveler.DynLoader;
 using System;
@@ -1128,7 +1128,7 @@ namespace ManagedWimLib
         /// In the case of split WIMs, instance of <see cref="Wim"> should be the/first part, since only the first part contains the metadata resources.
         /// In the case of delta WIMs, this should be the delta WIM rather than the WIM on which it is based.
         /// </remarks>
-        /// <param name="resourceWimFile">
+        /// <param name="resourceWimFileOrGlobs">
         /// A path to WIM file and/or split WIM parts to reference.
         /// Alternatively, when <see cref="RefFlags.GlobEnable"/> is specified in refFlags, these are treated as globs rather than literal paths.
         /// That is, using this function you can specify zero or more globs, each of which expands to one or more literal paths.
@@ -1141,19 +1141,22 @@ namespace ManagedWimLib
         /// to pass to internal calls to <see cref="Wim.OpenWim()"/> on the reference files.
         /// </param>
         /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
-        public void ReferenceResourceFile(string resourceWimFile, RefFlags refFlags, OpenFlags openFlags)
+        public void ReferenceResourceFile(string resourceWimFileOrGlobs, RefFlags refFlags, OpenFlags openFlags)
         {
-            if (resourceWimFile == null)
-                throw new ArgumentNullException(nameof(resourceWimFile));
+            if (resourceWimFileOrGlobs == null)
+                throw new ArgumentNullException(nameof(resourceWimFileOrGlobs));
 
-#if DIRTY_HACK_REF_RSRC_FILES
+#if NATIVE_REF_RSRC_FILES_GLOBS
+            string[] resources = new string[1] { resourceWimFileOrGlobs };
+            ErrorCode ret = Lib.ReferenceResourceFiles(_ptr, resources, 1u, refFlags, openFlags);
+#else
             // TODO: [Dirty Hack to resolve SEHException]
             // If wimlib_reference_resource_files() is called with RefFlags.GLOB_ENABLE | RefFlags.GLOB_ERR_ON_NOMATCH,
             // SEHException is raised ONLY IN DEBUG MODE.
             // So as a dirty hack, emulate GLOBing by converting wildcard to list of actual files before calling wimlib.
             List<string> resources = new List<string>();
-            string dirPath = Path.GetDirectoryName(resourceWimFile);
-            string wildcard = Path.GetFileName(resourceWimFile);
+            string dirPath = Path.GetDirectoryName(resourceWimFileOrGlobs);
+            string wildcard = Path.GetFileName(resourceWimFileOrGlobs);
 
             if (dirPath == null)
                 dirPath = @"\";
@@ -1162,13 +1165,13 @@ namespace ManagedWimLib
 
             if ((refFlags & RefFlags.GlobEnable) != 0 && wildcard.IndexOfAny(new[] { '*', '?' }) != -1)
             { // Contains Wildcard
-                string removeAsterisk = StringHelper.ReplaceEx(resourceWimFile, "*", string.Empty, StringComparison.Ordinal);
+                string removeAsterisk = StringHelper.ReplaceEx(resourceWimFileOrGlobs, "*", string.Empty, StringComparison.Ordinal);
                 var files = Directory.EnumerateFiles(dirPath, wildcard, SearchOption.AllDirectories);
                 resources.AddRange(files.Where(x => !x.Equals(removeAsterisk, StringComparison.OrdinalIgnoreCase)));
             }
             else
             {
-                resources.Add(resourceWimFile);
+                resources.Add(resourceWimFileOrGlobs);
             }
 
             if (resources.Count == 0 &&
@@ -1176,8 +1179,6 @@ namespace ManagedWimLib
                 throw new WimException(ErrorCode.GlobHadNoMatches);
 
             ErrorCode ret = Lib.ReferenceResourceFiles(_ptr, resources.ToArray(), (uint)resources.Count, RefFlags.None, openFlags);
-#else
-            ErrorCode ret = Lib.ReferenceResourceFiles(_ptr, resources.ToArray(), (uint)resources.Count, refFlags, openFlags);
 #endif
             WimException.CheckErrorCode(ret);
         }
@@ -1192,7 +1193,7 @@ namespace ManagedWimLib
         /// In the case of split WIMs, instance of <see cref="Wim"> should be the/first part, since only the first part contains the metadata resources.
         /// In the case of delta WIMs, this should be the delta WIM rather than the WIM on which it is based.
         /// </remarks>
-        /// <param name="resourceWimFiles">
+        /// <param name="resourceWimFileOrGlobs">
         /// Array of paths to WIM files and/or split WIM parts to reference.
         /// Alternatively, when <see cref="RefFlags.GlobEnable"/> is specified in <paramref name="refFlags"/>, these are treated as globs rather than literal paths.
         /// That is, using this function you can specify zero or more globs, each of which expands to one or more literal paths.
@@ -1205,18 +1206,20 @@ namespace ManagedWimLib
         /// to pass to internal calls to <see cref="Wim.OpenWim()"/> on the reference files.
         /// </param>
         /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
-        public void ReferenceResourceFiles(IEnumerable<string> resourceWimFiles, RefFlags refFlags, OpenFlags openFlags)
+        public void ReferenceResourceFiles(IEnumerable<string> resourceWimFileOrGlobs, RefFlags refFlags, OpenFlags openFlags)
         {
-#if DIRTY_HACK_REF_RSRC_FILES
+#if NATIVE_REF_RSRC_FILES_GLOBS
+            ErrorCode ret = Lib.ReferenceResourceFiles(_ptr, resourceWimFileOrGlobs.ToArray(), (uint)resourceWimFileOrGlobs.Count(), refFlags, openFlags);
+#else
             // [Dirty Hack to resolve SEHException]
             // If wimlib_reference_resource_files() is called with RefFlags.GLOB_ENABLE | RefFlags.GLOB_ERR_ON_NOMATCH,
             // SEHException is raised ONLY IN DEBUG MODE.
             // So as a dirty hack, emulate GLOBing by converting wildcard to list of actual files before calling wimlib.
             List<string> resources = new List<string>();
-            foreach (string f in resourceWimFiles)
+            foreach (string f in resourceWimFileOrGlobs)
             {
                 if (f == null)
-                    throw new ArgumentNullException(nameof(resourceWimFiles));
+                    throw new ArgumentNullException(nameof(resourceWimFileOrGlobs));
 
                 string dirPath = Path.GetDirectoryName(f);
                 string wildcard = Path.GetFileName(f);
@@ -1239,8 +1242,6 @@ namespace ManagedWimLib
                 throw new WimException(ErrorCode.GlobHadNoMatches);
 
             ErrorCode ret = Lib.ReferenceResourceFiles(_ptr, resources.ToArray(), (uint)resources.Count, RefFlags.None, openFlags);
-#else
-            ErrorCode ret = Lib.ReferenceResourceFiles(_ptr, resources.ToArray(), (uint)resources.Count, refFlags, openFlags);
 #endif
             WimException.CheckErrorCode(ret);
         }
@@ -1324,9 +1325,9 @@ namespace ManagedWimLib
             ErrorCode ret = Lib.ReferenceTemplateImage(_ptr, newImage, template._ptr, templateImage, 0);
             WimException.CheckErrorCode(ret);
         }
-        #endregion
+#endregion
 
-        #region Callback - RegisterCallback
+#region Callback - RegisterCallback
         /// <summary>
         /// Register a progress function with a <see cref="Wim">.
         /// </summary>
@@ -1364,9 +1365,9 @@ namespace ManagedWimLib
                 Lib.RegisterProgressFunction(_ptr, null, IntPtr.Zero);
             }
         }
-        #endregion
+#endregion
 
-        #region Rename - RenamePath
+#region Rename - RenamePath
         /// <summary>
         /// Rename the <paramref name="sourcePath"/> to the <paramref name="destPath"/> in the specified image of the wim.
         /// </summary>
@@ -1379,9 +1380,9 @@ namespace ManagedWimLib
             ErrorCode ret = Lib.RenamePath(_ptr, image, sourcePath, destPath);
             WimException.CheckErrorCode(ret);
         }
-        #endregion
+#endregion
 
-        #region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty, SetWimInfo
+#region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty, SetWimInfo
         /// <summary>
         /// Change the description of a WIM image.
         /// Equivalent to SetImageProperty(image, "DESCRIPTION", description)
@@ -1476,9 +1477,9 @@ namespace ManagedWimLib
             ErrorCode ret = Lib.SetWimInfo(_ptr, info, which);
             WimException.CheckErrorCode(ret);
         }
-        #endregion
+#endregion
 
-        #region SetOutput - SetOutputChunkSize, SetOutputPackChunkSize, SetOutputCompressionType, SetOutputPackCompressionType
+#region SetOutput - SetOutputChunkSize, SetOutputPackChunkSize, SetOutputCompressionType, SetOutputPackCompressionType
         /// <summary>
         /// Set a <see cref="Wim">'s output compression chunk size.
         /// This is the compression chunk size that will be used for writing non-solid resources
@@ -1550,9 +1551,9 @@ namespace ManagedWimLib
             ErrorCode ret = Lib.SetOutputPackCompressionType(_ptr, compType);
             WimException.CheckErrorCode(ret);
         }
-        #endregion
+#endregion
 
-        #region Split - Split
+#region Split - Split
         /// <summary>
         /// Split a WIM into multiple parts.
         /// </summary>
@@ -1579,9 +1580,9 @@ namespace ManagedWimLib
             ErrorCode ret = Lib.Split(_ptr, swmName, partSize, writeFlags);
             WimException.CheckErrorCode(ret);
         }
-        #endregion
+#endregion
 
-        #region Verify - VerifyWim
+#region Verify - VerifyWim
         /// <summary>
         /// Perform verification checks on a WIM file.
         ///
@@ -1601,9 +1602,9 @@ namespace ManagedWimLib
             ErrorCode ret = Lib.VerifyWim(_ptr, 0);
             WimException.CheckErrorCode(ret);
         }
-        #endregion
+#endregion
 
-        #region Unmount - (Static) UnmountImage (Linux with FUSE only)
+#region Unmount - (Static) UnmountImage (Linux with FUSE only)
         /// <summary>
         /// Unmount a WIM image that was mounted using <see cref="MountImage(int, string, MountFlags, string)"/>.
         /// </summary>
@@ -1654,9 +1655,9 @@ namespace ManagedWimLib
             ErrorCode ret = Lib.UnmountImageWithProgress(dir, unmountFlags, mCallback.NativeFunc, IntPtr.Zero);
             WimException.CheckErrorCode(ret);
         }
-        #endregion
+#endregion
 
-        #region Update - UpdateImage
+#region Update - UpdateImage
         /// <summary>
         /// Update a WIM image by adding, deleting, and/or renaming files or directories.
         /// </summary>
@@ -1745,9 +1746,9 @@ namespace ManagedWimLib
 
             WimException.CheckErrorCode(ret);
         }
-        #endregion
+#endregion
 
-        #region Write - Write, Overwrite
+#region Write - Write, Overwrite
         /// <summary>
         /// Persist a <see cref="Wim"> to a new on-disk WIM file.
         /// </summary>
@@ -1813,9 +1814,9 @@ namespace ManagedWimLib
             ErrorCode ret = Lib.Overwrite(_ptr, writeFlags, numThreads);
             WimException.CheckErrorCode(ret);
         }
-        #endregion
+#endregion
 
-        #region Existence Check (ManagedWimLib specific)
+#region Existence Check (ManagedWimLib specific)
         /// <summary>
         /// Check if a file exists in wim.
         /// </summary>
@@ -1900,9 +1901,9 @@ namespace ManagedWimLib
                 _ => throw new WimException(ret),
             };
         }
-        #endregion
+#endregion
 
-        #region CompressInfo - SetDefaultCompressionLevel, GetCompressorNeededMemory
+#region CompressInfo - SetDefaultCompressionLevel, GetCompressorNeededMemory
         /// <summary>
         /// Set the default compression level for the specified compression type.
         /// <para>This is the compression level that <see cref="Compressor.Compressor.CreateCompressor(CompressionType, uint, uint)"/>
@@ -1982,6 +1983,6 @@ namespace ManagedWimLib
             UIntPtr maxBlockSizeInterop = new UIntPtr(maxBlockSize);
             return Lib.GetCompressorNeededMemory(ctype, maxBlockSizeInterop, compressionLevel);
         }
-        #endregion
+#endregion
     }
 }
