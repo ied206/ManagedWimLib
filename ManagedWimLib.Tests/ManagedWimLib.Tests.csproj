@@ -15,7 +15,4 @@
     <ProjectReference Include="..\ManagedWimLib\ManagedWimLib.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="PresentationFramework" />
-  </ItemGroup>
 </Project>
