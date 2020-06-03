@@ -89,8 +89,8 @@ namespace ManagedWimLib.Compressors
         /// On success, a new instance of the allocated <see cref="Decompressor"/>, which can be used for any number of calls to <see cref="Decompressor.Decompress()"/>.
         ///	This instance must be disposed manually.
         /// </returns>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
-        public static Decompressor CreateDecompressor(CompressionType ctype, int maxBlockSize)
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        public static Decompressor Create(CompressionType ctype, int maxBlockSize)
         {
             Manager.EnsureLoaded();
 
@@ -98,7 +98,7 @@ namespace ManagedWimLib.Compressors
                 throw new ArgumentOutOfRangeException(nameof(maxBlockSize));
 
             ErrorCode ret = Lib.CreateDecompressor(ctype, new UIntPtr((uint)maxBlockSize), out IntPtr decompPtr);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
 
             return new Decompressor(decompPtr);
         }
@@ -106,7 +106,7 @@ namespace ManagedWimLib.Compressors
 
         #region Decompress (Safe)
         /// <summary>
-        /// Decompress a buffer of data.
+        /// Decompress a buffer of data. Return true on success.
         /// <para>This function requires that the exact uncompressed size of the data be passed as the <paramref name="exactUncompressedSize"/> parameter.<br/>
         /// If this is not done correctly, decompression may fail or the data may be decompressed incorrectly.</para>
         /// </summary>
@@ -118,13 +118,13 @@ namespace ManagedWimLib.Compressors
         /// </param>
         /// <param name="exactUncompressedSize">
         /// Size, in bytes, of the data when uncompressed.
-        /// <para>This cannot exceed the maxBlockSize with which <see cref="CreateDecompressor(CompressionType, int)"/> was called.<br/>
+        /// <para>This cannot exceed the maxBlockSize with which <see cref="Create(CompressionType, int)"/> was called.<br/>
         /// (If it does, the data will not be decompressed and a nonzero value will be returned.)</para>
         /// </param>
         /// <returns>
         /// Return true on success, false on failure.
         /// </returns>
-        /// <exception cref="PlatformNotSupportedException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
+        /// <exception cref="OverflowException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
         public unsafe bool Decompress(ReadOnlySpan<byte> compressedSpan, Span<byte> uncompressedSpan, int exactUncompressedSize)
         {
             if (exactUncompressedSize < 0)
@@ -140,7 +140,7 @@ namespace ManagedWimLib.Compressors
         }
 
         /// <summary>
-        /// Decompress a buffer of data.
+        /// Decompress a buffer of data. Return true on success.
         /// <para>This function requires that the exact uncompressed size of the data be passed as the <paramref name="exactUncompressedSize"/> parameter.<br/>
         /// If this is not done correctly, decompression may fail or the data may be decompressed incorrectly.</para>
         /// </summary>
@@ -161,10 +161,10 @@ namespace ManagedWimLib.Compressors
         /// </param>
         /// <param name="exactUncompressedSize">
         /// Size, in bytes, of the data when uncompressed.
-        /// <para>This cannot exceed the maxBlockSize with which <see cref="CreateDecompressor(CompressionType, int)"/> was called.<br/>
+        /// <para>This cannot exceed the maxBlockSize with which <see cref="Create(CompressionType, int)"/> was called.<br/>
         /// (If it does, the data will not be decompressed and a nonzero value will be returned.)</para>
         /// </param>
-        /// <returns></returns>
+        /// <returns>Return true on success.</returns>
         public unsafe bool Decompress(byte[] compressedData, int compressedOffset, int compressedSize,
             byte[] uncompressedData, int uncompressedOffset, int exactUncompressedSize)
         {
@@ -181,7 +181,7 @@ namespace ManagedWimLib.Compressors
 
         #region Decompress (Unsafe)
         /// <summary>
-        /// Decompress a buffer of data.
+        /// Decompress a buffer of data. Return true on success.
         /// <para>This function requires that the exact uncompressed size of the data be passed as the <paramref name="exactUncompressedSize"/> parameter.<br/>
         /// If this is not done correctly, decompression may fail or the data may be decompressed incorrectly.</para>
         /// </summary>
@@ -196,11 +196,11 @@ namespace ManagedWimLib.Compressors
         /// </param>
         /// <param name="exactUncompressedSize">
         /// Size, in bytes, of the data when uncompressed.
-        /// <para>This cannot exceed the maxBlockSize with which <see cref="CreateDecompressor(CompressionType, int)"/> was called.<br/>
+        /// <para>This cannot exceed the maxBlockSize with which <see cref="Create(CompressionType, int)"/> was called.<br/>
         /// (If it does, the data will not be decompressed and a nonzero value will be returned.)</para>
         /// </param>
-        /// <returns></returns>
-        /// <exception cref="PlatformNotSupportedException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
+        /// <returns>Return true on success.</returns>
+        /// <exception cref="OverflowException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
         public unsafe bool Decompress(byte* compressedBuf, ulong compressedSize, byte* uncompressedBuf, ulong exactUncompressedSize)
         {
             UIntPtr compressedSizeInterop = new UIntPtr(compressedSize);

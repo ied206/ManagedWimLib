@@ -44,7 +44,7 @@ namespace ManagedWimLib.Tests
                 {
                     action.Invoke();
                 }
-                catch (WimException e) when (e.ErrorCode == ErrorCode.InvalidCompressionType)
+                catch (WimLibException e) when (e.ErrorCode == ErrorCode.InvalidCompressionType)
                 {
                     success = true;
                 }

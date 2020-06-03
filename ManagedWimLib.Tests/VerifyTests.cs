@@ -88,7 +88,7 @@ namespace ManagedWimLib.Tests
                     wim.VerifyWim();
                 }
             }
-            catch (WimException)
+            catch (WimLibException)
             {
                 if (result)
                     Assert.Fail();
@@ -150,7 +150,7 @@ namespace ManagedWimLib.Tests
                     wim.VerifyWim();
                 }
             }
-            catch (WimException)
+            catch (WimLibException)
             {
                 if (result)
                     Assert.Fail();

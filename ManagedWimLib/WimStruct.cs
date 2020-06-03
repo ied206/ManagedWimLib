@@ -200,7 +200,7 @@ namespace ManagedWimLib
         /// true if messages are to be printed;
         /// false if messages are not to be printed.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public static void SetPrintErrors(bool showMessages)
         {
             Manager.EnsureLoaded();
@@ -226,11 +226,11 @@ namespace ManagedWimLib
         /// If nonempty, it must specify a name that does not already exist in wim.
         /// </param>
         /// <returns>If non-null, the index of the newly added image is returned in this location.</returns>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public int AddEmptyImage(string name)
         {
             ErrorCode ret = Lib.AddEmptyImage(_ptr, name, out int newIdx);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
 
             return newIdx;
         }
@@ -266,11 +266,11 @@ namespace ManagedWimLib
         ///
         /// Note that no changes are committed to disk until <see cref="Wim.Write()"/> or <see cref="Wim.Overwrite()"/> is called.
         /// </remarks>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void AddImage(string source, string name, string configFile, AddFlags addFlags)
         {
             ErrorCode ret = Lib.AddImage(_ptr, source, name, configFile, addFlags);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -293,12 +293,12 @@ namespace ManagedWimLib
         /// however, the <see cref="AddFlags.WinConfig"/> and <see cref="AddFlags.WimBoot"/> flags modify the default.
         /// </param>
         /// <param name="addFlags">Bitwise OR of <see cref="AddFlags"/>.</param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void AddImageMultiSource(IEnumerable<CaptureSource> sources, string name, string configFile, AddFlags addFlags)
         {
             CaptureSource[] srcArr = sources.ToArray();
             ErrorCode ret = Lib.AddImageMultiSource(_ptr, srcArr, new UIntPtr((uint)srcArr.Length), name, configFile, addFlags);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -311,11 +311,11 @@ namespace ManagedWimLib
         /// <param name="fsSourcePath"></param>
         /// <param name="wimTargetPath"></param>
         /// <param name="addFlags">Bitwise OR of <see cref="AddFlags"/>.</param>
-        /// /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void AddTree(int image, string fsSourcePath, string wimTargetPath, AddFlags addFlags)
         {
             ErrorCode ret = Lib.AddTree(_ptr, image, fsSourcePath, wimTargetPath, addFlags);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
         #endregion
 
@@ -327,13 +327,13 @@ namespace ManagedWimLib
         /// The "output compression type" to assign to the <see cref="Wim">.
         /// This is the compression type that will be used if the <see cref="Wim"> is later persisted to an on-disk file using <see cref="Wim.Write()"/>.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public static Wim CreateNewWim(CompressionType type)
         {
             Manager.EnsureLoaded();
 
             ErrorCode ret = Lib.CreateNewWim(type, out IntPtr wimPtr);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
 
             return new Wim(wimPtr);
         }
@@ -347,11 +347,11 @@ namespace ManagedWimLib
         /// Note that no changes are committed to disk until <see cref="Wim.Write()"/> or <see cref="Wim.Overwrite()"/> is called.
         /// </remarks>
         /// <param name="image">The 1-based index of the image to delete, or <see cref="AllImages"/> to delete all images.</param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void DeleteImage(int image)
         {
             ErrorCode ret = Lib.DeleteImage(_ptr, image);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -363,11 +363,11 @@ namespace ManagedWimLib
         /// <param name="image">The 1-based index of the image to delete, or <see cref="AllImages"/> to delete all images.</param>
         /// <param name="path">Path to be deleted from the specified image of the wim.</param>
         /// <param name="deleteFlags">Bitwise OR of <see cref="DeleteFlags"/>.</param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void DeletePath(int image, string path, DeleteFlags deleteFlags)
         {
             ErrorCode ret = Lib.DeletePath(_ptr, image, path, deleteFlags);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
         #endregion
 
@@ -401,11 +401,11 @@ namespace ManagedWimLib
         /// the directory tree of a source or destination image cannot be updated
         /// following an export until one of the two images has been freed from memory.
         /// </remarks>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void ExportImage(int srcImage, Wim destWim, string destName, string destDescription, ExportFlags exportFlags)
         {
             ErrorCode ret = Lib.ExportImage(_ptr, srcImage, destWim._ptr, destName, destDescription, exportFlags);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
         #endregion
 
@@ -431,11 +431,11 @@ namespace ManagedWimLib
         /// but there also are differences depending on the platform (UNIX-like vs Windows).
         /// See the documentation for wimapply for more information, including about the NTFS-3G extraction mode.
         /// </remarks>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void ExtractImage(int image, string target, ExtractFlags extractFlags)
         {
             ErrorCode ret = Lib.ExtractImage(_ptr, image, target, extractFlags);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -473,11 +473,11 @@ namespace ManagedWimLib
         /// <param name="extractFlags">
         /// Bitwise OR of flags prefixed with <see cref="ExtractFlags"/>.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void ExtractPath(int image, string target, string path, ExtractFlags extractFlags)
         {
             ErrorCode ret = Lib.ExtractPaths(_ptr, image, target, new string[1] { path }, new UIntPtr(1), extractFlags);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -516,12 +516,12 @@ namespace ManagedWimLib
         /// <param name="extractFlags">
         /// Bitwise OR of flags prefixed with WIMLIB_EXTRACT_FLAG.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void ExtractPaths(int image, string target, IEnumerable<string> paths, ExtractFlags extractFlags)
         {
             string[] pathArr = paths.ToArray();
             ErrorCode ret = Lib.ExtractPaths(_ptr, image, target, pathArr, new UIntPtr((uint)pathArr.Length), extractFlags);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -537,11 +537,11 @@ namespace ManagedWimLib
         ///
         /// If <paramref name="pathListFile"/> is null, then the pathlist file is read from standard input.
         /// </remarks>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void ExtractPathList(int image, string target, string pathListFile, ExtractFlags extractFlags)
         {
             ErrorCode ret = Lib.ExtractPathList(_ptr, image, target, pathListFile, extractFlags);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
         #endregion
 
@@ -727,7 +727,7 @@ namespace ManagedWimLib
         /// <returns>
         /// Normally, returns 0 if all calls to callback returned 0; otherwise the first nonzero value that was returned from callback.
         /// </returns>
-        /// <exception cref="WimException">
+        /// <exception cref="WimLibException">
         /// One of the <see cref="ErrorCode"/> values returned, including the following:
         /// <see cref="ErrorCode.InvalidImage"/>: image does not exist.
         /// <see cref="ErrorCode.PathDoesNotExist"/>: <paramref name="path"/> does not exist in the image.
@@ -768,7 +768,7 @@ namespace ManagedWimLib
         /// <returns>
         /// Normally, returns 0 if all calls to callback returned 0; otherwise the first nonzero value that was returned from <paramref name="callback"/>.
         /// </returns>
-        /// <exception cref="WimException">
+        /// <exception cref="WimLibException">
         /// One of the <see cref="ErrorCode"/> values returned, including the following:
         /// <see cref="ErrorCode.InvalidImage"/>: image does not exist.
         /// <see cref="ErrorCode.PathDoesNotExist"/>: <paramref name="path"/> does not exist in the image.
@@ -801,7 +801,7 @@ namespace ManagedWimLib
                 case (int)ErrorCode.MetadataNotFound:
                 case (int)ErrorCode.Read:
                 case (int)ErrorCode.UnexpectedEndOfFile:
-                    WimException.CheckErrorCode((ErrorCode)ret);
+                    WimLibException.CheckErrorCode((ErrorCode)ret);
                     break;
             }
 
@@ -907,7 +907,7 @@ namespace ManagedWimLib
         /// </remarks>
         /// <param name="flags">Reserved; set to <see cref="IterateLookupTableFlags.None"/></param>
         /// <param name="callback">A callback function that will receive each blob.</param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         /// <returns>
         /// Normally, returns 0 if all calls to callback returned 0; otherwise the first nonzero value that was returned from <paramref name="callback"/>.
         /// </returns>
@@ -952,12 +952,12 @@ namespace ManagedWimLib
         /// <param name="outputPath">The path to write the joined WIM file to.</param>
         /// <param name="swmOpenFlags">Open flags for the split WIM parts (e.g. <see cref="OpenFlags.CheckIntegrity"/>).</param>
         /// <param name="wimWriteFlags">Bitwise OR of relevant <see cref="WriteFlags"/>, which will be used to write the joined WIM.</param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public static void Join(IEnumerable<string> swms, string outputPath, OpenFlags swmOpenFlags, WriteFlags wimWriteFlags)
         {
             string[] swmArr = swms.ToArray();
             ErrorCode ret = Lib.Join(swmArr, (uint)swmArr.Length, outputPath, swmOpenFlags, wimWriteFlags);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -976,7 +976,7 @@ namespace ManagedWimLib
         /// <param name="swmOpenFlags">Open flags for the split WIM parts (e.g. <see cref="OpenFlags.CheckIntegrity"/>).</param>
         /// <param name="wimWriteFlags">Bitwise OR of relevant <see cref="WriteFlags"/>, which will be used to write the joined WIM.</param>
         /// <param name="callback">Callback function to receive progress report</param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public static void Join(IEnumerable<string> swms, string outputPath, OpenFlags swmOpenFlags, WriteFlags wimWriteFlags,
             ProgressCallback callback)
         {
@@ -1000,7 +1000,7 @@ namespace ManagedWimLib
         /// <param name="wimWriteFlags">Bitwise OR of relevant <see cref="WriteFlags"/>, which will be used to write the joined WIM.</param>
         /// <param name="callback">Callback function to receive progress report</param>
         /// <param name="userData">Data to be passed to callback function</param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public static void Join(IEnumerable<string> swms, string outputPath, OpenFlags swmOpenFlags, WriteFlags wimWriteFlags,
             ProgressCallback callback, object userData)
         {
@@ -1009,7 +1009,7 @@ namespace ManagedWimLib
             string[] swmArr = swms.ToArray();
             ErrorCode ret = Lib.JoinWithProgress(swmArr, (uint)swmArr.Length, outputPath, swmOpenFlags, wimWriteFlags,
                 mCallback.NativeFunc, IntPtr.Zero);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
         #endregion
 
@@ -1023,13 +1023,13 @@ namespace ManagedWimLib
         /// On success, a new instance of <see cref="Wim"/> backed by the specified on-disk WIM file is returned.
         ///	This instance must be disposed when finished with it.
         ///	</returns>
-        ///	<exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        ///	<exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public static Wim OpenWim(string wimFile, OpenFlags openFlags)
         {
             Manager.EnsureLoaded();
 
             ErrorCode ret = Lib.OpenWim(wimFile, openFlags, out IntPtr wimPtr);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
 
             return new Wim(wimPtr);
         }
@@ -1052,7 +1052,7 @@ namespace ManagedWimLib
         /// On success, a new instance of <see cref="Wim"/> backed by the specified on-disk WIM file is returned.
         ///	This instance must be disposed when finished with it.
         ///	</returns>
-        ///	<exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        ///	<exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public static Wim OpenWim(string wimFile, OpenFlags openFlags, ProgressCallback callback, object userData = null)
         {
             Manager.EnsureLoaded();
@@ -1063,7 +1063,7 @@ namespace ManagedWimLib
             ManagedProgressCallback mCallback = new ManagedProgressCallback(callback, userData);
 
             ErrorCode ret = Lib.OpenWimWithProgress(wimFile, openFlags, out IntPtr wimPtr, mCallback.NativeFunc, IntPtr.Zero);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
 
             return new Wim(wimPtr)
             {
@@ -1110,11 +1110,11 @@ namespace ManagedWimLib
         /// If left null, the staging directory is created in the same directory as the backing WIM file.
         /// The staging directory is automatically deleted when the image is unmounted.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void MountImage(int image, string dir, MountFlags mountFlags, string stagingDir)
         {
             ErrorCode ret = Lib.MountImage(_ptr, image, dir, mountFlags, stagingDir);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
         #endregion
 
@@ -1140,7 +1140,7 @@ namespace ManagedWimLib
         /// Additional open flags, such as <see cref="OpenFlags.CheckIntegrity"/>, 
         /// to pass to internal calls to <see cref="Wim.OpenWim()"/> on the reference files.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void ReferenceResourceFile(string resourceWimFileOrGlobs, RefFlags refFlags, OpenFlags openFlags)
         {
             if (resourceWimFileOrGlobs == null)
@@ -1180,7 +1180,7 @@ namespace ManagedWimLib
 
             ErrorCode ret = Lib.ReferenceResourceFiles(_ptr, resources.ToArray(), (uint)resources.Count, RefFlags.None, openFlags);
 #endif
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1205,7 +1205,7 @@ namespace ManagedWimLib
         /// Additional open flags, such as <see cref="OpenFlags.CheckIntegrity"/>,
         /// to pass to internal calls to <see cref="Wim.OpenWim()"/> on the reference files.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void ReferenceResourceFiles(IEnumerable<string> resourceWimFileOrGlobs, RefFlags refFlags, OpenFlags openFlags)
         {
 #if NATIVE_REF_RSRC_FILES_GLOBS
@@ -1243,7 +1243,7 @@ namespace ManagedWimLib
 
             ErrorCode ret = Lib.ReferenceResourceFiles(_ptr, resources.ToArray(), (uint)resources.Count, RefFlags.None, openFlags);
 #endif
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1255,7 +1255,7 @@ namespace ManagedWimLib
         {
             IntPtr[] wims = resourceWims.Select(x => x._ptr).ToArray();
             ErrorCode ret = Lib.ReferenceResources(_ptr, wims, (uint)wims.Length, 0);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1283,11 +1283,11 @@ namespace ManagedWimLib
         /// This function must be called after adding the new image (e.g. with <see cref="AddImage(string, string, string, AddFlags)"/>),
         /// but before writing the updated WIM file (e.g. with <see cref="Overwrite(WriteFlags, uint)"/>).
         /// </remarks>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void ReferenceTemplateImage(int newImage, int templateImage)
         {
             ErrorCode ret = Lib.ReferenceTemplateImage(_ptr, newImage, _ptr, templateImage, 0);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1319,15 +1319,15 @@ namespace ManagedWimLib
         /// This function must be called after adding the new image (e.g. with <see cref="AddImage(string, string, string, AddFlags)"/>),
         /// but before writing the updated WIM file (e.g. with <see cref="Overwrite(WriteFlags, uint)"/>).
         /// </remarks>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void ReferenceTemplateImage(int newImage, Wim template, int templateImage)
         {
             ErrorCode ret = Lib.ReferenceTemplateImage(_ptr, newImage, template._ptr, templateImage, 0);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
-#endregion
+        #endregion
 
-#region Callback - RegisterCallback
+        #region Callback - RegisterCallback
         /// <summary>
         /// Register a progress function with a <see cref="Wim">.
         /// </summary>
@@ -1365,24 +1365,24 @@ namespace ManagedWimLib
                 Lib.RegisterProgressFunction(_ptr, null, IntPtr.Zero);
             }
         }
-#endregion
+        #endregion
 
-#region Rename - RenamePath
+        #region Rename - RenamePath
         /// <summary>
         /// Rename the <paramref name="sourcePath"/> to the <paramref name="destPath"/> in the specified image of the wim.
         /// </summary>
         /// <remarks>
         /// This just builds an appropriate <see cref="RenameCommand"/>and passes it to <see cref="Wim.UpdateImage()"/>.
         /// </remarks>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void RenamePath(int image, string sourcePath, string destPath)
         {
             ErrorCode ret = Lib.RenamePath(_ptr, image, sourcePath, destPath);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
-#endregion
+        #endregion
 
-#region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty, SetWimInfo
+        #region SetImageInfo - SetImageDescription, SetImageFlags, SetImageName, SetImageProperty, SetWimInfo
         /// <summary>
         /// Change the description of a WIM image.
         /// Equivalent to SetImageProperty(image, "DESCRIPTION", description)
@@ -1392,11 +1392,11 @@ namespace ManagedWimLib
         /// If not null and not empty, the property is set to this value.
         /// Otherwise, the property is removed from the XML document.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void SetImageDescription(int image, string description)
         {
             ErrorCode ret = Lib.SetImageDescription(_ptr, image, description);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1408,11 +1408,11 @@ namespace ManagedWimLib
         /// If not null and not empty, the property is set to this value.
         /// Otherwise, the property is removed from the XML document.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void SetImageFlags(int image, string flags)
         {
             ErrorCode ret = Lib.SetImageFlags(_ptr, image, flags);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1424,11 +1424,11 @@ namespace ManagedWimLib
         /// If not null and not empty, the property is set to this value.
         /// Otherwise, the property is removed from the XML document.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void SetImageName(int image, string name)
         {
             ErrorCode ret = Lib.SetImageName(_ptr, image, name);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1452,11 +1452,11 @@ namespace ManagedWimLib
         /// If not null and not empty, the property is set to this value.
         /// Otherwise, the property is removed from the XML document.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void SetImageProperty(int image, string propertyName, string propertyValue)
         {
             ErrorCode ret = Lib.SetImageProperty(_ptr, image, propertyName, propertyValue);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1471,15 +1471,15 @@ namespace ManagedWimLib
         /// This is a bitwise OR of <see cref="ChangeFlags.ReadOnly"/>,
         /// <see cref="ChangeFlags.Guid"/>, <see cref="ChangeFlags.BootIndex"/>, and/or <see cref="ChangeFlags.RpFix"/>.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void SetWimInfo(WimInfo info, ChangeFlags which)
         {
             ErrorCode ret = Lib.SetWimInfo(_ptr, info, which);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
-#endregion
+        #endregion
 
-#region SetOutput - SetOutputChunkSize, SetOutputPackChunkSize, SetOutputCompressionType, SetOutputPackCompressionType
+        #region SetOutput - SetOutputChunkSize, SetOutputPackChunkSize, SetOutputCompressionType, SetOutputPackCompressionType
         /// <summary>
         /// Set a <see cref="Wim">'s output compression chunk size.
         /// This is the compression chunk size that will be used for writing non-solid resources
@@ -1495,11 +1495,11 @@ namespace ManagedWimLib
         /// As a special case, if chunkSize is specified as 0,
         /// then the chunk size will be reset to the default for the currently selected output compression type.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void SetOutputChunkSize(uint chunkSize)
         {
             ErrorCode ret = Lib.SetOutputChunkSize(_ptr, chunkSize);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1512,11 +1512,11 @@ namespace ManagedWimLib
         /// As a special case, if chunkSize is specified as 0,
         /// then the chunk size will be reset to the default for the currently selected output compression type.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void SetOutputPackChunkSize(uint chunkSize)
         {
             ErrorCode ret = Lib.SetOutputPackChunkSize(_ptr, chunkSize);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1529,11 +1529,11 @@ namespace ManagedWimLib
         /// If this compression type is incompatible with the current output chunk size,
         /// then the output chunk size will be reset to the default for the new compression type.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void SetOutputCompressionType(CompressionType compType)
         {
             ErrorCode ret = Lib.SetOutputCompressionType(_ptr, compType);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1545,15 +1545,15 @@ namespace ManagedWimLib
         /// If this compression type is incompatible with the current output chunk size,
         /// then the output chunk size will be reset to the default for the new compression type.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void SetOutputPackCompressionType(CompressionType compType)
         {
             ErrorCode ret = Lib.SetOutputPackCompressionType(_ptr, compType);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
-#endregion
+        #endregion
 
-#region Split - Split
+        #region Split - Split
         /// <summary>
         /// Split a WIM into multiple parts.
         /// </summary>
@@ -1574,15 +1574,15 @@ namespace ManagedWimLib
         /// These flags will be used to write each split WIM part. 
         /// Specify WriteFlags.DEFAULT here to get the default behavior.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void Split(string swmName, ulong partSize, WriteFlags writeFlags)
         {
             ErrorCode ret = Lib.Split(_ptr, swmName, partSize, writeFlags);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
-#endregion
+        #endregion
 
-#region Verify - VerifyWim
+        #region Verify - VerifyWim
         /// <summary>
         /// Perform verification checks on a WIM file.
         ///
@@ -1596,15 +1596,15 @@ namespace ManagedWimLib
         /// If verifying a split WIM, specify the first part of the split WIM here,
         /// and reference the other parts using <see cref="ReferenceResourceFiles(IEnumerable{string}, RefFlags, OpenFlags)"/> before calling this function.
         /// </remarks>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void VerifyWim()
         {
             ErrorCode ret = Lib.VerifyWim(_ptr, 0);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
-#endregion
+        #endregion
 
-#region Unmount - (Static) UnmountImage (Linux with FUSE only)
+        #region Unmount - (Static) UnmountImage (Linux with FUSE only)
         /// <summary>
         /// Unmount a WIM image that was mounted using <see cref="MountImage(int, string, MountFlags, string)"/>.
         /// </summary>
@@ -1617,13 +1617,13 @@ namespace ManagedWimLib
         /// </remarks>
         /// <param name="dir">The directory on which the WIM image is mounted.</param>
         /// <param name="unmountFlags">Bitwise OR of <see cref="UnmountFlags"/>.</param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public static void UnmountImage(string dir, UnmountFlags unmountFlags)
         {
             Manager.EnsureLoaded();
 
             ErrorCode ret = Lib.UnmountImage(dir, unmountFlags);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1643,7 +1643,7 @@ namespace ManagedWimLib
         /// <param name="unmountFlags">Bitwise OR of <see cref="UnmountFlags"/>.</param>
         /// <param name="callback">Callback function to receive progress report.</param>
         /// <param name="userData">Data to be passed to callback function.</param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public static void UnmountImage(string dir, UnmountFlags unmountFlags, ProgressCallback callback, object userData = null)
         {
             Manager.EnsureLoaded();
@@ -1653,18 +1653,18 @@ namespace ManagedWimLib
             ManagedProgressCallback mCallback = new ManagedProgressCallback(callback, userData);
 
             ErrorCode ret = Lib.UnmountImageWithProgress(dir, unmountFlags, mCallback.NativeFunc, IntPtr.Zero);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
-#endregion
+        #endregion
 
-#region Update - UpdateImage
+        #region Update - UpdateImage
         /// <summary>
         /// Update a WIM image by adding, deleting, and/or renaming files or directories.
         /// </summary>
         /// <param name="image">The 1-based index of the image to update.</param>
         /// <param name="cmd"><see cref="UpdateCommand"/> that specify the update operations to perform.</param>
         /// <param name="updateFlags">Number of commands in cmd.</param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void UpdateImage(int image, UpdateCommand cmd, UpdateFlags updateFlags)
         {
             ErrorCode ret;
@@ -1695,7 +1695,7 @@ namespace ManagedWimLib
                 default:
                     throw new PlatformNotSupportedException();
             }
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1710,7 +1710,7 @@ namespace ManagedWimLib
         /// <param name="updateFlags">
         /// Number of commands in cmds.
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void UpdateImage(int image, IEnumerable<UpdateCommand> cmds, UpdateFlags updateFlags)
         {
             ErrorCode ret;
@@ -1744,11 +1744,11 @@ namespace ManagedWimLib
                     throw new PlatformNotSupportedException();
             }
 
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
-#endregion
+        #endregion
 
-#region Write - Write, Overwrite
+        #region Write - Write, Overwrite
         /// <summary>
         /// Persist a <see cref="Wim"> to a new on-disk WIM file.
         /// </summary>
@@ -1774,11 +1774,11 @@ namespace ManagedWimLib
         /// Using the <see cref="WriteFlags.SkipExternalWims"/> flag, a "delta" WIM can be written instead.
         /// However, this function cannot directly write a "split" WIM; use <see cref="Split(string, ulong, WriteFlags)"/> for that.
         /// </remarks>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void Write(string path, int image, WriteFlags writeFlags, uint numThreads)
         {
             ErrorCode ret = Lib.Write(_ptr, path, image, writeFlags, numThreads);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1808,15 +1808,15 @@ namespace ManagedWimLib
         /// If this function completes successfully, then no more functions can be called.
         /// If you need to continue using the WIM file, you must reopen the file with <see cref="Wim.OpenWim()"/> to open a new <see cref="Wim"> for it.
         /// </remarks>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void Overwrite(WriteFlags writeFlags, uint numThreads)
         {
             ErrorCode ret = Lib.Overwrite(_ptr, writeFlags, numThreads);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
-#endregion
+        #endregion
 
-#region Existence Check (ManagedWimLib specific)
+        #region Existence Check (ManagedWimLib specific)
         /// <summary>
         /// Check if a file exists in wim.
         /// </summary>
@@ -1845,7 +1845,7 @@ namespace ManagedWimLib
             {
                 ErrorCode.Success => result == ResultFileExists,
                 ErrorCode.PathDoesNotExist => false,
-                _ => throw new WimException(ret),
+                _ => throw new WimLibException(ret),
             };
         }
 
@@ -1877,7 +1877,7 @@ namespace ManagedWimLib
             {
                 ErrorCode.Success => result == ResultDirExists,
                 ErrorCode.PathDoesNotExist => false,
-                _ => throw new WimException(ret),
+                _ => throw new WimLibException(ret),
             };
         }
 
@@ -1898,12 +1898,12 @@ namespace ManagedWimLib
             {
                 ErrorCode.Success => true,
                 ErrorCode.PathDoesNotExist => false,
-                _ => throw new WimException(ret),
+                _ => throw new WimLibException(ret),
             };
         }
-#endregion
+        #endregion
 
-#region CompressInfo - SetDefaultCompressionLevel, GetCompressorNeededMemory
+        #region CompressInfo - SetDefaultCompressionLevel, GetCompressorNeededMemory
         /// <summary>
         /// Set the default compression level for the specified compression type.
         /// <para>This is the compression level that <see cref="Compressor.Compressor.CreateCompressor(CompressionType, uint, uint)"/>
@@ -1928,14 +1928,14 @@ namespace ManagedWimLib
         /// whereas if compression does not succeed the input buffer still may have been written to but will have been restored exactly to its original state.</para>
         /// <para>This mode is designed to save some memory when using large buffer sizes.</para>
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public static void SetDefaultCompressionLevel(CompressionType ctype, uint compressionLevel, CompressorFlags compressorFlags)
         {
             Manager.EnsureLoaded();
 
             compressionLevel |= (uint)compressorFlags;
             ErrorCode ret = Lib.SetDefaultCompressionLevel((int)ctype, compressionLevel);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1959,14 +1959,14 @@ namespace ManagedWimLib
         /// whereas if compression does not succeed the input buffer still may have been written to but will have been restored exactly to its original state.</para>
         /// <para>This mode is designed to save some memory when using large buffer sizes.</para>
         /// </param>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public static void SetEveryDefaultCompressionLevel(uint compressionLevel, CompressorFlags compressorFlags)
         {
             Manager.EnsureLoaded();
 
             compressionLevel |= (uint)compressorFlags;
             ErrorCode ret = Lib.SetDefaultCompressionLevel(EveryCompressionType, compressionLevel);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
         }
 
         /// <summary>
@@ -1974,7 +1974,7 @@ namespace ManagedWimLib
         /// <paramref name="compressionLevel"/> may be <see cref="DefaultCompressionLevel"/> (0), in which case the current default compression level for <paramref name="compressionLevel"/> is used.
         /// </summary>
         /// <returns>Returns 0 if the compression type is invalid, or the <paramref name="maxBlockSize"/> for that compression type is invalid.</returns>
-        /// <exception cref="PlatformNotSupportedException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
+        /// <exception cref="OverflowException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
         public static ulong GetCompressorNeededMemory(CompressionType ctype, ulong maxBlockSize, uint compressionLevel, CompressorFlags compressorFlags)
         {
             Manager.EnsureLoaded();
@@ -1983,6 +1983,6 @@ namespace ManagedWimLib
             UIntPtr maxBlockSizeInterop = new UIntPtr(maxBlockSize);
             return Lib.GetCompressorNeededMemory(ctype, maxBlockSizeInterop, compressionLevel);
         }
-#endregion
+        #endregion
     }
 }

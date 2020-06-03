@@ -104,8 +104,8 @@ namespace ManagedWimLib.Compressors
         /// On success, a new instance of the allocated <see cref="Compressor"/>, which can be used for any number of calls to <see cref="Compressor.Compress()"/>.
         ///	This instance must be disposed manually.
         /// </returns>
-        /// <exception cref="WimException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
-        public static Compressor CreateCompressor(CompressionType ctype, int maxBlockSize, uint compressionLevel, CompressorFlags compressorFlags)
+        /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
+        public static Compressor Create(CompressionType ctype, int maxBlockSize, uint compressionLevel, CompressorFlags compressorFlags)
         {
             Manager.EnsureLoaded();
 
@@ -114,7 +114,7 @@ namespace ManagedWimLib.Compressors
 
             compressionLevel |= (uint)compressorFlags;
             ErrorCode ret = Lib.CreateCompressor(ctype, new UIntPtr((uint)maxBlockSize), compressionLevel, out IntPtr compPtr);
-            WimException.CheckErrorCode(ret);
+            WimLibException.CheckErrorCode(ret);
 
             return new Compressor(compPtr);
         }
@@ -137,7 +137,7 @@ namespace ManagedWimLib.Compressors
         /// <returns>
         /// The size of the compressed data, in bytes, or 0 if the data could not be compressed to <paramref name="compressedSpan"/> or fewer bytes.
         /// </returns>
-        /// <exception cref="PlatformNotSupportedException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
+        /// <exception cref="OverflowException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
         public unsafe int Compress(ReadOnlySpan<byte> uncompressedSpan, Span<byte> compressedSpan)
         {
             UIntPtr compressedBytes;
@@ -149,8 +149,8 @@ namespace ManagedWimLib.Compressors
                 compressedBytes = Lib.Compress(uncompressedBuf, uncompressedSize, compressedBuf, compressedSizeAvail, _ptr);
             }
 
+            // Since compressedSizeAvail is int, the returned value cannot be larger than int.MaxValue.
             ulong ret = compressedBytes.ToUInt64();
-            Debug.Assert(ret <= (ulong)uncompressedSpan.Length); // See <returns> doc
             return (int)ret;
         }
 
@@ -220,7 +220,7 @@ namespace ManagedWimLib.Compressors
         /// <returns>
         /// The size of the compressed data, in bytes, or 0 if the data could not be compressed to <paramref name="uncompressedSize"/> or fewer bytes.
         /// </returns>
-        /// <exception cref="PlatformNotSupportedException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
+        /// <exception cref="OverflowException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
         public unsafe ulong Compress(byte* uncompressedBuf, ulong uncompressedSize, byte* compressedBuf, ulong compressedSizeAvail)
         {
             UIntPtr uncompressedSizeInterop = new UIntPtr(uncompressedSize);
@@ -228,7 +228,6 @@ namespace ManagedWimLib.Compressors
             UIntPtr compressedBytes = Lib.Compress(uncompressedBuf, uncompressedSizeInterop, compressedBuf, compressedSizeAvailInterop, _ptr);
 
             ulong ret = compressedBytes.ToUInt64();
-            Debug.Assert(ret <= uncompressedSize); // See <returns> doc
             return ret;
         }
         #endregion

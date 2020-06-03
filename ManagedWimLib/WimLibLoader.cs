@@ -1362,7 +1362,7 @@ namespace ManagedWimLib
             }
             else
             {
-                WimException.CheckErrorCode(ret);
+                WimLibException.CheckErrorCode(ret);
 
                 // Set new ErrorFile and report state as ErrorPrintState.PrintOn.
                 _errorPrintState = ErrorPrintState.PrintOn;
@@ -1400,7 +1400,7 @@ namespace ManagedWimLib
                 }
                 else
                 {
-                    WimException.CheckErrorCode(ret);
+                    WimLibException.CheckErrorCode(ret);
                     _errorPrintState = showMessages ? ErrorPrintState.PrintOn : ErrorPrintState.PrintOff;
                 }
             }

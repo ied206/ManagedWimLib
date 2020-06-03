@@ -29,29 +29,29 @@ namespace ManagedWimLib
 {
     #region WimException
     [Serializable]
-    public class WimException : Exception
+    public class WimLibException : Exception
     {
         public ErrorCode ErrorCode;
 
         #region Constructor
-        public WimException(ErrorCode errorCode)
+        public WimLibException(ErrorCode errorCode)
             : base(ForgeErrorMessages(errorCode, true))
         {
             ErrorCode = errorCode;
         }
 
-        public WimException()
+        public WimLibException()
         {
             ErrorCode = ErrorCode.Success;
         }
 
-        public WimException(string message)
+        public WimLibException(string message)
             : base(message)
         {
             ErrorCode = ErrorCode.Success;
         }
 
-        public WimException(string message, Exception innerException)
+        public WimLibException(string message, Exception innerException)
             : base(message, innerException)
         {
             ErrorCode = ErrorCode.Success;
@@ -73,11 +73,11 @@ namespace ManagedWimLib
         internal static void CheckErrorCode(ErrorCode ret)
         {
             if (ret != ErrorCode.Success)
-                throw new WimException(ret);
+                throw new WimLibException(ret);
         }
 
         #region Serializable
-        protected WimException(SerializationInfo info, StreamingContext ctx)
+        protected WimLibException(SerializationInfo info, StreamingContext ctx)
         {
             ErrorCode = (ErrorCode)info.GetValue(nameof(ErrorCode), typeof(ErrorCode));
         }

@@ -72,7 +72,7 @@ namespace ManagedWimLib
         /// Compression and decompression are both fast. </para>
         /// 
         /// <para>This format supports chunk sizes that are powers of 2 between 2^12 and 2^16, inclusively.</para>
-        /// <para>If using <see cref="Compressor.Compressor.CreateCompressor(CompressionType, ulong, uint, CompressorFlags)"/> to create
+        /// <para>If using <see cref="Compressors.Compressor.Create(CompressionType, ulong, uint, CompressorFlags)"/> to create
         /// an XPRESS compressor directly, the maxBlockSize parameter may be any positive value up to and including 2^16.</para>
         /// </summary>
         XPRESS = 1,
@@ -84,7 +84,7 @@ namespace ManagedWimLib
         /// 
         /// <para>This format supports chunk sizes that are powers of 2 between 2^15 and 2^21, inclusively.
         /// Note: chunk sizes other than 2^15 are not compatible with the Microsoft implementation.</para>
-        /// <para>If using <see cref="Compressor.Compressor.CreateCompressor(CompressionType, ulong, uint, CompressorFlags)"/> to create
+        /// <para>If using <see cref="Compressors.Compressor.Create(CompressionType, ulong, uint, CompressorFlags)"/> to create
         /// an LZX compressor directly, the maxBlockSize parameter may be any positive value up to and including 2^21.</para>
         /// </summary>
         LZX = 2,
@@ -95,7 +95,7 @@ namespace ManagedWimLib
         /// 
         /// <para>This format supports chunk sizes that are powers of 2 between 2^15 and 2^30, inclusively.
         /// This format is best used for large chunk sizes.</para>
-        /// <para>If using <see cref="Compressor.Compressor.CreateCompressor(CompressionType, ulong, uint, CompressorFlags)"/> to create
+        /// <para>If using <see cref="Compressors.Compressor.Create(CompressionType, ulong, uint, CompressorFlags)"/> to create
         /// an LZMS compressor directly, the maxBlockSize parameter may be any positive value up to and including 2^30.</para>
         /// </summary>
         LZMS = 3,

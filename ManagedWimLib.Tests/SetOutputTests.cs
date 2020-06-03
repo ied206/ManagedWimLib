@@ -98,7 +98,7 @@ namespace ManagedWimLib.Tests
                     {
                         wim.SetOutputChunkSize(chunkSize);
                     }
-                    catch (WimException)
+                    catch (WimLibException)
                     {
                         if (success)
                             Assert.Fail();
@@ -191,7 +191,7 @@ namespace ManagedWimLib.Tests
                     {
                         wim.SetOutputPackChunkSize(chunkSize);
                     }
-                    catch (WimException)
+                    catch (WimLibException)
                     {
                         if (success)
                             Assert.Fail();

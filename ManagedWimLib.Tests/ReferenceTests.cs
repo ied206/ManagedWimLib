@@ -159,7 +159,7 @@ namespace ManagedWimLib.Tests
                         wim.ExtractImage(1, destDir, ExtractFlags.NoAcls);
                     }
                 }
-                catch (WimException)
+                catch (WimLibException)
                 {
                     if (failure)
                         return;
@@ -259,7 +259,7 @@ namespace ManagedWimLib.Tests
                         wim.ExtractImage(1, destDir, ExtractFlags.NoAcls);
                     }
                 }
-                catch (WimException)
+                catch (WimLibException)
                 {
                     if (failure)
                         return;
@@ -365,7 +365,7 @@ namespace ManagedWimLib.Tests
                         }
                     }
                 }
-                catch (WimException)
+                catch (WimLibException)
                 {
                     if (failure)
                         return;
