@@ -874,7 +874,7 @@ namespace ManagedWimLib
         ///
         /// This flag has an effect on Windows as well as in the NTFS-3G extraction mode.
         /// </summary>
-        NopAttributes = 0x00100000,
+        NoAttributes = 0x00100000,
         /// <summary>
         /// For <see cref="Wim.ExtractPaths()"/> and <see cref="Wim.ExtractPathList()"/> only: 
         /// Do not preserve the directory structure of the archive when extracting --- that is,
