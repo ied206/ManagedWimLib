@@ -18,7 +18,7 @@ Supports Windows, Linux and macOS.</Description>
     <PackageIcon>images\Logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/ied206/ManagedWimLib</RepositoryUrl>
     <PackageReleaseNotes>
-      - Fixed `ExtractFlags.NopAttributes` typo by renaming into `ExtractFlags.NoAttributes`.
+      - Fixed ExtractFlags.NopAttributes typo by renaming into ExtractFlags.NoAttributes.
     </PackageReleaseNotes>
     <PackageTags>wim wimlib dism imagex archive native pinvoke interop</PackageTags>
   </PropertyGroup>
