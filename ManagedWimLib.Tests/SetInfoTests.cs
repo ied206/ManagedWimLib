@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -28,19 +28,19 @@ using System.IO;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
+    [TestCategory(TestSetup.WimLib)]
     public class SetInfoTests
     {
         #region SetImageInfo
         [TestMethod]
-        [TestCategory("WimLib")]
         public void SetImageInfo()
         {
-            SetImageInfo_Template("LZX.wim", 1);
-            SetImageInfo_Template("MultiImage.wim", 2);
-            SetImageInfo_Template("MultiImage.wim", 3);
+            SetImageInfoTemplate("LZX.wim", 1);
+            SetImageInfoTemplate("MultiImage.wim", 2);
+            SetImageInfoTemplate("MultiImage.wim", 3);
         }
 
-        public void SetImageInfo_Template(string wimFileName, int imageIndex)
+        public static void SetImageInfoTemplate(string wimFileName, int imageIndex)
         {
             string srcWim = Path.Combine(TestSetup.SampleDir, wimFileName);
             string destWim = Path.GetTempFileName();
@@ -48,7 +48,7 @@ namespace ManagedWimLib.Tests
             {
                 File.Copy(srcWim, destWim, true);
 
-                using (Wim wim = Wim.OpenWim(destWim, OpenFlags.WRITE_ACCESS))
+                using (Wim wim = Wim.OpenWim(destWim, OpenFlags.WriteAccess))
                 {
                     string imageName = wim.GetImageName(imageIndex);
                     string imageDesc = wim.GetImageDescription(imageIndex);
@@ -78,13 +78,12 @@ namespace ManagedWimLib.Tests
 
         #region SetWimInfo
         [TestMethod]
-        [TestCategory("WimLib")]
         public void SetWimInfo()
         {
-            SetWimInfo_Template("MultiImage.wim", 2u);
+            SetWimInfoTemplate("MultiImage.wim", 2u);
         }
 
-        public void SetWimInfo_Template(string wimFileName, uint bootIndex)
+        public static void SetWimInfoTemplate(string wimFileName, uint bootIndex)
         {
             string srcWim = Path.Combine(TestSetup.SampleDir, wimFileName);
             string destWim = Path.GetTempFileName();
@@ -92,18 +91,18 @@ namespace ManagedWimLib.Tests
             {
                 File.Copy(srcWim, destWim, true);
 
-                using (Wim wim = Wim.OpenWim(destWim, OpenFlags.WRITE_ACCESS))
+                using (Wim wim = Wim.OpenWim(destWim, OpenFlags.WriteAccess))
                 {
                     WimInfo info = new WimInfo
                     {
                         BootIndex = bootIndex,
                     };
 
-                    wim.SetWimInfo(info, ChangeFlags.BOOT_INDEX);
-                    wim.Overwrite(WriteFlags.DEFAULT, Wim.DefaultThreads);
+                    wim.SetWimInfo(info, ChangeFlags.BootIndex);
+                    wim.Overwrite(WriteFlags.None, Wim.DefaultThreads);
                 }
 
-                using (Wim wim = Wim.OpenWim(destWim, OpenFlags.DEFAULT))
+                using (Wim wim = Wim.OpenWim(destWim, OpenFlags.None))
                 {
                     WimInfo info = wim.GetWimInfo();
 

@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -27,20 +27,20 @@ using System.IO;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
+    [TestCategory(TestSetup.WimLib)]
     public class SetOutputTests
     {
         #region SetOutputChunkSize
         [TestMethod]
-        [TestCategory("WimLib")]
         public void SetOutputChunkSize()
         {
-            SetOutputChunkSize_Template("XPRESS.wim", CompressionType.XPRESS, 16384, true);
-            SetOutputChunkSize_Template("XPRESS.wim", CompressionType.XPRESS, 1024, false);
+            SetOutputChunkSizeTemplate("XPRESS.wim", CompressionType.XPRESS, 16384, true);
+            SetOutputChunkSizeTemplate("XPRESS.wim", CompressionType.XPRESS, 1024, false);
         }
 
-        public void SetOutputChunkSize_Template(string wimFileName, CompressionType compType, uint chunkSize, bool success)
+        public void SetOutputChunkSizeTemplate(string wimFileName, CompressionType compType, uint chunkSize, bool success)
         {
-            string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string destDir = TestHelper.GetTempDir();
             try
             {
                 Directory.CreateDirectory(destDir);
@@ -52,40 +52,40 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.SCAN_BEGIN:
+                        case ProgressMsg.ScanBegin:
                             {
-                                ProgressInfo_Scan m = (ProgressInfo_Scan)info;
+                                ScanProgress m = (ScanProgress)info;
                                 Assert.IsNotNull(info);
 
                                 _checked[0] = true;
                             }
                             break;
-                        case ProgressMsg.SCAN_END:
+                        case ProgressMsg.ScanEnd:
                             {
-                                ProgressInfo_Scan m = (ProgressInfo_Scan)info;
+                                ScanProgress m = (ScanProgress)info;
                                 Assert.IsNotNull(info);
 
                                 _checked[1] = true;
                             }
                             break;
-                        case ProgressMsg.WRITE_METADATA_BEGIN:
+                        case ProgressMsg.WriteMetadataBegin:
                             Assert.IsNull(info);
                             _checked[2] = true;
                             break;
-                        case ProgressMsg.WRITE_STREAMS:
+                        case ProgressMsg.WriteStreams:
                             {
-                                ProgressInfo_WriteStreams m = (ProgressInfo_WriteStreams)info;
+                                WriteStreamsProgress m = (WriteStreamsProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[3] = true;
                             }
                             break;
-                        case ProgressMsg.WRITE_METADATA_END:
+                        case ProgressMsg.WriteMetadataEnd:
                             Assert.IsNull(info);
                             _checked[4] = true;
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
                 // Capture Wim
@@ -106,8 +106,8 @@ namespace ManagedWimLib.Tests
                             return;
                     }
 
-                    wim.AddImage(srcDir, "UnitTest", null, AddFlags.DEFAULT);
-                    wim.Write(wimFile, Wim.AllImages, WriteFlags.DEFAULT, Wim.DefaultThreads);
+                    wim.AddImage(srcDir, "UnitTest", null, AddFlags.None);
+                    wim.Write(wimFile, Wim.AllImages, WriteFlags.None, Wim.DefaultThreads);
 
                     WimInfo wi = wim.GetWimInfo();
                     Assert.IsTrue(wi.ImageCount == 1);
@@ -125,14 +125,13 @@ namespace ManagedWimLib.Tests
 
         #region SetOutputPackChunkSize
         [TestMethod]
-        [TestCategory("WimLib")]
         public void SetOutputPackChunkSize()
         {
-            SetOutputPackChunkSize_Template("LZMS.wim", CompressionType.LZMS, 65536, true);
-            SetOutputPackChunkSize_Template("LZMS.wim", CompressionType.LZMS, 1024, false);
+            SetOutputPackChunkSizeTemplate("LZMS.wim", CompressionType.LZMS, 65536, true);
+            SetOutputPackChunkSizeTemplate("LZMS.wim", CompressionType.LZMS, 1024, false);
         }
 
-        public void SetOutputPackChunkSize_Template(string wimFileName, CompressionType compType, uint chunkSize, bool success)
+        public void SetOutputPackChunkSizeTemplate(string wimFileName, CompressionType compType, uint chunkSize, bool success)
         {
             string destDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             try
@@ -146,40 +145,40 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.SCAN_BEGIN:
+                        case ProgressMsg.ScanBegin:
                             {
-                                ProgressInfo_Scan m = (ProgressInfo_Scan)info;
+                                ScanProgress m = (ScanProgress)info;
                                 Assert.IsNotNull(info);
 
                                 _checked[0] = true;
                             }
                             break;
-                        case ProgressMsg.SCAN_END:
+                        case ProgressMsg.ScanEnd:
                             {
-                                ProgressInfo_Scan m = (ProgressInfo_Scan)info;
+                                ScanProgress m = (ScanProgress)info;
                                 Assert.IsNotNull(info);
 
                                 _checked[1] = true;
                             }
                             break;
-                        case ProgressMsg.WRITE_METADATA_BEGIN:
+                        case ProgressMsg.WriteMetadataBegin:
                             Assert.IsNull(info);
                             _checked[2] = true;
                             break;
-                        case ProgressMsg.WRITE_STREAMS:
+                        case ProgressMsg.WriteStreams:
                             {
-                                ProgressInfo_WriteStreams m = (ProgressInfo_WriteStreams)info;
+                                WriteStreamsProgress m = (WriteStreamsProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[3] = true;
                             }
                             break;
-                        case ProgressMsg.WRITE_METADATA_END:
+                        case ProgressMsg.WriteMetadataEnd:
                             Assert.IsNull(info);
                             _checked[4] = true;
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
                 // Capture Wim
@@ -200,8 +199,8 @@ namespace ManagedWimLib.Tests
                             return;
                     }
 
-                    wim.AddImage(srcDir, "UnitTest", null, AddFlags.DEFAULT);
-                    wim.Write(wimFile, Wim.AllImages, WriteFlags.SOLID, Wim.DefaultThreads);
+                    wim.AddImage(srcDir, "UnitTest", null, AddFlags.None);
+                    wim.Write(wimFile, Wim.AllImages, WriteFlags.Solid, Wim.DefaultThreads);
 
                     WimInfo wi = wim.GetWimInfo();
                     Assert.IsTrue(wi.ImageCount == 1);
@@ -219,15 +218,14 @@ namespace ManagedWimLib.Tests
 
         #region SetOutputCompressionType
         [TestMethod]
-        [TestCategory("WimLib")]
         public void SetOutputCompressionType()
         {
-            SetOutputCompressionType_Template("XPRESS.wim", CompressionType.XPRESS);
-            SetOutputCompressionType_Template("LZX.wim", CompressionType.LZX);
-            SetOutputCompressionType_Template("LZMS.wim", CompressionType.LZMS);
+            SetOutputCompressionTypeTemplate("XPRESS.wim", CompressionType.XPRESS);
+            SetOutputCompressionTypeTemplate("LZX.wim", CompressionType.LZX);
+            SetOutputCompressionTypeTemplate("LZMS.wim", CompressionType.LZMS);
         }
 
-        public void SetOutputCompressionType_Template(string wimFileName, CompressionType compType)
+        public void SetOutputCompressionTypeTemplate(string wimFileName, CompressionType compType)
         {
             string destDir = TestHelper.GetTempDir();
             try
@@ -241,55 +239,55 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.SCAN_BEGIN:
+                        case ProgressMsg.ScanBegin:
                             {
-                                ProgressInfo_Scan m = (ProgressInfo_Scan)info;
+                                ScanProgress m = (ScanProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[0] = true;
                             }
                             break;
-                        case ProgressMsg.SCAN_END:
+                        case ProgressMsg.ScanEnd:
                             {
-                                ProgressInfo_Scan m = (ProgressInfo_Scan)info;
+                                ScanProgress m = (ScanProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[1] = true;
                             }
                             break;
-                        case ProgressMsg.WRITE_METADATA_BEGIN:
+                        case ProgressMsg.WriteMetadataBegin:
                             Assert.IsNull(info);
                             _checked[2] = true;
                             break;
-                        case ProgressMsg.WRITE_STREAMS:
+                        case ProgressMsg.WriteStreams:
                             {
-                                ProgressInfo_WriteStreams m = (ProgressInfo_WriteStreams)info;
+                                WriteStreamsProgress m = (WriteStreamsProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[3] = true;
                             }
                             break;
-                        case ProgressMsg.WRITE_METADATA_END:
+                        case ProgressMsg.WriteMetadataEnd:
                             Assert.IsNull(info);
                             _checked[4] = true;
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
                 // Capture Wim
                 string srcDir = Path.Combine(TestSetup.SampleDir, "Src01");
                 string wimFile = Path.Combine(destDir, wimFileName);
-                using (Wim wim = Wim.CreateNewWim(CompressionType.NONE))
+                using (Wim wim = Wim.CreateNewWim(CompressionType.None))
                 {
                     wim.RegisterCallback(ProgressCallback);
                     wim.SetOutputCompressionType(compType);
 
-                    wim.AddImage(srcDir, "UnitTest", null, AddFlags.DEFAULT);
-                    wim.Write(wimFile, Wim.AllImages, WriteFlags.DEFAULT, Wim.DefaultThreads);
+                    wim.AddImage(srcDir, "UnitTest", null, AddFlags.None);
+                    wim.Write(wimFile, Wim.AllImages, WriteFlags.None, Wim.DefaultThreads);
                 }
 
-                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
                 {
                     WimInfo wi = wim.GetWimInfo();
                     Assert.AreEqual(wi.ImageCount, 1u);
@@ -308,15 +306,14 @@ namespace ManagedWimLib.Tests
 
         #region SetOutputPackCompressionType
         [TestMethod]
-        [TestCategory("WimLib")]
         public void SetOutputPackCompressionType()
         {
-            SetOutputPackCompressionType_Template("XPRESS.wim", CompressionType.XPRESS);
-            SetOutputPackCompressionType_Template("LZX.wim", CompressionType.LZX);
-            SetOutputPackCompressionType_Template("LZMS.wim", CompressionType.LZMS);
+            SetOutputPackCompressionTypeTemplate("XPRESS.wim", CompressionType.XPRESS);
+            SetOutputPackCompressionTypeTemplate("LZX.wim", CompressionType.LZX);
+            SetOutputPackCompressionTypeTemplate("LZMS.wim", CompressionType.LZMS);
         }
 
-        public void SetOutputPackCompressionType_Template(string wimFileName, CompressionType compType)
+        public void SetOutputPackCompressionTypeTemplate(string wimFileName, CompressionType compType)
         {
             string destDir = TestHelper.GetTempDir();
             try
@@ -330,56 +327,56 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.SCAN_BEGIN:
+                        case ProgressMsg.ScanBegin:
                             {
-                                ProgressInfo_Scan m = (ProgressInfo_Scan)info;
+                                ScanProgress m = (ScanProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[0] = true;
                             }
                             break;
-                        case ProgressMsg.SCAN_END:
+                        case ProgressMsg.ScanEnd:
                             {
-                                ProgressInfo_Scan m = (ProgressInfo_Scan)info;
+                                ScanProgress m = (ScanProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[1] = true;
                             }
                             break;
-                        case ProgressMsg.WRITE_METADATA_BEGIN:
+                        case ProgressMsg.WriteMetadataBegin:
                             Assert.IsNull(info);
                             _checked[2] = true;
                             break;
-                        case ProgressMsg.WRITE_STREAMS:
+                        case ProgressMsg.WriteStreams:
                             {
-                                ProgressInfo_WriteStreams m = (ProgressInfo_WriteStreams)info;
+                                WriteStreamsProgress m = (WriteStreamsProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[3] = true;
                             }
                             break;
-                        case ProgressMsg.WRITE_METADATA_END:
+                        case ProgressMsg.WriteMetadataEnd:
                             Assert.IsNull(info);
                             _checked[4] = true;
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
                 // Capture Wim
                 string srcDir = Path.Combine(TestSetup.SampleDir, "Src01");
                 string wimFile = Path.Combine(destDir, wimFileName);
-                using (Wim wim = Wim.CreateNewWim(CompressionType.NONE))
+                using (Wim wim = Wim.CreateNewWim(CompressionType.None))
                 {
                     wim.RegisterCallback(ProgressCallback);
                     wim.SetOutputCompressionType(compType);
                     wim.SetOutputPackCompressionType(compType);
 
-                    wim.AddImage(srcDir, "UnitTest", null, AddFlags.DEFAULT);
-                    wim.Write(wimFile, Wim.AllImages, WriteFlags.SOLID, Wim.DefaultThreads);
+                    wim.AddImage(srcDir, "UnitTest", null, AddFlags.None);
+                    wim.Write(wimFile, Wim.AllImages, WriteFlags.Solid, Wim.DefaultThreads);
                 }
 
-                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
                 {
                     WimInfo wi = wim.GetWimInfo();
                     Assert.AreEqual(wi.ImageCount, 1u);

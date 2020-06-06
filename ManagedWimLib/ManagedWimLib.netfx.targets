@@ -1,0 +1,164 @@
+<!--
+ *
+ * WARNING: This MSBuild file requires MSBuild 4.0 features.
+ * 
+ * Based on System.Data.SQLite.Core.targets, written by Joe Mistachkin and David Archer.
+ * Released to the public domain, use at your own risk!
+ *
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+  ******************************************************************************
+  **                          Load Per-User Settings                          **
+  ******************************************************************************
+  -->
+  
+  <!--
+    Create "ManagedWimLib.Precompiled.Exclude" file in project directory 
+    to disable copying precompiled wimlib binaries.
+  -->
+  <PropertyGroup>
+    <ExcludeInteropLib Condition="Exists('$(MSBuildProjectDirectory)\ManagedWimLib.Precompiled.Exclude')">true</ExcludeInteropLib>
+  </PropertyGroup>
+
+  <!--
+  ******************************************************************************
+  **                      Interop Library Build Items                         **
+  ******************************************************************************
+  -->
+
+  <ItemGroup Condition="'$(ExcludeInteropLib)' != 'true' And 
+                        '$(MSBuildThisFileDirectory)' != '' And
+                        HasTrailingSlash('$(MSBuildThisFileDirectory)')">
+    <InteropLibFiles_x86 Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-x86\native\*.dll" />
+    <InteropLibFiles_x64 Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-x64\native\*.dll" />
+  </ItemGroup>
+
+  <!--
+  ******************************************************************************
+  **                     Interop Library Content Items                        **
+  ******************************************************************************
+  -->
+
+  <ItemGroup Condition="'$(ExcludeInteropLib)' != 'true'">
+    <None Condition="'@(InteropLibFiles_x86)' != ''" Include="@(InteropLibFiles_x86)">
+      <Link>x86\%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Condition="'@(InteropLibFiles_x64)' != ''" Include="@(InteropLibFiles_x64)">
+      <Link>x64\%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <!--
+  ******************************************************************************
+  **                     Interop Library Build Targets                        **
+  ******************************************************************************
+  -->
+
+  <Target Name="CopyInteropLibFiles_x86"
+          Condition="'$(CopyInteropLibFiles_x86)' != 'false' And
+                     '$(OutDir)' != '' And
+                     HasTrailingSlash('$(OutDir)') And
+                     Exists('$(OutDir)')"
+          Inputs="@(InteropLibFiles_x86)"
+          Outputs="@(InteropLibFiles_x86 -> '$(OutDir)x86\%(Filename)%(Extension)')">
+    <Copy SourceFiles="@(InteropLibFiles_x86)"
+          DestinationFiles="@(InteropLibFiles_x86 -> '$(OutDir)x86\%(Filename)%(Extension)')" />
+  </Target>
+  <Target Name="CopyInteropLibFiles_x64"
+          Condition="'$(CopyInteropLibFiles_x64)' != 'false' And
+                      '$(OutDir)' != '' And
+                      HasTrailingSlash('$(OutDir)') And
+                      Exists('$(OutDir)')"
+          Inputs="@(InteropLibFiles_x64)"
+          Outputs="@(InteropLibFiles_x64 -> '$(OutDir)x86\%(Filename)%(Extension)')">
+    <Copy SourceFiles="@(InteropLibFiles_x64)"
+          DestinationFiles="@(InteropLibFiles_x64 -> '$(OutDir)x64\%(Filename)%(Extension)')" />
+  </Target>
+
+  <!--
+  ******************************************************************************
+  -->
+
+  <Target Name="CleanInteropLibFiles_x86"
+          Condition="'$(CleanInteropLibFiles_x86)' != 'false' And
+                     '$(OutDir)' != '' And
+                     HasTrailingSlash('$(OutDir)') And
+                     Exists('$(OutDir)')">
+    <Delete Files="@(InteropLibFiles_x86 -> '$(OutDir)x86\%(Filename)%(Extension)')" />
+  </Target>
+  <Target Name="CleanInteropLibFiles_x64"
+          Condition="'$(CleanInteropLibFiles_x64)' != 'false' And
+                     '$(OutDir)' != '' And
+                     HasTrailingSlash('$(OutDir)') And
+                     Exists('$(OutDir)')">
+    <Delete Files="@(InteropLibFiles_x64 -> '$(OutDir)x64\%(Filename)%(Extension)')" />
+  </Target>
+
+  <!--
+  ******************************************************************************
+  -->
+
+  <Target Name="CollectInteropLibFiles_x86"
+          Condition="'$(CollectInteropLibFiles_x86)' != 'false'">
+    <ItemGroup>
+      <FilesForPackagingFromProject Include="@(InteropLibFiles_x86)">
+        <DestinationRelativePath>bin\x86\%(Filename)%(Extension)</DestinationRelativePath>
+      </FilesForPackagingFromProject>
+    </ItemGroup>
+  </Target>
+  <Target Name="CollectInteropLibFiles_x64"
+          Condition="'$(CollectInteropLibFiles_x64)' != 'false'">
+    <ItemGroup>
+      <FilesForPackagingFromProject Include="@(InteropLibFiles_x64)">
+        <DestinationRelativePath>bin\x64\%(Filename)%(Extension)</DestinationRelativePath>
+      </FilesForPackagingFromProject>
+    </ItemGroup>
+  </Target>
+
+  <!--
+  ******************************************************************************
+  **                  ZLib Interop Library Build Properties                   **
+  ******************************************************************************
+  -->
+
+  <PropertyGroup>
+    <PostBuildEventDependsOn>
+      $(PostBuildEventDependsOn);
+      CopyInteropLibFiles_x86;
+      CopyInteropLibFiles_x64;
+    </PostBuildEventDependsOn>
+    <BuildDependsOn>
+      $(BuildDependsOn);
+      CopyInteropLibFiles_x86;
+      CopyInteropLibFiles_x64;
+    </BuildDependsOn>
+    <CleanDependsOn>
+      $(CleanDependsOn);
+      CleanInteropLibFiles_x86;
+      CleanInteropLibFiles_x64;
+    </CleanDependsOn>
+  </PropertyGroup>
+
+  <!--
+  ******************************************************************************
+  **         Interop Library Publish Properties for Visual Studio 201x        **
+  ******************************************************************************
+  -->
+
+  <PropertyGroup Condition="'$(VisualStudioVersion)' == '' Or
+                            '$(VisualStudioVersion)' == '10.0' Or
+                            '$(VisualStudioVersion)' == '11.0' Or
+                            '$(VisualStudioVersion)' == '12.0' Or
+                            '$(VisualStudioVersion)' == '14.0' Or
+                            '$(VisualStudioVersion)' == '15.0' Or
+                            '$(VisualStudioVersion)' == '16.0'">
+    <PipelineCollectFilesPhaseDependsOn>
+      CollectInteropLibFiles_x86;
+      CollectInteropLibFiles_x64;
+      $(PipelineCollectFilesPhaseDependsOn);
+    </PipelineCollectFilesPhaseDependsOn>
+  </PropertyGroup>
+</Project>

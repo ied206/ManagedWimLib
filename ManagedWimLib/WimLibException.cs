@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -27,17 +27,36 @@ using System.Text;
 
 namespace ManagedWimLib
 {
-    #region WimLibException
+    #region WimException
     [Serializable]
     public class WimLibException : Exception
     {
         public ErrorCode ErrorCode;
 
+        #region Constructor
         public WimLibException(ErrorCode errorCode)
             : base(ForgeErrorMessages(errorCode, true))
         {
             ErrorCode = errorCode;
         }
+
+        public WimLibException()
+        {
+            ErrorCode = ErrorCode.Success;
+        }
+
+        public WimLibException(string message)
+            : base(message)
+        {
+            ErrorCode = ErrorCode.Success;
+        }
+
+        public WimLibException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+            ErrorCode = ErrorCode.Success;
+        }
+        #endregion
 
         internal static string ForgeErrorMessages(ErrorCode errorCode, bool full)
         {
@@ -51,9 +70,9 @@ namespace ManagedWimLib
             return b.ToString();
         }
 
-        internal static void CheckWimLibError(ErrorCode ret)
+        internal static void CheckErrorCode(ErrorCode ret)
         {
-            if (ret != ErrorCode.SUCCESS)
+            if (ret != ErrorCode.Success)
                 throw new WimLibException(ret);
         }
 

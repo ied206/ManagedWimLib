@@ -29,7 +29,7 @@ using System.IO;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
-    [TestCategory("WimLib")]
+    [TestCategory(TestSetup.WimLib)]
     public class IterateTests
     {
         #region IterateDirTree
@@ -45,19 +45,19 @@ namespace ManagedWimLib.Tests
         {
             List<Tuple<string, bool>> entries = new List<Tuple<string, bool>>();
 
-            CallbackStatus IterateCallback(DirEntry dentry, object userData)
+            int IterateCallback(DirEntry dentry, object userData)
             {
                 string path = dentry.FullPath;
-                bool isDir = (dentry.Attributes & FileAttribute.DIRECTORY) != 0;
+                bool isDir = (dentry.Attributes & FileAttributes.Directory) != 0;
                 entries.Add(new Tuple<string, bool>(path, isDir));
 
-                return CallbackStatus.CONTINUE;
+                return Wim.IterateCallbackSuccess;
             }
 
             string wimFile = Path.Combine(TestSetup.SampleDir, wimFileName);
-            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
             {
-                wim.IterateDirTree(1, Wim.RootPath, IterateFlags.RECURSIVE, IterateCallback);
+                wim.IterateDirTree(1, Wim.RootPath, IterateDirTreeFlags.Recursive, IterateCallback);
             }
 
             TestHelper.CheckPathList(SampleSet.Src01, entries);
@@ -66,29 +66,28 @@ namespace ManagedWimLib.Tests
 
         #region IterateLookupTable
         [TestMethod]
-        [TestCategory("WimLib")]
         public void IterateLookupTable()
         {
-            IterateLookupTable_Template("XPRESS.wim", false);
-            IterateLookupTable_Template("LZX.wim", false);
-            IterateLookupTable_Template("LZMS.wim", true);
+            IterateLookupTableTemplate("XPRESS.wim", false);
+            IterateLookupTableTemplate("LZX.wim", false);
+            IterateLookupTableTemplate("LZMS.wim", true);
         }
 
-        public void IterateLookupTable_Template(string wimFileName, bool compSolid)
+        public void IterateLookupTableTemplate(string wimFileName, bool compSolid)
         {
             bool isSolid = false;
-            CallbackStatus IterateCallback(ResourceEntry resource, object userData)
+            int IterateCallback(ResourceEntry resource, object userData)
             {
                 if (resource.Packed)
                     isSolid = true;
 
-                return CallbackStatus.CONTINUE;
+                return Wim.IterateCallbackSuccess;
             }
 
             string wimFile = Path.Combine(TestSetup.SampleDir, wimFileName);
-            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
             {
-                wim.IterateLookupTable(IterateCallback);
+                wim.IterateLookupTable(IterateLookupTableFlags.None, IterateCallback);
             }
 
             Assert.AreEqual(compSolid, isSolid);

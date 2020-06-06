@@ -4,9 +4,9 @@
     <img src="./Image/Logo.svg" height="128">
 </div>
 
-Cross-platform [wimlib](https://wimlib.net) pinvoke library for .Net.
+Cross-platform [wimlib](https://wimlib.net) pinvoke library for .NET.
 
-wimlib is a library that handles Windows Imaging (WIM) archives, written by Eric Biggers.
+[wimlib](https://wimlib.net) is a library that handles Windows Imaging (WIM) archives, written by Eric Biggers.
 
 | CI Server       | Branch  | Build Status   |
 |-----------------|---------|----------------|
@@ -23,13 +23,14 @@ ManagedWimLib can be installed via [nuget](https://www.nuget.org/packages/Manage
 
 ## Support
 
-### Targeted .Net platforms
+### Targeted .NET platforms
 
-- .Net Framework 4.5.1
-- .Net Standard 2.0 (.Net Framework 4.6.1+, .Net Core 2.0+)
+- .NET Standard 2.1 (.NET Core 3.0+)
+- .NET Standard 2.0 (.NET Framework 4.6.1+, .NET Core 2.0+)
+- .NET Framework 4.5.1
 
-If you need .Net Framework 4.5 support, use [1.1.x version](https://www.nuget.org/packages/ManagedWimLib/1.1.2) instead.
-If you need .Net Standard 1.3 support, use [1.2.x version](https://www.nuget.org/packages/ManagedWimLib/1.2.4) instead.
+If you need .NET Standard 1.3 support, use [1.2.x version](https://www.nuget.org/packages/ManagedWimLib/1.2.4) instead.<br>
+If you need .NET Framework 4.5 support, use [1.1.x version](https://www.nuget.org/packages/ManagedWimLib/1.1.2) instead.
 
 ### Supported OS platforms
 
@@ -38,7 +39,7 @@ If you need .Net Standard 1.3 support, use [1.2.x version](https://www.nuget.org
 | Windows  | x86          | Yes    |
 |          | x64          | Yes    |
 | Linux    | x64          | Yes    |
-|          | armhf        | Yes    |
+|          | arm          | Yes    |
 |          | arm64        | Yes    |
 | macOS    | x64          | Yes    |
 
@@ -47,22 +48,24 @@ If you need .Net Standard 1.3 support, use [1.2.x version](https://www.nuget.org
 | Architecture | Distribution | Note |
 |--------------|--------------|------|
 | x64          | Ubuntu 18.04 | Tested on AppVeyor CI         |
-| armhf        | Debian 10    | Emulated on QEMU's virt board |
+| arm          | Debian 10    | Emulated on QEMU's virt board |
 | arm64        | Debian 10    | Emulated on QEMU's virt board |
 
 ### Supported wimlib version
 
 - 1.13.0
-- 1.13.1 (Included)
+- 1.13.1
+- 1.13.2 (Included)
 
 ## Usage
 
 See [USAGE.md](./USAGE.md).
 
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md).
+
 ## License
 
-Licensed under LGPLv3.  
-See [LICENSE](./LICENSE) for details.
-
-The logo is licensed under CC BY 3.0 US.  
-[disc](https://thenounproject.com/term/disc/772617) by Ralf Schmitzer from the Noun Project.
+- `ManagedWimLib` is licensed under [LGPLv3](./LICENSE).
+- The logo, [disc](https://thenounproject.com/term/disc/772617) by Ralf Schmitzer from the Noun Project, is licensed under CC BY 3.0 US.

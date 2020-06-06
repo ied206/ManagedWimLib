@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -30,19 +30,19 @@ using System.Text;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
+    [TestCategory(TestSetup.WimLib)]
     public class ExtractTests
     {
         #region ExtractImage
         [TestMethod]
-        [TestCategory("WimLib")]
         public void ExtractImage()
         {
-            ExtractImage_Template("XPRESS.wim");
-            ExtractImage_Template("LZX.wim");
-            ExtractImage_Template("LZMS.wim");
+            ExtractImageTemplate("XPRESS.wim");
+            ExtractImageTemplate("LZX.wim");
+            ExtractImageTemplate("LZMS.wim");
         }
 
-        public void ExtractImage_Template(string wimFileName)
+        public void ExtractImageTemplate(string wimFileName)
         {
             string wimFile = Path.Combine(TestSetup.SampleDir, wimFileName);
             string destDir = TestHelper.GetTempDir();
@@ -57,45 +57,45 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.EXTRACT_IMAGE_BEGIN:
+                        case ProgressMsg.ExtractImageBegin:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 Assert.IsTrue(m.ImageName.Equals("Sample", StringComparison.Ordinal));
                                 _checked[0] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_IMAGE_END:
+                        case ProgressMsg.ExtractImageEnd:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 Assert.IsTrue(m.ImageName.Equals("Sample", StringComparison.Ordinal));
                                 _checked[1] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_FILE_STRUCTURE:
+                        case ProgressMsg.ExtractFileStructure:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 Assert.IsTrue(m.ImageName.Equals("Sample", StringComparison.Ordinal));
                                 _checked[2] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_STREAMS:
+                        case ProgressMsg.ExtractStreams:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 Assert.IsTrue(m.ImageName.Equals("Sample", StringComparison.Ordinal));
                                 _checked[3] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_METADATA:
+                        case ProgressMsg.ExtractMetadata:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 Assert.IsTrue(m.ImageName.Equals("Sample", StringComparison.Ordinal));
@@ -103,17 +103,17 @@ namespace ManagedWimLib.Tests
                             }
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
-                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
                 {
                     wim.RegisterCallback(ProgressCallback);
 
                     WimInfo wi = wim.GetWimInfo();
                     Assert.IsTrue(wi.ImageCount == 1);
 
-                    wim.ExtractImage(1, destDir, ExtractFlags.DEFAULT);
+                    wim.ExtractImage(1, destDir, ExtractFlags.None);
                 }
 
                 Assert.IsTrue(_checked.All(x => x));
@@ -130,19 +130,18 @@ namespace ManagedWimLib.Tests
 
         #region ExtractPath, ExtractPaths
         [TestMethod]
-        [TestCategory("WimLib")]
         public void ExtractPath()
         {
-            ExtractPath_Template("XPRESS.wim", @"\ACDE.txt");
-            ExtractPath_Template("LZX.wim", @"\ABCD\*.txt");
-            ExtractPath_Template("LZMS.wim", @"\ABDE\Z\Y.ini");
-            ExtractPath_Template("BootXPRESS.wim", @"\?CDE.txt");
-            ExtractPath_Template("BootLZX.wim", @"\ACDE.txt");
+            ExtractPathTemplate("XPRESS.wim", @"\ACDE.txt");
+            ExtractPathTemplate("LZX.wim", @"\ABCD\*.txt");
+            ExtractPathTemplate("LZMS.wim", @"\ABDE\Z\Y.ini");
+            ExtractPathTemplate("BootXPRESS.wim", @"\?CDE.txt");
+            ExtractPathTemplate("BootLZX.wim", @"\ACDE.txt");
         }
 
-        public void ExtractPath_Template(string fileName, string path)
+        public void ExtractPathTemplate(string fileName, string path)
         {
-            ExtractPaths_Template(fileName, new string[] { path });
+            ExtractPathsTemplate(fileName, new string[] { path });
         }
 
         [TestMethod]
@@ -150,14 +149,14 @@ namespace ManagedWimLib.Tests
         public void ExtractPaths()
         {
             string[] paths = new string[] { @"\ACDE.txt", @"\ABCD\*.txt", @"\?CDE.txt" };
-            ExtractPaths_Template("XPRESS.wim", paths);
-            ExtractPaths_Template("LZX.wim", paths);
-            ExtractPaths_Template("LZMS.wim", paths);
-            ExtractPaths_Template("BootXPRESS.wim", paths);
-            ExtractPaths_Template("BootLZX.wim", paths);
+            ExtractPathsTemplate("XPRESS.wim", paths);
+            ExtractPathsTemplate("LZX.wim", paths);
+            ExtractPathsTemplate("LZMS.wim", paths);
+            ExtractPathsTemplate("BootXPRESS.wim", paths);
+            ExtractPathsTemplate("BootLZX.wim", paths);
         }
 
-        public void ExtractPaths_Template(string fileName, string[] paths)
+        public void ExtractPathsTemplate(string fileName, string[] paths)
         {
             string destDir = TestHelper.GetTempDir();
             try
@@ -172,55 +171,55 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.EXTRACT_TREE_BEGIN:
+                        case ProgressMsg.ExtractTreeBegin:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[0] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_TREE_END:
+                        case ProgressMsg.ExtractTreeEnd:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[1] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_FILE_STRUCTURE:
+                        case ProgressMsg.ExtractFileStructure:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[2] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_STREAMS:
+                        case ProgressMsg.ExtractStreams:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[3] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_METADATA:
+                        case ProgressMsg.ExtractMetadata:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[4] = true;
                             }
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
-                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
                 {
                     wim.RegisterCallback(ProgressCallback);
 
-                    wim.ExtractPaths(1, destDir, paths, ExtractFlags.GLOB_PATHS);
+                    wim.ExtractPaths(1, destDir, paths, ExtractFlags.GlobPaths);
                 }
 
                 Assert.IsTrue(_checked.All(x => x));
@@ -249,18 +248,17 @@ namespace ManagedWimLib.Tests
 
         #region ExtractList
         [TestMethod]
-        [TestCategory("WimLib")]
         public void ExtractList()
         {
             string[] paths = new string[] { @"\ACDE.txt", @"\ABCD\*.txt", @"\?CDE.txt" };
-            ExtractList_Template("XPRESS.wim", paths);
-            ExtractList_Template("LZX.wim", paths);
-            ExtractList_Template("LZMS.wim", paths);
-            ExtractList_Template("BootXPRESS.wim", paths);
-            ExtractList_Template("BootLZX.wim", paths);
+            ExtractListTemplate("XPRESS.wim", paths);
+            ExtractListTemplate("LZX.wim", paths);
+            ExtractListTemplate("LZMS.wim", paths);
+            ExtractListTemplate("BootXPRESS.wim", paths);
+            ExtractListTemplate("BootLZX.wim", paths);
         }
 
-        public void ExtractList_Template(string fileName, string[] paths)
+        public void ExtractListTemplate(string fileName, string[] paths)
         {
             string destDir = TestHelper.GetTempDir();
             try
@@ -274,48 +272,48 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.EXTRACT_TREE_BEGIN:
+                        case ProgressMsg.ExtractTreeBegin:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[0] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_TREE_END:
+                        case ProgressMsg.ExtractTreeEnd:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[1] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_FILE_STRUCTURE:
+                        case ProgressMsg.ExtractFileStructure:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[2] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_STREAMS:
+                        case ProgressMsg.ExtractStreams:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[3] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_METADATA:
+                        case ProgressMsg.ExtractMetadata:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[4] = true;
                             }
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
                 string listFile = Path.Combine(destDir, "ListFile.txt");
@@ -326,11 +324,11 @@ namespace ManagedWimLib.Tests
                 }
 
                 string wimFile = Path.Combine(TestSetup.SampleDir, fileName);
-                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
                 {
                     wim.RegisterCallback(ProgressCallback);
 
-                    wim.ExtractPathList(1, destDir, listFile, ExtractFlags.GLOB_PATHS);
+                    wim.ExtractPathList(1, destDir, listFile, ExtractFlags.GlobPaths);
                 }
 
                 Assert.IsTrue(_checked.All(x => x));

@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFrameworks>net48;netcoreapp2.1;netcoreapp3.1;</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.1;netcoreapp3.1;</TargetFrameworks>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -13,4 +14,5 @@
   <ItemGroup>
     <ProjectReference Include="..\ManagedWimLib\ManagedWimLib.csproj" />
   </ItemGroup>
+
 </Project>

@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -29,19 +29,19 @@ using System.Linq;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
+    [TestCategory(TestSetup.WimLib)]
     public class DeleteTests
     {
         #region DeleteImage
         [TestMethod]
-        [TestCategory("WimLib")]
         public void DeleteImage()
         {
-            DeleteImage_Template("MultiImage.wim", 1, "Base");
-            DeleteImage_Template("MultiImage.wim", 2, "Changes");
-            DeleteImage_Template("MultiImage.wim", 3, "Delta");
+            DeleteImageTemplate("MultiImage.wim", 1, "Base");
+            DeleteImageTemplate("MultiImage.wim", 2, "Changes");
+            DeleteImageTemplate("MultiImage.wim", 3, "Delta");
         }
 
-        public void DeleteImage_Template(string wimFileName, int deleteIndex, string deleteImageName)
+        public void DeleteImageTemplate(string wimFileName, int deleteIndex, string deleteImageName)
         {
             string srcWim = Path.Combine(TestSetup.SampleDir, wimFileName);
             string destDir = TestHelper.GetTempDir();
@@ -58,18 +58,18 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.WRITE_STREAMS:
+                        case ProgressMsg.WriteStreams:
                             {
-                                ProgressInfo_WriteStreams m = (ProgressInfo_WriteStreams)info;
+                                WriteStreamsProgress m = (WriteStreamsProgress)info;
                                 Assert.IsNotNull(m);
 
                                 Assert.AreEqual(m.CompressionType, CompressionType.LZX);
                                 _checked[0] = true;
                             }
                             break;
-                        case ProgressMsg.RENAME:
+                        case ProgressMsg.Rename:
                             {
-                                ProgressInfo_Rename m = (ProgressInfo_Rename)info;
+                                RenameProgress m = (RenameProgress)info;
                                 Assert.IsNotNull(m);
 
                                 Assert.IsNotNull(m.From);
@@ -78,10 +78,10 @@ namespace ManagedWimLib.Tests
                             }
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
-                using (Wim wim = Wim.OpenWim(destWim, OpenFlags.WRITE_ACCESS))
+                using (Wim wim = Wim.OpenWim(destWim, OpenFlags.WriteAccess))
                 {
                     wim.RegisterCallback(ProgressCallback);
 
@@ -92,7 +92,7 @@ namespace ManagedWimLib.Tests
                     Assert.IsTrue(imageName.Equals(deleteImageName, StringComparison.Ordinal));
 
                     wim.DeleteImage(deleteIndex);
-                    wim.Overwrite(WriteFlags.DEFAULT, Wim.DefaultThreads);
+                    wim.Overwrite(WriteFlags.None, Wim.DefaultThreads);
 
                     for (int i = 0; i < _checked.Length; i++)
                         _checked[i] = false;
@@ -116,15 +116,14 @@ namespace ManagedWimLib.Tests
 
         #region DeletePath
         [TestMethod]
-        [TestCategory("WimLib")]
         public void DeletePath()
         {
-            DeletePath_Template("XPRESS.wim", "ACDE.txt");
-            DeletePath_Template("LZX.wim", "ABCD");
-            DeletePath_Template("LZMS.wim", "ABDE");
+            DeletePathTemplate("XPRESS.wim", "ACDE.txt");
+            DeletePathTemplate("LZX.wim", "ABCD");
+            DeletePathTemplate("LZMS.wim", "ABDE");
         }
 
-        public void DeletePath_Template(string wimFileName, string deletePath)
+        public void DeletePathTemplate(string wimFileName, string deletePath)
         {
             string srcWim = Path.Combine(TestSetup.SampleDir, wimFileName);
             string destDir = TestHelper.GetTempDir();
@@ -141,26 +140,26 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.WRITE_METADATA_BEGIN:
+                        case ProgressMsg.WriteMetadataBegin:
                             Assert.IsNull(info);
                             _checked[0] = true;
                             break;
-                        case ProgressMsg.WRITE_METADATA_END:
+                        case ProgressMsg.WriteMetadataEnd:
                             Assert.IsNull(info);
                             _checked[1] = true;
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
-                using (Wim wim = Wim.OpenWim(destWim, OpenFlags.WRITE_ACCESS))
+                using (Wim wim = Wim.OpenWim(destWim, OpenFlags.WriteAccess))
                 {
                     wim.RegisterCallback(ProgressCallback);
 
                     Assert.IsTrue(wim.PathExists(1, deletePath));
 
-                    wim.DeletePath(1, deletePath, DeleteFlags.RECURSIVE);
-                    wim.Overwrite(WriteFlags.DEFAULT, Wim.DefaultThreads);
+                    wim.DeletePath(1, deletePath, DeleteFlags.Recursive);
+                    wim.Overwrite(WriteFlags.None, Wim.DefaultThreads);
 
                     Assert.IsTrue(_checked.All(x => x));
 

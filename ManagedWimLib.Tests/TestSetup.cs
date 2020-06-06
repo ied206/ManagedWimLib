@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2019 Hajin Jang
+    Copyright (C) 2017-2020 Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -27,50 +27,36 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Threading;
 
 namespace ManagedWimLib.Tests
 {
+    #region TestSetup
     [TestClass]
-    public class TestSetup
+    public static class TestSetup
     {
-        public static string BaseDir;
-        public static string SampleDir;
+        #region Const
+        public const string WimLib = nameof(WimLib);
+        #endregion
 
+        #region Test Environment
+        public static string BaseDir { get; private set; }
+        public static string SampleDir { get; private set; }
+        public static int PlatformBitness { get; private set; }
+        #endregion
+
+        #region AssemblyInitialize, AssemblyCleanup
         [AssemblyInitialize]
         public static void Init(TestContext context)
         {
+            _ = context;
+
             string absPath = TestHelper.GetProgramAbsolutePath();
             BaseDir = Path.GetFullPath(Path.Combine(absPath, "..", "..", ".."));
             SampleDir = Path.Combine(BaseDir, "Samples");
 
-            string arch = null;
-            switch (RuntimeInformation.OSArchitecture)
-            {
-                case Architecture.X86:
-                    arch = "x86";
-                    break;
-                case Architecture.X64:
-                    arch = "x64";
-                    break;
-                case Architecture.Arm:
-                    arch = "armhf";
-                    break;
-                case Architecture.Arm64:
-                    arch = "arm64";
-                    break;
-            }
-            
-            string libPath = null;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                libPath = Path.Combine(absPath, arch, "libwim-15.dll");
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                libPath = Path.Combine(absPath, arch, "libwim.so");
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                libPath = Path.Combine(absPath, arch, "libwim.dylib");
-
-            if (libPath == null || !File.Exists(libPath))
-                throw new PlatformNotSupportedException();
-
+            string libPath = GetNativeLibPath();
             Wim.GlobalInit(libPath);
         }
 
@@ -79,9 +65,63 @@ namespace ManagedWimLib.Tests
         {
             Wim.GlobalCleanup();
         }
-    }
+        #endregion
 
-    #region Helper
+        #region GetNativeLibPath
+        private static string GetNativeLibPath()
+        {
+            string libDir = string.Empty;
+
+#if !NETFRAMEWORK
+            libDir = "runtimes";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                libDir = Path.Combine(libDir, "win-");
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                libDir = Path.Combine(libDir, "linux-");
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                libDir = Path.Combine(libDir, "osx-");
+#endif
+
+            switch (RuntimeInformation.ProcessArchitecture)
+            {
+                case Architecture.X86:
+                    libDir += "x86";
+                    break;
+                case Architecture.X64:
+                    libDir += "x64";
+                    break;
+                case Architecture.Arm:
+                    libDir += "arm";
+                    break;
+                case Architecture.Arm64:
+                    libDir += "arm64";
+                    break;
+            }
+
+#if !NETFRAMEWORK
+            libDir = Path.Combine(libDir, "native");
+#endif
+
+            string libPath = null;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                libPath = Path.Combine(libDir, "libwim-15.dll");
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                libPath = Path.Combine(libDir, "libwim.so");
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                libPath = Path.Combine(libDir, "libwim.dylib");
+
+            if (libPath == null)
+                throw new PlatformNotSupportedException($"Unable to find native library.");
+            if (!File.Exists(libPath))
+                throw new PlatformNotSupportedException($"Unable to find native library [{libPath}].");
+
+            return libPath;
+        }
+        #endregion
+    }
+    #endregion
+
+    #region TestHelper
     public enum SampleSet
     {
         // TestSet Src01 is created for basic test and compresstion type test
@@ -97,6 +137,148 @@ namespace ManagedWimLib.Tests
 
     public static class TestHelper
     {
+        #region Temp Path
+        private static int _tempPathCounter = 0;
+        private static readonly object TempPathLock = new object();
+        private static readonly RNGCryptoServiceProvider SecureRandom = new RNGCryptoServiceProvider();
+
+        private static FileStream _lockFileStream = null;
+        private static string _baseTempDir = null;
+        public static string BaseTempDir()
+        {
+            lock (TempPathLock)
+            {
+                if (_baseTempDir != null)
+                    return _baseTempDir;
+
+                byte[] randBytes = new byte[4];
+                string systemTempDir = Path.GetTempPath();
+
+                do
+                {
+                    // Get 4B of random 
+                    SecureRandom.GetBytes(randBytes);
+                    uint randInt = BitConverter.ToUInt32(randBytes, 0);
+
+                    _baseTempDir = Path.Combine(systemTempDir, $"PEBakery_{randInt:X8}");
+                }
+                while (Directory.Exists(_baseTempDir) || File.Exists(_baseTempDir));
+
+                // Create base temp directory
+                Directory.CreateDirectory(_baseTempDir);
+
+                // Lock base temp directory
+                string lockFilePath = Path.Combine(_baseTempDir, "f.lock");
+                _lockFileStream = new FileStream(lockFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+
+                return _baseTempDir;
+            }
+        }
+
+        /// <summary>
+        /// Delete BaseTempDir from disk. Call this method before termination of an application.
+        /// </summary>
+        public static void CleanBaseTempDir()
+        {
+            lock (TempPathLock)
+            {
+                if (_baseTempDir == null)
+                    return;
+
+                _lockFileStream?.Dispose();
+
+                if (Directory.Exists(_baseTempDir))
+                    Directory.Delete(_baseTempDir, true);
+                _baseTempDir = null;
+            }
+        }
+
+        /// <summary>
+        /// Create temp directory with synchronization.
+        /// Returned temp directory path is virtually unique per call.
+        /// </summary>
+        /// <remarks>
+        /// Returned temp file path is unique per call unless this method is called uint.MaxValue times.
+        /// </remarks>
+        public static string GetTempDir()
+        {
+            // Never call BaseTempDir in the _tempPathLock, it would cause a deadlock!
+            string baseTempDir = BaseTempDir();
+
+            lock (TempPathLock)
+            {
+                string tempDir;
+                do
+                {
+                    int counter = Interlocked.Increment(ref _tempPathCounter);
+                    tempDir = Path.Combine(baseTempDir, $"d{counter:X8}");
+                }
+                while (Directory.Exists(tempDir) || File.Exists(tempDir));
+
+                Directory.CreateDirectory(tempDir);
+                return tempDir;
+            }
+        }
+
+        /// <summary>
+        /// Create temp file with synchronization.
+        /// Returned temp file path is virtually unique per call.
+        /// </summary>
+        /// <remarks>
+        /// Returned temp file path is unique per call unless this method is called uint.MaxValue times.
+        /// </remarks>
+        public static string GetTempFile(string ext = null)
+        {
+            // Never call BaseTempDir in the _tempPathLock, it would cause a deadlock!
+            string baseTempDir = BaseTempDir();
+
+            // Use tmp by default / Remove '.' from ext
+            ext = ext == null ? "tmp" : ext.Trim('.');
+
+            lock (TempPathLock)
+            {
+                string tempFile;
+                do
+                {
+                    int counter = Interlocked.Increment(ref _tempPathCounter);
+                    tempFile = Path.Combine(baseTempDir, ext.Length == 0 ? $"f{counter:X8}" : $"f{counter:X8}.{ext}");
+                }
+                while (Directory.Exists(tempFile) || File.Exists(tempFile));
+
+                File.Create(tempFile).Dispose();
+                return tempFile;
+            }
+        }
+
+        /// <summary>
+        /// Reserve temp file path with synchronization.
+        /// Returned temp file path is virtually unique per call.
+        /// </summary>
+        /// <remarks>
+        /// Returned temp file path is unique per call unless this method is called uint.MaxValue times.
+        /// </remarks>
+        public static string ReserveTempFile(string ext = null)
+        {
+            // Never call BaseTempDir in the _tempPathLock, it would cause a deadlock!
+            string baseTempDir = BaseTempDir();
+
+            // Use tmp by default / Remove '.' from ext
+            ext = ext == null ? "tmp" : ext.Trim('.');
+
+            lock (TempPathLock)
+            {
+                string tempFile;
+                do
+                {
+                    int counter = Interlocked.Increment(ref _tempPathCounter);
+                    tempFile = Path.Combine(baseTempDir, ext.Length == 0 ? $"f{counter:X8}" : $"f{counter:X8}.{ext}");
+                }
+                while (Directory.Exists(tempFile) || File.Exists(tempFile));
+                return tempFile;
+            }
+        }
+        #endregion
+
         #region File and Path
         public static string GetProgramAbsolutePath()
         {
@@ -104,18 +286,6 @@ namespace ManagedWimLib.Tests
             if (Path.GetDirectoryName(path) != null)
                 path = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             return path;
-        }
-
-        private static readonly object TempDirLock = new object();
-        public static string GetTempDir()
-        {
-            lock (TempDirLock)
-            {
-                string path = Path.GetTempFileName();
-                File.Delete(path);
-                Directory.CreateDirectory(path);
-                return path;
-            }
         }
 
         public static string NormalizePath(string str)
@@ -154,7 +324,7 @@ namespace ManagedWimLib.Tests
             switch (set)
             {
                 case SampleSet.Src01:
-                    using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+                    using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
                     {
                         Assert.IsTrue(wim.DirExists(1, Path.Combine(@"\", "ABCD")));
                         Assert.IsTrue(wim.DirExists(1, Path.Combine(@"\", "ABCD", "Z")));
@@ -178,7 +348,7 @@ namespace ManagedWimLib.Tests
                     }
                     break;
                 case SampleSet.Src02:
-                    using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+                    using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
                     {
                         Assert.IsTrue(wim.DirExists(1, Path.Combine(@"\", "B")));
                         Assert.IsTrue(wim.FileExists(1, Path.Combine(@"\", "A.txt")));
@@ -362,24 +532,24 @@ namespace ManagedWimLib.Tests
         {
             List<Tuple<string, bool>> entries = new List<Tuple<string, bool>>();
 
-            CallbackStatus IterateCallback(DirEntry dentry, object userData)
+            int IterateCallback(DirEntry dentry, object userData)
             {
                 string path = dentry.FullPath;
-                bool isDir = (dentry.Attributes & FileAttribute.DIRECTORY) != 0;
+                bool isDir = (dentry.Attributes & FileAttributes.Directory) != 0;
                 entries.Add(new Tuple<string, bool>(path, isDir));
 
-                return CallbackStatus.CONTINUE;
+                return Wim.IterateCallbackSuccess;
             }
 
-            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+            using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
             {
-                wim.IterateDirTree(1, Wim.RootPath, IterateFlags.RECURSIVE, IterateCallback);
+                wim.IterateDirTree(1, Wim.RootPath, IterateDirTreeFlags.Recursive, IterateCallback);
             }
 
             return entries;
         }
 
-        public class CheckWimPathComparer : IEqualityComparer<Tuple<string, bool>>
+        internal class CheckWimPathComparer : IEqualityComparer<Tuple<string, bool>>
         {
             public bool Equals(Tuple<string, bool> x, Tuple<string, bool> y)
             {

@@ -30,7 +30,7 @@ using System.Linq;
 namespace ManagedWimLib.Tests
 {
     [TestClass]
-    [TestCategory("WimLib")]
+    [TestCategory(TestSetup.WimLib)]
     public class ErrorTests
     {
         [TestMethod]
@@ -62,56 +62,56 @@ namespace ManagedWimLib.Tests
                 {
                     switch (msg)
                     {
-                        case ProgressMsg.EXTRACT_TREE_BEGIN:
+                        case ProgressMsg.ExtractTreeBegin:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[0] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_TREE_END:
+                        case ProgressMsg.ExtractTreeEnd:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[1] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_FILE_STRUCTURE:
+                        case ProgressMsg.ExtractFileStructure:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[2] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_STREAMS:
+                        case ProgressMsg.ExtractStreams:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[3] = true;
                             }
                             break;
-                        case ProgressMsg.EXTRACT_METADATA:
+                        case ProgressMsg.ExtractMetadata:
                             {
-                                ProgressInfo_Extract m = (ProgressInfo_Extract)info;
+                                ExtractProgress m = (ExtractProgress)info;
                                 Assert.IsNotNull(m);
 
                                 _checked[4] = true;
                             }
                             break;
                     }
-                    return CallbackStatus.CONTINUE;
+                    return CallbackStatus.Continue;
                 }
 
                 string wimFile = Path.Combine(TestSetup.SampleDir, fileName);
-                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.DEFAULT))
+                using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))
                 {
                     wim.RegisterCallback(ProgressCallback);
 
-                    wim.ExtractPaths(1, destDir, paths, ExtractFlags.GLOB_PATHS);
+                    wim.ExtractPaths(1, destDir, paths, ExtractFlags.GlobPaths);
                 }
 
                 // The callback must not have been called
