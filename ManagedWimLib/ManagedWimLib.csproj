@@ -6,7 +6,7 @@
     <Title>ManagedWimLib</Title>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <Authors>Eric Biggers, Hajin Jang</Authors>
     <Company>Joveler</Company>
     <Description>Native wimlib wrapper library for .NET.
@@ -18,10 +18,7 @@ Supports Windows, Linux and macOS.</Description>
     <PackageIcon>images\Logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/ied206/ManagedWimLib</RepositoryUrl>
     <PackageReleaseNotes>
-      - Updated included wimlib to 1.13.2.
-      - Native libraries are now placed following [NuGet convention-based working directory](https://docs.microsoft.com/en-US/nuget/create-packages/creating-a-package#create-the-nuspec-file) on .NET Standard build.
-      - Added `Compressor`, `Decompressor` classes.
-      - Redesigned public APIs.
+      - Fixed `ExtractFlags.NopAttributes` typo by renaming into `ExtractFlags.NoAttributes`.
     </PackageReleaseNotes>
     <PackageTags>wim wimlib dism imagex archive native pinvoke interop</PackageTags>
   </PropertyGroup>

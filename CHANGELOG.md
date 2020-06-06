@@ -2,6 +2,12 @@
 
 ## v2.x
 
+### v2.0.1
+
+Released on 2020-06-07
+
+- Fixed `ExtractFlags.NopAttributes` typo by renaming into `ExtractFlags.NoAttributes`.
+
 ### v2.0.0
 
 Released on 2020-06-07
@@ -14,11 +20,13 @@ Released on 2020-06-07
         - Renamed `ProgressInfo_*` structs into `*Progress` classes.
         - Renamed enums to PascalCase style from C_CONST style.
         - Renamed `ChangeFlags.*Flag` into `ChangeFlags.*`.
+        - Renamed `*.Default` enum into `*.None`.
     - Renamed `ProgressInfo_*` structs into `*Progress` classes.
     - Rewrote progress callback strcuts into classes to improve callback performance.
     - Rewrote iterate functions and their callbacks.
         - Renamed `IterateFlags` into `IterateDirTreeFlags`.
         - Reserve `IterateLookupTableFlags` to used in `Wim.IterateLookupTable()`.
+        - `IterateDirTreeCallback` now returns int instead of `CallbackStatus`. A callback must `Wim.IterateCallbackSuccess` on success, or an `ErrorCode` on error.
     - Added `InitFlags` and overloads of `GlobalInit()`.
     - Replaced `ManagedWimLib.FileAttribute` with standard [System.IO.FileAttributes](https://docs.microsoft.com/en-US/dotnet/api/system.io.fileattributes).
     - Removed `Wim.PathSeparator`, use of standard [Path.DirectorySeparatorChar](https://docs.microsoft.com/en-us/dotnet/api/system.io.path.directoryseparatorchar) is recommended.
