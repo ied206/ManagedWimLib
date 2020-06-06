@@ -4,7 +4,7 @@
 
 ### v2.0.0
 
-Released on 2020-05-20
+Released on 2020-06-07
 
 - Updated included wimlib to 1.13.2.
 - Native libraries are now placed following [NuGet convention-based working directory](https://docs.microsoft.com/en-US/nuget/create-packages/creating-a-package#create-the-nuspec-file) on .NET Standard build.
