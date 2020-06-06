@@ -41,8 +41,6 @@ namespace ManagedWimLib.Compressors
         #region Constructor (private)
         private Compressor(IntPtr ptr)
         {
-            Manager.EnsureLoaded();
-
             _ptr = ptr;
         }
         #endregion

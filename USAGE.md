@@ -2,9 +2,9 @@
 
 ## Initialization
 
-ManagedWimLib requires explicit loading of a wimlib library.
+ManagedWimLib requires the explicit loading of a wimlib library.
 
-You must call  `Wim.GlobalInit()` before using `ManagedWimLib`. Please put this code snippet in your application init code:
+You must call `Wim.GlobalInit()` before using `ManagedWimLib`. Please put this code snippet in your application init code:
 
 #### For .NET Framework 4.5.1+
 
@@ -96,7 +96,7 @@ ManagedWimLib comes with sets of binaries of `wimlib 1.13.2`. They will be copie
 | Windows x86      | `$(OutDir)\x86\libwim-15.dll` | LGPLv3  |
 | Windows x64      | `$(OutDir)\x64\libwim-15.dll` | LGPLv3  |
 
-- Create an empty file named `ManagedWimLib.Precompiled.Exclude` in the project directory to prevent copy of the package-embedded binary.
+- Create an empty file named `ManagedWimLib.Precompiled.Exclude` in the project directory to prevent a copy of the package-embedded binary.
 
 #### For .NET Standard 2.0+
 
@@ -110,7 +110,7 @@ ManagedWimLib comes with sets of binaries of `wimlib 1.13.2`. They will be copie
 | macOS 10.15      | `$(OutDir)\runtimes\osx-x64\libwim.dylib`  | LGPLv3 (w/o NTFS-3G) |
 
 - If you call `Wim.GlobalInit()` without `libPath` parameter on Linux or macOS, `ManagedWimLib` will search for system-installed wimlib.
-  - I recommend to use system-installed wimlib if you can, as I cannot ensure the included Linux binaries works on the every Linux distribution.
+  - I recommend using system-installed wimlib if you can, as I cannot ensure the included Linux binaries work on every Linux distribution.
 - POSIX binaries were compiled without NTFS-3G support to make them as LGPLv3-licensed.
   - If you want NTFS-3G functionality, load the system-installed library and make sure your program is compatible with **GPLv3**.
   - On Linux, wimlib depends on system-installed `libfuse`.
@@ -119,8 +119,8 @@ ManagedWimLib comes with sets of binaries of `wimlib 1.13.2`. They will be copie
 
 | Platform         | Binary Source / Build Command | Dependency |
 |------------------|-------------------------------|------------|
-| Windows x86      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.1-windows-i686-bin.zip)   | -               |
-| Windows x64      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.1-windows-x86_64-bin.zip) | -               |
+| Windows x86      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.2-windows-i686-bin.zip)   | -               |
+| Windows x64      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.2-windows-x86_64-bin.zip) | -               |
 | Ubuntu 18.04 x64 | libxml2: `./configure --enable-static CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
 |                  | libwim: `./configure --disable-static --without-libcrypto --without-ntfs-3g --enable-ssse3-sha1` | glibc, libfuse |
 | Debian 10 armhf  | libxml2: `./configure --enable-static CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
@@ -136,16 +136,14 @@ To use custom wimlib binary instead, call `Wim.GlobalInit()` with a path to the 
 
 ### Cleanup
 
-To unload wimlib library explicitly, call `Wim.GlobalCleanup()`.
+To unload the wimlib library explicitly, call `Wim.GlobalCleanup()`.
 
 ## API
 
-ManagedWimLib provides sets of APIs match to its original.
-
-Most of the use cases follow this flow.
+ManagedWimLib provides sets of APIs matched to its original. Most of the use cases follow this flow:
 
 1. Create Wim instance with `Wim.OpenWim()`
-2. Do your job by calling API of your interest.
+2. Do your job by calling APIs of your interest.
 3. Cleanup Wim instance with the Disposable pattern.
 
 [ManagedWimLib.Tests](./ManagedWimLib.Tests) provides a lot of examples of how to use ManagedWimLib.

@@ -680,28 +680,34 @@ namespace ManagedWimLib
         /// Return the version of wimlib as a Version instance.
         /// Major, Minor and Build (Patch) properties will be populated.
         /// </summary>
-        public static Version GetVersion()
+        public static Version Version
         {
-            Manager.EnsureLoaded();
+            get
+            {
+                Manager.EnsureLoaded();
 
-            uint dword = Lib.GetVersion();
-            ushort major = (ushort)(dword >> 20);
-            ushort minor = (ushort)((dword % (1 << 20)) >> 10);
-            ushort patch = (ushort)(dword % (1 << 10));
+                uint dword = Lib.GetVersion();
+                ushort major = (ushort)(dword >> 20);
+                ushort minor = (ushort)((dword % (1 << 20)) >> 10);
+                ushort patch = (ushort)(dword % (1 << 10));
 
-            return new Version(major, minor, patch);
+                return new Version(major, minor, patch);
+            }
         }
 
         /// <summary>
-        /// Since wimlib v1.13.0: like <see cref="GetVersion"/>, but returns the full PACKAGE_VERSION string that was set at build time.
+        /// Since wimlib v1.13.0: like <see cref="Version"/>, but returns the full PACKAGE_VERSION string that was set at build time.
         /// (This allows a beta release to be distinguished from an official release.)
         /// </summary>
-        public static string GetVersionString()
+        public static string VersionStr
         {
-            Manager.EnsureLoaded();
+            get
+            {
+                Manager.EnsureLoaded();
 
-            IntPtr ptr = Lib.GetVersionString();
-            return Lib.PtrToStringAuto(ptr);
+                IntPtr ptr = Lib.GetVersionString();
+                return Lib.PtrToStringAuto(ptr);
+            }
         }
         #endregion
 

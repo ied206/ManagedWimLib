@@ -34,11 +34,11 @@ namespace ManagedWimLib.Tests
         [TestMethod]
         public void GetVersion()
         {
-            Version ver = Wim.GetVersion();
-            Console.WriteLine($"Wim.GetVersion: {ver}");
+            Version ver = Wim.Version;
+            Console.WriteLine($"Wim.Version: {ver}");
 
-            string str = Wim.GetVersionString();
-            Console.WriteLine($"Wim.GetVersionString: {str}");
+            string str = Wim.VersionStr;
+            Console.WriteLine($"Wim.VersionStr: {str}");
         }
         #endregion
     }

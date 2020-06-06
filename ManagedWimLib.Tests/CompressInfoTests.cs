@@ -23,9 +23,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace ManagedWimLib.Tests
 {
@@ -120,7 +117,7 @@ namespace ManagedWimLib.Tests
                 {
                     Console.WriteLine($"{msg} = (Intended) Error");
                     Assert.AreEqual(0uL, requiredMemory);
-                }                
+                }
             }
 
             switch (TestSetup.PlatformBitness)

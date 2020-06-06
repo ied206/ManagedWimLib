@@ -69,7 +69,7 @@ if [[ $? -ne 0 ]]; then # Unable to find nasm
     exit 1
 fi
 
-# Preapre wimlib compiling
+# Prepare to compiled wimlib
 # Turn on SSSE3 asm optimization on x64 build
 if [ "${ARCH}" = "x86_64" ]; then
     EXTRA_ARGS="--enable-ssse3-sha1"

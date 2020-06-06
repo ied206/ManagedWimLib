@@ -1265,7 +1265,7 @@ namespace ManagedWimLib
 
     #region enum CompressorFlags
     [Flags]
-    public enum CompressorFlags: uint
+    public enum CompressorFlags : uint
     {
         None = 0x0,
         Destructive = 0x80000000,
@@ -2080,7 +2080,7 @@ namespace ManagedWimLib
         private IntPtr _dosNamePtr;
         /// <summary>
         /// Full path to this file within the image.
-        /// Path separators will be Wim.PathSeparator.
+        /// Path separators will be <see cref="Path.DirectorySeparatorChar"/>.
         /// </summary>
         public string FullPath => Wim.Lib.PtrToStringAuto(_fullPathPtr);
         private IntPtr _fullPathPtr;
@@ -2220,7 +2220,7 @@ namespace ManagedWimLib
         public string DosName;
         /// <summary>
         /// Full path to this file within the image.
-        /// Path separators will be Wim.PathSeparator.
+        /// Path separators will be <see cref="Path.DirectorySeparatorChar"/>.
         /// </summary>
         public string FullPath;
         /// <summary>

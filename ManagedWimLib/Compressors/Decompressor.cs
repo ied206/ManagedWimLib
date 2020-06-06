@@ -22,7 +22,6 @@
 */
 
 using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace ManagedWimLib.Compressors
@@ -41,8 +40,6 @@ namespace ManagedWimLib.Compressors
         #region Constructor (private)
         private Decompressor(IntPtr ptr)
         {
-            Manager.EnsureLoaded();
-
             _ptr = ptr;
         }
         #endregion

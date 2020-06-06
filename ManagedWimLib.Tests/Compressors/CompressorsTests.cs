@@ -35,7 +35,7 @@ namespace ManagedWimLib.Tests.Compressors
 {
     [TestClass]
     [TestCategory(TestSetup.WimLib)]
-    public class CompressorTests
+    public class CompressorsTests
     {
         [TestMethod]
         public void CompressDecompress()

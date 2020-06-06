@@ -39,7 +39,7 @@ If you need .NET Framework 4.5 support, use [1.1.x version](https://www.nuget.or
 | Windows  | x86          | Yes    |
 |          | x64          | Yes    |
 | Linux    | x64          | Yes    |
-|          | armhf        | Yes    |
+|          | arm          | Yes    |
 |          | arm64        | Yes    |
 | macOS    | x64          | Yes    |
 
@@ -48,7 +48,7 @@ If you need .NET Framework 4.5 support, use [1.1.x version](https://www.nuget.or
 | Architecture | Distribution | Note |
 |--------------|--------------|------|
 | x64          | Ubuntu 18.04 | Tested on AppVeyor CI         |
-| armhf        | Debian 10    | Emulated on QEMU's virt board |
+| arm          | Debian 10    | Emulated on QEMU's virt board |
 | arm64        | Debian 10    | Emulated on QEMU's virt board |
 
 ### Supported wimlib version
