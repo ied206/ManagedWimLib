@@ -12,12 +12,17 @@
     <Description>Native wimlib wrapper library for .NET.
 Provides every capabilities of wimlib.
 Supports Windows, Linux and macOS.</Description>
-    <Copyright>Copyright (c) 2018-220 Hajin Jang</Copyright>
+    <Copyright>Copyright (c) 2018-2020 Hajin Jang</Copyright>
     <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
     <PackageIcon>images\Logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/ied206/ManagedWimLib</RepositoryUrl>
-    <PackageReleaseNotes>- Improve RHEL/CentOS compatibility</PackageReleaseNotes>
+    <PackageReleaseNotes>
+      - Updated included wimlib to 1.13.2.
+      - Native libraries are now placed following [NuGet convention-based working directory](https://docs.microsoft.com/en-US/nuget/create-packages/creating-a-package#create-the-nuspec-file) on .NET Standard build.
+      - Added `Compressor`, `Decompressor` classes.
+      - Redesigned public APIs.
+    </PackageReleaseNotes>
     <PackageTags>wim wimlib dism imagex archive native pinvoke interop</PackageTags>
   </PropertyGroup>
   <!-- PackageReference -->
