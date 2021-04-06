@@ -3,6 +3,7 @@
 
 # Joveler-specific Resoures
 res/
+native/windows/build-*/
 *.db
 
 # User-specific files

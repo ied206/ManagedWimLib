@@ -28,6 +28,5 @@ namespace ManagedWimLib
         protected override string ErrorMsgAlreadyLoaded => "ManagedWimLib is already initialized.";
 
         protected override WimLibLoader CreateLoader() => new WimLibLoader();
-        protected override WimLibLoader CreateLoader(string libPath) => new WimLibLoader(libPath);
     }
 }
