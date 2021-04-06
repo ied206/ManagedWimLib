@@ -24,8 +24,8 @@ Supports Windows, Linux and macOS.</Description>
   </PropertyGroup>
   <!-- PackageReference -->
   <ItemGroup>
-    <PackageReference Include="Joveler.DynLoader" Version="2.0.0" />
-    <PackageReference Include="System.Memory" Version="4.5.4" Condition=" '$(TargetFramework)' == 'net451' or '$(TargetFramework)' == 'netstandard2.0' "/>
+    <PackageReference Include="Joveler.DynLoader" Version="2.1.0" />
+    <PackageReference Include="System.Memory" Version="4.5.4" Condition=" '$(TargetFramework)' == 'net451' or '$(TargetFramework)' == 'netstandard2.0' " />
   </ItemGroup>
   <!-- Native Library for .NET Framework 4.5.1 -->
   <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
@@ -72,16 +72,16 @@ Supports Windows, Linux and macOS.</Description>
   <!-- NuGet Pacakge -->
   <ItemGroup>
     <!-- Build Script for .NET Framework -->
-    <None Include="ManagedWimLib.netfx.targets" Pack="true" PackagePath="build\net451\ManagedWimLib.targets"/>
+    <None Include="ManagedWimLib.netfx.targets" Pack="true" PackagePath="build\net451\ManagedWimLib.targets" />
     <!-- NuGet Pacakge Icon -->
-    <None Include="..\Image\Logo.png"         Pack="true" PackagePath="images\Logo.png" />
+    <None Include="..\Image\Logo.png" Pack="true" PackagePath="images\Logo.png" />
     <!-- Native Library -->
-    <None Include="runtimes\win-x86\native\*.dll"    Pack="true" PackagePath="runtimes\win-x86\native"/>
-    <None Include="runtimes\win-x64\native\*.dll"    Pack="true" PackagePath="runtimes\win-x64\native"/>
-    <None Include="runtimes\win-arm64\native\*.dll"  Pack="true" PackagePath="runtimes\win-arm64\native"/>
-    <None Include="runtimes\linux-x64\native\*.so"   Pack="true" PackagePath="runtimes\linux-x64\native"/>
-    <None Include="runtimes\linux-arm\native\*.so"   Pack="true" PackagePath="runtimes\linux-arm\native"/>
-    <None Include="runtimes\linux-arm64\native\*.so" Pack="true" PackagePath="runtimes\linux-arm64\native"/>
-    <None Include="runtimes\osx-x64\native\*.dylib"  Pack="true" PackagePath="runtimes\osx-x64\native"/>
+    <None Include="runtimes\win-x86\native\*.dll" Pack="true" PackagePath="runtimes\win-x86\native" />
+    <None Include="runtimes\win-x64\native\*.dll" Pack="true" PackagePath="runtimes\win-x64\native" />
+    <None Include="runtimes\win-arm64\native\*.dll" Pack="true" PackagePath="runtimes\win-arm64\native" />
+    <None Include="runtimes\linux-x64\native\*.so" Pack="true" PackagePath="runtimes\linux-x64\native" />
+    <None Include="runtimes\linux-arm\native\*.so" Pack="true" PackagePath="runtimes\linux-arm\native" />
+    <None Include="runtimes\linux-arm64\native\*.so" Pack="true" PackagePath="runtimes\linux-arm64\native" />
+    <None Include="runtimes\osx-x64\native\*.dylib" Pack="true" PackagePath="runtimes\osx-x64\native" />
   </ItemGroup>
 </Project>
