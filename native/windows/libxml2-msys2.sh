@@ -61,6 +61,7 @@ mkdir "${LIB_PREFIX}"
 # Adapted from https://wimlib.net/git/?p=wimlib;a=tree;f=tools/windeps/Makefile;
 pushd "${SRCDIR}" > /dev/null
 make clean
+autoreconf -f -i
 ./configure --host=${TARGET_TRIPLE} \
     --with-minimum --with-tree --with-writer \
     --with-zlib=no --with-lzma=no --with-iconv=no \

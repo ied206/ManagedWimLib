@@ -74,7 +74,7 @@ if ! [[ -s "${PKGCONF_DIR}/libxml-2.0.pc" ]]; then
     exit 1
 fi
 
-# Required dependencies: nasm
+# Required dependencies: nasm (x86_64 only)
 # MSYS2: pacman -S nasm
 which nasm > /dev/null
 if [[ $? -ne 0 ]]; then # Unable to find nasm
@@ -83,29 +83,40 @@ if [[ $? -ne 0 ]]; then # Unable to find nasm
     exit 1
 fi
 
+# Let custom toolchain is called first in PATH
+if ! [[ -z "${TOOLCHAIN_DIR}" ]]; then
+    export PATH=${TOOLCHAIN_DIR}/bin:${PATH}
+fi
+
 # Compile wimlib
 # Adapted from https://wimlib.net/git/?p=wimlib;a=tree;f=tools/make-windows-release;
 pushd "${SRCDIR}" > /dev/null
 make clean
 # ./configure --host=${TARGET_TRIPLE} --disable-static \
 ./configure --host=${TARGET_TRIPLE} \
+    CFLAGS="-static-libgcc" \
     CPPFLAGS="-I${LIB_PREFIX}/include" LDFLAGS="-L${LIB_PREFIX}/lib" PKG_CONFIG_PATH="${PKGCONF_DIR}" \
     --without-libcrypto --without-ntfs-3g --without-fuse \
     ${EXTRA_ARGS}
 make -j${CORES}
-cp ".libs/${DEST_LIB}" "${DEST_DIR}/${DEST_LIB}"
+cp ".libs/${DEST_LIB}" "${DEST_DIR}"
 popd > /dev/null
-#LIBXML2_CFLAGS="-I${LIB_PREFIX}/include/libxml2" \
-#LIBXML2_LIBS="-L${LIB_PREFIX}/lib -lxml2" \
+#LIBXML2_CFLAGS="-I${LIB_PREFIX}/include" \
+#LIBXML2_LIBS="-L${LIB_PREFIX}/lib" \
 
-# Strip a binary
+# Copy dependecies
+cp "${LIB_PREFIX}/bin/libxml2-2.dll" "${DEST_DIR}"
+
+# Strip binaries
 pushd "${DEST_DIR}" > /dev/null
-ls -lh "${DEST_LIB}"
-${STRIP} "${DEST_LIB}"
-ls -lh "${DEST_LIB}"
+ls -lh *.dll
+${STRIP} *.dll
+ls -lh *.dll
 popd > /dev/null
 
-# Check dependency of a binary
+# Check dependency of binaries
 pushd "${DEST_DIR}" > /dev/null
-${CHECKDEP} "${DEST_LIB}"
+${CHECKDEP} *.dll
 popd > /dev/null
+
+echo "Collect [libwinpthread-1.dll] from your toolchain!"
