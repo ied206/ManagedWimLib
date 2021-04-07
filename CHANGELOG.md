@@ -2,6 +2,14 @@
 
 ## v2.x
 
+### v2.1.0
+
+Released on 2021-04-08
+
+- Update inlcuded wimlib to 1.13.3.
+    - Better support for WIM referencing, as 1.13.3 fixs critical bug which crashes wimlib on debug mode.
+- Official support for Windows ARM64.
+
 ### v2.0.1
 
 Released on 2020-06-07

@@ -21,8 +21,6 @@
     along with this file; if not, see http://www.gnu.org/licenses/.
 */
 
-#define NATIVE_REF_RSRC_FILES_GLOBS
-
 using Joveler.DynLoader;
 using System;
 using System.Collections.Generic;
@@ -1152,40 +1150,12 @@ namespace ManagedWimLib
             if (resourceWimFileOrGlobs == null)
                 throw new ArgumentNullException(nameof(resourceWimFileOrGlobs));
 
-#if NATIVE_REF_RSRC_FILES_GLOBS
+            // Old ManagedWimLib had been using a hack which emulates GLOBing by converting wildcard to list of actual files before calling wimlib.
+            // If ReferenceResourceFiles() is called with RefFlags.GlobEnable | RefFlags.GlobErrOnNoMatch in DEBUG mode on Windows, SEHException had raised.
+            // But the hack is no longer necessary starting from wimlib 1.13.3.
+            // Ref: wimlib 1.13.3 release note(https://wimlib.net/forums/viewtopic.php?f=1&t=543)
             string[] resources = new string[1] { resourceWimFileOrGlobs };
             ErrorCode ret = Lib.ReferenceResourceFiles(_ptr, resources, 1u, refFlags, openFlags);
-#else
-            // TODO: [Dirty Hack to resolve SEHException]
-            // If wimlib_reference_resource_files() is called with RefFlags.GLOB_ENABLE | RefFlags.GLOB_ERR_ON_NOMATCH,
-            // SEHException is raised ONLY IN DEBUG MODE.
-            // So as a dirty hack, emulate GLOBing by converting wildcard to list of actual files before calling wimlib.
-            List<string> resources = new List<string>();
-            string dirPath = Path.GetDirectoryName(resourceWimFileOrGlobs);
-            string wildcard = Path.GetFileName(resourceWimFileOrGlobs);
-
-            if (dirPath == null)
-                dirPath = @"\";
-            if (dirPath.Length == 0)
-                dirPath = ".";
-
-            if ((refFlags & RefFlags.GlobEnable) != 0 && wildcard.IndexOfAny(new[] { '*', '?' }) != -1)
-            { // Contains Wildcard
-                string removeAsterisk = StringHelper.ReplaceEx(resourceWimFileOrGlobs, "*", string.Empty, StringComparison.Ordinal);
-                var files = Directory.EnumerateFiles(dirPath, wildcard, SearchOption.AllDirectories);
-                resources.AddRange(files.Where(x => !x.Equals(removeAsterisk, StringComparison.OrdinalIgnoreCase)));
-            }
-            else
-            {
-                resources.Add(resourceWimFileOrGlobs);
-            }
-
-            if (resources.Count == 0 &&
-                (refFlags & RefFlags.GlobEnable) != 0 && (refFlags & RefFlags.GlobErrOnNoMatch) != 0)
-                throw new WimException(ErrorCode.GlobHadNoMatches);
-
-            ErrorCode ret = Lib.ReferenceResourceFiles(_ptr, resources.ToArray(), (uint)resources.Count, RefFlags.None, openFlags);
-#endif
             WimLibException.CheckErrorCode(ret);
         }
 
@@ -1214,41 +1184,11 @@ namespace ManagedWimLib
         /// <exception cref="WimLibException">wimlib did not return <see cref="ErrorCode.Success"/>.</exception>
         public void ReferenceResourceFiles(IEnumerable<string> resourceWimFileOrGlobs, RefFlags refFlags, OpenFlags openFlags)
         {
-#if NATIVE_REF_RSRC_FILES_GLOBS
+            // Old ManagedWimLib had been using a hack which emulates GLOBing by converting wildcard to list of actual files before calling wimlib.
+            // If ReferenceResourceFiles() is called with RefFlags.GlobEnable | RefFlags.GlobErrOnNoMatch in DEBUG mode on Windows, SEHException had raised.
+            // But the hack is no longer necessary starting from wimlib 1.13.3.
+            // Ref: wimlib 1.13.3 release note(https://wimlib.net/forums/viewtopic.php?f=1&t=543)
             ErrorCode ret = Lib.ReferenceResourceFiles(_ptr, resourceWimFileOrGlobs.ToArray(), (uint)resourceWimFileOrGlobs.Count(), refFlags, openFlags);
-#else
-            // [Dirty Hack to resolve SEHException]
-            // If wimlib_reference_resource_files() is called with RefFlags.GLOB_ENABLE | RefFlags.GLOB_ERR_ON_NOMATCH,
-            // SEHException is raised ONLY IN DEBUG MODE.
-            // So as a dirty hack, emulate GLOBing by converting wildcard to list of actual files before calling wimlib.
-            List<string> resources = new List<string>();
-            foreach (string f in resourceWimFileOrGlobs)
-            {
-                if (f == null)
-                    throw new ArgumentNullException(nameof(resourceWimFileOrGlobs));
-
-                string dirPath = Path.GetDirectoryName(f);
-                string wildcard = Path.GetFileName(f);
-                if (dirPath == null) dirPath = @"\";
-                if (dirPath.Length == 0) dirPath = ".";
-                if ((refFlags & RefFlags.GlobEnable) != 0 && wildcard.IndexOfAny(new[] { '*', '?' }) != -1)
-                { // Contains Wildcard
-                    string removeAsterisk = StringHelper.ReplaceEx(f, "*", string.Empty, StringComparison.Ordinal);
-                    var files = Directory.EnumerateFiles(dirPath, wildcard, SearchOption.AllDirectories);
-                    resources.AddRange(files.Where(x => !x.Equals(removeAsterisk, StringComparison.OrdinalIgnoreCase)));
-                }
-                else
-                {
-                    resources.Add(f);
-                }
-            }
-
-            if (resources.Count == 0 &&
-                (refFlags & RefFlags.GlobEnable) != 0 && (refFlags & RefFlags.GlobErrOnNoMatch) != 0)
-                throw new WimException(ErrorCode.GlobHadNoMatches);
-
-            ErrorCode ret = Lib.ReferenceResourceFiles(_ptr, resources.ToArray(), (uint)resources.Count, RefFlags.None, openFlags);
-#endif
             WimLibException.CheckErrorCode(ret);
         }
 
