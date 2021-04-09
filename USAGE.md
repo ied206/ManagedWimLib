@@ -87,7 +87,7 @@ public static void InitNativeLibrary()
 
 ### Embedded binary
 
-ManagedWimLib comes with sets of binaries of `wimlib 1.13.2`. They will be copied into the build directory at build time.
+ManagedWimLib comes with sets of binaries of `wimlib 1.13.3`. They will be copied into the build directory at build time.
 
 #### For .NET Framework 4.5.1+
 
@@ -100,35 +100,33 @@ ManagedWimLib comes with sets of binaries of `wimlib 1.13.2`. They will be copie
 
 #### For .NET Standard 2.0+
 
-| Platform         | Binary                                     | License              |
-|------------------|--------------------------------------------|----------------------|
-| Windows x86      | `$(OutDir)\runtimes\win-x86\libwim-15.dll` | LGPLv3               |
-| Windows x64      | `$(OutDir)\runtimes\win-x64\libwim-15.dll` | LGPLv3               |
-| Ubuntu 18.04 x64 | `$(OutDir)\runtimes\linux-x64\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
-| Debian 10 armhf  | `$(OutDir)\runtimes\linux-arm\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
-| Debian 10 arm64  | `$(OutDir)\runtimes\linux-arm64\libwim.so` | LGPLv3 (w/o NTFS-3G) |
-| macOS 10.15      | `$(OutDir)\runtimes\osx-x64\libwim.dylib`  | LGPLv3 (w/o NTFS-3G) |
+| Platform          | Binary                                              | License              |
+|-------------------|-----------------------------------------------------|----------------------|
+| Windows x86       | `$(OutDir)\runtimes\win-x86\native\libwim-15.dll`   | LGPLv3               |
+| Windows x64       | `$(OutDir)\runtimes\win-x64\native\libwim-15.dll`   | LGPLv3               |
+| Windows arm64     | `$(OutDir)\runtimes\win-arm64\native\libwim-15.dll` | LGPLv3               |
+| Ubuntu 18.04 x64  | `$(OutDir)\runtimes\linux-x64\native\libwim.so`     | LGPLv3 (w/o NTFS-3G) |
+| Debian 10 armhf   | `$(OutDir)\runtimes\linux-arm\native\libwim.so`     | LGPLv3 (w/o NTFS-3G) |
+| Debian 10 arm64   | `$(OutDir)\runtimes\linux-arm64\native\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
+| macOS 10.15 x64   | `$(OutDir)\runtimes\osx-x64\native\libwim.dylib`    | LGPLv3 (w/o NTFS-3G) |
 
-- If you call `Wim.GlobalInit()` without `libPath` parameter on Linux or macOS, `ManagedWimLib` will search for system-installed wimlib.
-  - I recommend using system-installed wimlib if you can, as I cannot ensure the included Linux binaries work on every Linux distribution.
+- Linux binaries are not portable. Included binaires may not work on your distribution.
+    - On Linux, wimlib depends on system-installed `libfuse`.
+- If you call `Wim.GlobalInit()` without `libPath` parameter on Linux or macOS, `ManagedWimLib` will search for system-installed wimlib.    
 - POSIX binaries were compiled without NTFS-3G support to make them as LGPLv3-licensed.
-  - If you want NTFS-3G functionality, load the system-installed library and make sure your program is compatible with **GPLv3**.
-  - On Linux, wimlib depends on system-installed `libfuse`.
+    - If you want NTFS-3G functionality, load the system-installed library and make sure your program is compatible with **GPLv3**.
 
 #### Build Command
 
-| Platform         | Binary Source / Build Command | Dependency |
-|------------------|-------------------------------|------------|
-| Windows x86      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.2-windows-i686-bin.zip)   | -               |
-| Windows x64      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.2-windows-x86_64-bin.zip) | -               |
-| Ubuntu 18.04 x64 | libxml2: `./configure --enable-static CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
-|                  | libwim: `./configure --disable-static --without-libcrypto --without-ntfs-3g --enable-ssse3-sha1` | glibc, libfuse |
-| Debian 10 armhf  | libxml2: `./configure --enable-static CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
-|                  | libwim: `./configure --disable-static --without-libcrypto --without-ntfs-3g` | glibc, libfuse |
-| Debian 10 arm64  | libxml2: `./configure --enable-static CFLAGS="-Os -fPIC" --with-minimum --without-lzma --with-tree --with-writer` | (static linked) |
-|                  | libwim: `./configure --disable-static --without-libcrypto --without-ntfs-3g` | glibc, libfuse |
-| macOS 10.15      | libxml2: `./configure --enable-static CFLAGS="-Os" --with-minimum --without-lzma --with-tree --with-writer` (static linked) | - |
-|                  | libwim: `./configure --disable-static --without-libcrypto --without-ntfs-3g --without-fuse --enable-ssse3-sha1` | - |
+| Platform         | Binary Source                                                                         | Dependency      |
+|------------------|---------------------------------------------------------------------------------------|-----------------|
+| Windows x86      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.3-windows-i686-bin.zip)   | -               |
+| Windows x64      | [Official Release](https://wimlib.net/downloads/wimlib-1.13.3-windows-x86_64-bin.zip) | -               |
+| Windows arm64    | Compile with MSYS2 and llvm-mingw                                                     | -               |
+| Ubuntu 18.04 x64 | Compile with libxml2 dependency                                                       | libfuse         |
+| Debian 10 armhf  | Compile with libxml2 dependency                                                       | libfuse         |
+| Debian 10 arm64  | Compile with libxml2 dependency                                                       | libfuse         |
+| macOS 10.15      | Compile with libxml2 dependency                                                       | -               |
 
 ### Custom binary
 

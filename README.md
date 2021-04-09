@@ -6,7 +6,7 @@
 
 Cross-platform [wimlib](https://wimlib.net) pinvoke library for .NET.
 
-[wimlib](https://wimlib.net) is a library that handles Windows Imaging (WIM) archives, written by Eric Biggers.
+[wimlib](https://wimlib.net) is a library that handles Windows Imaging (WIM) archives, written by [Eric Biggers](https://github.com/ebiggers).
 
 | CI Server       | Branch  | Build Status   |
 |-----------------|---------|----------------|
@@ -38,6 +38,7 @@ If you need .NET Framework 4.5 support, use [1.1.x version](https://www.nuget.or
 |----------|--------------|--------|
 | Windows  | x86          | Yes    |
 |          | x64          | Yes    |
+|          | arm64        | Yes    |
 | Linux    | x64          | Yes    |
 |          | arm          | Yes    |
 |          | arm64        | Yes    |
@@ -53,9 +54,7 @@ If you need .NET Framework 4.5 support, use [1.1.x version](https://www.nuget.or
 
 ### Supported wimlib version
 
-- 1.13.0
-- 1.13.1
-- 1.13.2 (Included)
+- 1.13.3 (Included)
 
 ## Usage
 
