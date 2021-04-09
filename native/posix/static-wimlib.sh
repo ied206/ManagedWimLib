@@ -60,15 +60,17 @@ fi
 # Required dependencies
 # Debian/Ubuntu: sudo apt install libfuse-dev nasm pkg-config
 # macOS:         brew install nasm
-which nasm > /dev/null
-if [[ $? -ne 0 ]]; then # Unable to find nasm
-    echo "Please install nasm!" >&2
-    if [ "${OS}" = Linux ]; then 
-        echo "Run \"sudo apt install nasm\"." >&2
-    elif [ "${OS}" = Darwin ]; then 
-        echo "Run \"brew install nasm\"." >&2
+if [ "${ARCH}" = "x86_64" ]; then
+    which nasm > /dev/null
+    if [[ $? -ne 0 ]]; then # Unable to find nasm
+        echo "Please install nasm!" >&2
+        if [ "${OS}" = Linux ]; then 
+            echo "Run \"sudo apt install nasm\"." >&2
+        elif [ "${OS}" = Darwin ]; then 
+            echo "Run \"brew install nasm\"." >&2
+        fi
+        exit 1
     fi
-    exit 1
 fi
 
 which pkg-config > /dev/null
@@ -80,17 +82,17 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-mkdir -p "${DEST_DIR}"
-
 # Prepare to compiled wimlib
 # Turn on SSSE3 asm optimization on x64 build
 if [ "${ARCH}" = "x86_64" ]; then
     EXTRA_ARGS="--enable-ssse3-sha1"
 fi
-## Turn off fuse on macOS build
-#if [ "${OS}" = Darwin ]; then 
-#    EXTRA_ARGS="${EXTRA_ARGS} --without-fuse"
-#fi
+# Turn off fuse on macOS build
+if [ "${OS}" = Darwin ]; then 
+    EXTRA_ARGS="${EXTRA_ARGS} --without-fuse"
+fi
+
+mkdir -p "${DEST_DIR}"
 
 # Compile wimlib
 # Adapted from https://wimlib.net/git/?p=wimlib;a=tree;f=tools/make-windows-release;
