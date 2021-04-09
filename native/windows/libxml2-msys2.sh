@@ -1,5 +1,5 @@
 #!/bin/bash
-# static_libxml.sh: compile static libxml
+# libxml2-msys2.sh: compile static libxml
 
 # Check script arguments
 while getopts "a:t:" opt; do

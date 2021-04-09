@@ -1,10 +1,10 @@
-# Compile libwim-15.dll for ARM64
+# Compile libwim-15.dll for Windows ARM64
 
 Use MSYS2 and llvm-mingw to compile ARM64 wimlib dll.
 
 ## Status
 
-- `libwim-15.dll` is compilable with a bit of patches.
+- `libwim-15.dll` is compilable with a bit of a patch.
 - `ld.lld` fails to link `wimlib-imagex.exe`.
 
 ## Required Tools
@@ -17,10 +17,10 @@ Use MSYS2 and llvm-mingw to compile ARM64 wimlib dll.
 
 ## Required Sources
 
-- [wimlib](https://wimlib.net/downloads/index.html): Tested with 1.13.3.
 - [libxml2](http://www.xmlsoft.org/downloads.html): Tested with 2.9.10.
+- [wimlib](https://wimlib.net/downloads/index.html): Tested with 1.13.3.
 
-## Manual
+## Build Manual
 
 1. Extract the `libxml2` and `wimlib` source code.
 1. Open MSYS2 MinGW 64bit shell.
@@ -53,11 +53,11 @@ Use MSYS2 and llvm-mingw to compile ARM64 wimlib dll.
     ```
 1. Copy `$LLVM_MINGW/aarch64-w64-mingw32/bin/libwinpthreads-1.dll` to `build-bin-<arch>` directory.
     - Strip `libwinpthreads-1.dll` to reduce its size.
-1. Gather binaries from `build-bin-<arch>` directory.
+1. Gather binaries from the `build-bin-<arch>` directory.
 
 ## Patches required for clang
 
-### Why libxml2 has issue with LLVM linker?
+### Why libxml2 have an issue with the LLVM linker?
 
 `configure` identifies `ld.lld` as GNU ld and tries to use version script. LLVM linker does not support it, thus linking fails.
 
@@ -70,7 +70,7 @@ make[2]: *** [Makefile:1064: libxml2.la] Error 1
 
 Fortunately, @jeremyd2019 found a solution: borrow `libxslt`'s linker detection script ([ref](https://github.com/msys2/CLANG-packages/issues/19)). 
 
-### Why clang refues to build vanilla wimlib?
+### Why clang refuses to build vanilla wimlib?
 
 Clang requires every function symbols have consistency on dllimport/dllexport-ness ([ref1](https://github.com/llvm-mirror/clang/blob/master/test/Sema/dllexport.c), [ref2](http://clang-developers.42468.n3.nabble.com/Latest-clang-shows-failure-in-redeclaration-with-dllimport-td4045316.html), while GCC and MSVC allows this behavior.
 

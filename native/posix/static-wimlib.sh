@@ -10,6 +10,7 @@ if ! [[ -d "$1" ]]; then
     echo "[$1] is not a directory!" >&2
     exit 1
 fi
+SRCDIR=$1
 
 # Query environment info
 ARCH=$(uname -m) # x86_64, armv7l, aarch64, ...
@@ -35,7 +36,8 @@ else
     exit 1
 fi
 BASE_DIR=$(dirname "${BASE_ABS_PATH}")
-LIB_PREFIX="${HOME}/wimlib-build"
+DEST_DIR="${BASE_DIR}/build-bin"
+LIB_PREFIX="${BASE_DIR}/build-prefix"
 PKGCONF_DIR="${LIB_PREFIX}/lib/pkgconfig"
 
 # Check if libxml2 was properly compiled
@@ -56,7 +58,7 @@ if ! [[ -s "${PKGCONF_DIR}/libxml-2.0.pc" ]]; then
 fi
 
 # Required dependencies
-# Debian/Ubuntu: sudo apt install libfuse-dev nasm
+# Debian/Ubuntu: sudo apt install libfuse-dev nasm pkg-config
 # macOS:         brew install nasm
 which nasm > /dev/null
 if [[ $? -ne 0 ]]; then # Unable to find nasm
@@ -69,34 +71,50 @@ if [[ $? -ne 0 ]]; then # Unable to find nasm
     exit 1
 fi
 
+which pkg-config > /dev/null
+if [[ $? -ne 0 ]]; then
+    echo "Please install pkg-config!" >&2
+    if [ "${OS}" = Linux ]; then 
+        echo "Run \"sudo apt install pkg-config\"." >&2
+    fi
+    exit 1
+fi
+
+mkdir -p "${DEST_DIR}"
+
 # Prepare to compiled wimlib
 # Turn on SSSE3 asm optimization on x64 build
 if [ "${ARCH}" = "x86_64" ]; then
     EXTRA_ARGS="--enable-ssse3-sha1"
 fi
-# Turn off fuse on macOS build
-if [ "${OS}" = Darwin ]; then 
-    EXTRA_ARGS="${EXTRA_ARGS} --without-fuse"
-fi
+## Turn off fuse on macOS build
+#if [ "${OS}" = Darwin ]; then 
+#    EXTRA_ARGS="${EXTRA_ARGS} --without-fuse"
+#fi
 
 # Compile wimlib
 # Adapted from https://wimlib.net/git/?p=wimlib;a=tree;f=tools/make-windows-release;
-pushd "${PWD}" > /dev/null
-cd $1
+pushd "${SRCDIR}" > /dev/null
 make clean
 ./configure --disable-static \
     PKG_CONFIG_PATH="${PKGCONF_DIR}" \
+    CPPFLAGS="-I${LIB_PREFIX}/include" LDFLAGS="-L${LIB_PREFIX}/lib" \
     --without-libcrypto --without-ntfs-3g ${EXTRA_ARGS}
 make "-j${CORES}"
-cp ".libs/${DEST_LIB}" "${BASE_DIR}/${DEST_LIB}"
+cp ".libs/${DEST_LIB}" "${DEST_DIR}"
 popd > /dev/null
 #LIBXML2_CFLAGS="-I${LIB_PREFIX}/include/libxml2" \
 #LIBXML2_LIBS="-L${LIB_PREFIX}/lib -lxml2" \
 
 # Strip a binary
+pushd "${DEST_DIR}" > /dev/null
 ls -lh "${DEST_LIB}"
 ${STRIP} "${DEST_LIB}"
 ls -lh "${DEST_LIB}"
+popd > /dev/null
 
 # Check dependency of a binary
+pushd "${DEST_DIR}" > /dev/null
 ${CHECKDEP} "${DEST_LIB}"
+popd > /dev/null
+
