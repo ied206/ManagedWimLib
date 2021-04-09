@@ -1,5 +1,6 @@
 #!/bin/bash
-# static_lifuse.sh: compile static libxml
+# static_lifuse.sh: compile static libfuse
+# NOT USED, wimlib 1.13.3 requires libfuse API level 26 (about libfuse 2.x)
 
 # Check script arguments
 if [[ "$#" -ne 1 ]]; then
@@ -37,6 +38,12 @@ fi
 BASE_DIR=$(dirname "${BASE_ABS_PATH}")
 LIB_PREFIX="${HOME}/wimlib-build"
 PKGCONF_DIR="${LIB_PREFIX}/lib/pkgconfig"
+
+which meson > /dev/null
+if [[ $? -ne 0 ]]; then
+    echo "Please install meson!" >&2
+    exit 1
+fi
 
 # Create prefix directory
 mkdir "${LIB_PREFIX}"

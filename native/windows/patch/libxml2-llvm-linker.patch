@@ -1,0 +1,23 @@
+--- libxml2-2.9.10/configure.ac	2019-10-23 21:08:10.000000000 +0900
++++ libxml2-2.9.10-llvm/configure.ac	2021-04-08 01:26:27.732382900 +0900
+@@ -77,14 +77,12 @@
+ dnl if the system support linker version scripts for symbol versioning
+ dnl then add it
+ dnl
+-VERSION_SCRIPT_FLAGS=
+-# lt_cv_prog_gnu_ld is from libtool 2.+
+-if test "$lt_cv_prog_gnu_ld" = yes; then
+-  VERSION_SCRIPT_FLAGS=-Wl,--version-script=
+-else
+-  case $host in
+-  *-*-sunos*) VERSION_SCRIPT_FLAGS="-Wl,-M -Wl,";;
+-  esac
++AC_MSG_CHECKING([how to pass version script to the linker ($LD)])
++VERSION_SCRIPT_FLAGS=none
++if $LD --help 2>&1 | grep "version-script" >/dev/null 2>/dev/null; then
++    VERSION_SCRIPT_FLAGS=-Wl,--version-script=
++elif $LD --help 2>&1 | grep "M mapfile" >/dev/null 2>/dev/null; then
++    VERSION_SCRIPT_FLAGS="-Wl,-M -Wl,"
+ fi
+ AC_SUBST(VERSION_SCRIPT_FLAGS)
+ AM_CONDITIONAL([USE_VERSION_SCRIPT], [test -n "$VERSION_SCRIPT_FLAGS"])

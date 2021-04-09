@@ -53,7 +53,6 @@ namespace ManagedWimLib
 
         #region Constructor
         public WimLibLoader() : base() { }
-        public WimLibLoader(string libPath) : base(libPath) { }
         #endregion
 
         #region UTF-8 and UTF-16
