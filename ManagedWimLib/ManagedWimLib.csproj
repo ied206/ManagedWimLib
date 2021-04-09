@@ -12,7 +12,7 @@
     <Description>Native wimlib wrapper library for .NET.
 Provides every capabilities of wimlib.
 Supports Windows, Linux and macOS.</Description>
-    <Copyright>Copyright (c) 2018-2020 Hajin Jang</Copyright>
+    <Copyright>Copyright (c) 2018-2021 Hajin Jang</Copyright>
     <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
     <PackageIcon>images\Logo.png</PackageIcon>

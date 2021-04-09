@@ -4,10 +4,10 @@
 
 ### v2.1.0
 
-Released on 2021-04-08
+Released on 2021-04-10
 
 - Update inlcuded wimlib to 1.13.3.
-    - Better support for WIM referencing, as 1.13.3 fixs critical bug which crashes wimlib on debug mode.
+    - Better support for WIM referencing, as 1.13.3 fixs a critical bug which crashes wimlib on debug mode.
 - Official support for Windows ARM64.
 
 ### v2.0.1
@@ -34,10 +34,10 @@ Released on 2020-06-07
     - Rewrote iterate functions and their callbacks.
         - Renamed `IterateFlags` into `IterateDirTreeFlags`.
         - Reserve `IterateLookupTableFlags` to used in `Wim.IterateLookupTable()`.
-        - `IterateDirTreeCallback` now returns int instead of `CallbackStatus`. A callback must `Wim.IterateCallbackSuccess` on success, or an `ErrorCode` on error.
+        - `IterateDirTreeCallback` now returns int instead of `CallbackStatus`. A callback must return `Wim.IterateCallbackSuccess` on success, or an `ErrorCode` on error.
     - Added `InitFlags` and overloads of `GlobalInit()`.
     - Replaced `ManagedWimLib.FileAttribute` with standard [System.IO.FileAttributes](https://docs.microsoft.com/en-US/dotnet/api/system.io.fileattributes).
-    - Removed `Wim.PathSeparator`, use of standard [Path.DirectorySeparatorChar](https://docs.microsoft.com/en-us/dotnet/api/system.io.path.directoryseparatorchar) is recommended.
+    - Removed `Wim.PathSeparator`, using standard [Path.DirectorySeparatorChar](https://docs.microsoft.com/en-us/dotnet/api/system.io.path.directoryseparatorchar) is recommended.
     - Rewrote version functions into properties.
 
 ## v1.x
