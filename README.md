@@ -56,7 +56,7 @@ macOS arm64 should be supported on theory, but I do not have access to an Apple 
 
 ### Supported wimlib version
 
-- 1.13.3 (Included)
+- 1.13.4 (Included)
 
 ## Usage
 

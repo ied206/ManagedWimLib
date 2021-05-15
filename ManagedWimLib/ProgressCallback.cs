@@ -157,6 +157,7 @@ namespace ManagedWimLib
         /// The number of bytes of file data that have been written so far. 
         /// This starts at 0 and ends at TotalBytes.
         /// This number is the uncompressed size; the actual size may be lower due to compression.
+        /// See <see cref="CompletedCompressedBytes"/> for the compressed size.
         /// </summary>
         public ulong CompletedBytes;
         /// <summary>
@@ -181,6 +182,10 @@ namespace ManagedWimLib
         /// This is currently broken and will always be 0. 
         /// </summary>
         public uint CompletedParts;
+        /// <summary>
+        /// Since wimlib v1.13.4: Like <see cref="CompletedBytes"/>, but counts the compressed size.
+        /// </summary>
+        public ulong CompletedCompressedBytes;
     }
     #endregion
 
@@ -406,11 +411,13 @@ namespace ManagedWimLib
         /// <summary>
         /// Number of update commands that have been completed so far.
         /// </summary>
-        public uint CompletedCommands;
+        public ulong CompletedCommands => CompletedCommandsVal.ToUInt64();
+        internal UIntPtr CompletedCommandsVal;
         /// <summary>
         /// Number of update commands that are being executed as part of this call to Wim.UpdateImage().
         /// </summary>
-        public uint TotalCommands;
+        public ulong TotalCommands => TotalCommandsVal.ToUInt64();
+        internal UIntPtr TotalCommandsVal;
     }
 
     /// <summary>
@@ -441,20 +448,19 @@ namespace ManagedWimLib
         /// <summary>
         /// Number of update commands that have been completed so far.
         /// </summary>
-        public uint CompletedCommands;
+        public UIntPtr CompletedCommandsVal;
         /// <summary>
         /// Number of update commands that are being executed as part of this call to Wim.UpdateImage().
         /// </summary>
-        public uint TotalCommands;
+        public UIntPtr TotalCommandsVal;
 
-        [SuppressMessage("ReSharper", "ArrangeThisQualifier")]
         public UpdateProgress ToManaged()
         {
             return new UpdateProgress
             {
                 Command = this.Command,
-                CompletedCommands = this.CompletedCommands,
-                TotalCommands = this.TotalCommands,
+                CompletedCommandsVal = this.CompletedCommandsVal,
+                TotalCommandsVal = this.TotalCommandsVal,
             };
         }
     }
@@ -647,10 +653,10 @@ namespace ManagedWimLib
     {
         public string WimFile => Wim.Lib.PtrToStringAuto(_wimFilePtr);
         private IntPtr _wimFilePtr;
-        public uint TotalStreams;
-        public uint TotalBytes;
-        public uint CurrentStreams;
-        public uint CurrentBytes;
+        public ulong TotalStreams;
+        public ulong TotalBytes;
+        public ulong CurrentStreams;
+        public ulong CurrentBytes;
     }
     #endregion
 

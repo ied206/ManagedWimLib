@@ -32,7 +32,7 @@ public static void InitNativeLibrary()
     if (!File.Exists(libPath))
         throw new PlatformNotSupportedException($"Unable to find native library [{libPath}].");
 
-    Magic.GlobalInit(libPath);
+    Wim.GlobalInit(libPath, InitFlags.None);
 }
 ```
 
@@ -79,15 +79,17 @@ public static void InitNativeLibrary()
     if (!File.Exists(libPath))
         throw new PlatformNotSupportedException($"Unable to find native library [{libPath}].");
 
-    Magic.GlobalInit(libPath);
+    Wim.GlobalInit(libPath, InitFlags.None);
 }
 ```
+
+To configure behaviors of wimlib, pass `InitFlags` to `Wim.GlobalInit()`.
 
 **WARNING**: Caller process and callee library must have the same architecture!
 
 ### Embedded binary
 
-ManagedWimLib comes with sets of binaries of `wimlib 1.13.3`. They will be copied into the build directory at build time.
+ManagedWimLib comes with sets of binaries of `wimlib 1.13.4`. They will be copied into the build directory at build time.
 
 #### For .NET Framework 4.5.1+
 
@@ -112,7 +114,7 @@ ManagedWimLib comes with sets of binaries of `wimlib 1.13.3`. They will be copie
 
 - Linux binaries are not portable. Included binaires may not work on your distribution.
     - On Linux, wimlib depends on system-installed `libfuse`.
-- If you call `Wim.GlobalInit()` without `libPath` parameter on Linux or macOS, `ManagedWimLib` will search for system-installed wimlib.    
+- If you call `Wim.GlobalInit()` without `libPath` parameter on Linux or macOS, `ManagedWimLib` will search for system-installed wimlib.
 - POSIX binaries were compiled without NTFS-3G support to make them as LGPLv3-licensed.
     - If you want NTFS-3G functionality, load the system-installed library and make sure your program is compatible with **GPLv3**.
 

@@ -74,6 +74,7 @@ namespace ManagedWimLib.Tests
                         tested.Set();
 
                         UpdateCommand cmd = m.Command;
+                        Console.WriteLine($"Commands = {m.CompletedCommands}/{m.TotalCommands}");
                         switch (cmd.Op)
                         {
                             case UpdateOp.Add:

@@ -184,6 +184,7 @@ namespace ManagedWimLib
         /// info param will point to <see cref="WriteStreamsProgress"/>.
         /// This message may be received many times while the WIM file is being written or appended
         /// to with <see cref="Wim.Write()"/>, <see cref="Wim.Overwrite()"/>.
+        /// Since wimlib v1.13.4 it will also be received when a split WIM part is being written by <see cref="Wim.Split(string, ulong, WriteFlags)"/>.
         /// </summary>
         WriteStreams = 12,
         /// <summary>
@@ -782,6 +783,11 @@ namespace ManagedWimLib
         /// nor can it be used with <see cref="Wim.ExtractPaths()"/> when passed multiple paths.
         /// </summary>
         Ntfs = 0x00000001,
+        /// <summary>
+        /// Since wimlib v1.13.4: Don't consider corrupted files to be an error.
+        /// Just extract them in whatever form we can.
+        /// </summary>
+        RecoverData = 0x00000002,
         /// <summary>
         /// UNIX-like systems only:
         /// Extract UNIX-specific metadata captured with <see cref="AddFlags.UnixData"/>.
@@ -1765,6 +1771,7 @@ namespace ManagedWimLib
     #region struct UpdateCommand32
     /// <summary>
     /// 32bit version of real UpdateCommand struct which is passed to the native wimlib.
+    /// Must be struct (using class crashes the process)
     /// </summary>
     /// <remarks>
     /// Original C struct (wimlib_update_command) contains a union with three structs: Add, Delete and Rename.
@@ -1913,6 +1920,7 @@ namespace ManagedWimLib
     #region struct UpdateCommand64
     /// <summary>
     /// 64bit version of real UpdateCommand struct which is passed to the native wimlib.
+    /// Must be struct (using class crashes the process)
     /// </summary>
     /// <remarks>
     /// Original C struct (wimlib_update_command) contains a union with three structs: Add, Delete and Rename.
