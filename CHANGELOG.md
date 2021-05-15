@@ -4,7 +4,7 @@
 
 ### v2.2.0
 
-Released on 2021-05-16
+Released on 2021-05-15
 
 - Update included wimlib to 1.13.4.
 - Fix `UpdateProgress` and `VerifyStreamsProgress` marshalling issue (#2).
