@@ -32,7 +32,7 @@ public static void InitNativeLibrary()
     if (!File.Exists(libPath))
         throw new PlatformNotSupportedException($"Unable to find native library [{libPath}].");
 
-    Magic.GlobalInit(libPath);
+    Wim.GlobalInit(libPath, InitFlags.None);
 }
 ```
 
@@ -79,15 +79,17 @@ public static void InitNativeLibrary()
     if (!File.Exists(libPath))
         throw new PlatformNotSupportedException($"Unable to find native library [{libPath}].");
 
-    Magic.GlobalInit(libPath);
+    Wim.GlobalInit(libPath, InitFlags.None);
 }
 ```
+
+To configure behaviors of wimlib, pass `InitFlags` to `Wim.GlobalInit()`.
 
 **WARNING**: Caller process and callee library must have the same architecture!
 
 ### Embedded binary
 
-ManagedWimLib comes with sets of binaries of `wimlib 1.13.3`. They will be copied into the build directory at build time.
+ManagedWimLib comes with sets of binaries of `wimlib 1.13.4`. They will be copied into the build directory at build time.
 
 #### For .NET Framework 4.5.1+
 

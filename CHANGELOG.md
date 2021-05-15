@@ -2,11 +2,18 @@
 
 ## v2.x
 
+### v2.2.0
+
+Released on 2021-05-16
+
+- Update included wimlib to 1.13.4.
+- Fix `UpdateProgress` and `VerifyStreamsProgress` marshalling issue (#2).
+
 ### v2.1.0
 
 Released on 2021-04-10
 
-- Update inlcuded wimlib to 1.13.3.
+- Update included wimlib to 1.13.3.
     - Better support for WIM referencing, as 1.13.3 fixs a critical bug which crashes wimlib on debug mode.
 - Official support for Windows ARM64.
 

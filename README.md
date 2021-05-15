@@ -54,7 +54,7 @@ If you need .NET Framework 4.5 support, use [1.1.x version](https://www.nuget.or
 
 ### Supported wimlib version
 
-- 1.13.3 (Included)
+- 1.13.4 (Included)
 
 ## Usage
 
