@@ -22,6 +22,7 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -49,6 +50,7 @@ namespace ManagedWimLib.Tests
                 _checked[i] = false;
             CallbackStatus ProgressCallback(ProgressMsg msg, object info, object progctx)
             {
+                Console.WriteLine($"Callback msg={msg}");
                 switch (msg)
                 {
                     case ProgressMsg.BeginVerifyImage:
@@ -71,6 +73,7 @@ namespace ManagedWimLib.Tests
                         {
                             VerifyStreamsProgress m = (VerifyStreamsProgress)info;
                             Assert.IsNotNull(info);
+                            Console.WriteLine($"Bytes={m.CurrentBytes}/{m.TotalBytes}, {m.CurrentStreams}/{m.TotalStreams}");
 
                             _checked[2] = true;
                         }

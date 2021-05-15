@@ -647,10 +647,10 @@ namespace ManagedWimLib
     {
         public string WimFile => Wim.Lib.PtrToStringAuto(_wimFilePtr);
         private IntPtr _wimFilePtr;
-        public uint TotalStreams;
-        public uint TotalBytes;
-        public uint CurrentStreams;
-        public uint CurrentBytes;
+        public ulong TotalStreams;
+        public ulong TotalBytes;
+        public ulong CurrentStreams;
+        public ulong CurrentBytes;
     }
     #endregion
 
