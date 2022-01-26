@@ -5,7 +5,6 @@ Use MSYS2 and llvm-mingw to compile ARM64 wimlib dll.
 ## Status
 
 - `libwim-15.dll` is compilable with a bit of a patch.
-- `ld.lld` fails to link `wimlib-imagex.exe`.
 
 ## Required Tools
 
@@ -17,19 +16,23 @@ Use MSYS2 and llvm-mingw to compile ARM64 wimlib dll.
 
 ## Required Sources
 
-- [libxml2](http://www.xmlsoft.org/downloads.html): Tested with 2.9.10.
-- [wimlib](https://wimlib.net/downloads/index.html): Tested with 1.13.3.
+- [libxml2](http://www.xmlsoft.org/downloads.html): Tested with 2.9.12.
+- [wimlib](https://wimlib.net/downloads/index.html): Tested with 1.13.5.
 
 ## Build Manual
 
 1. Extract the `libxml2` and `wimlib` source code.
 1. Open MSYS2 MinGW 64bit shell.
 1. Apply `patch/libxml2-llvm-linker.patch` to `libxml2` source.
+    ```
+    cd /d/build/native/libxml2-2.9.12
+    patch -p1 < /d/build/ManagedWimLib/native/windows/patch/libxml2-llvm-linker.patch
+    ```
 1. Build `libxml2` by running `libxml2-msys2.sh`.
     - You must pass a path of `llvm-mingw` to compile ARM64 binaries.
     ```
     [Examples]
-    aarch64: ./libxml2-msys2.sh.sh -a aarch64 -t /c/llvm-mingw /d/build/native/libxml2-
+    aarch64: ./libxml2-msys2.sh -a aarch64 -t /c/llvm-mingw /d/build/native/libxml2-2.9.12
     ```
 1. Edit `include/wimlib.h` of `wimlib` source.
     - Define `WIMLIBAPI` as `__declspec(dllexport)`.
@@ -72,7 +75,7 @@ Fortunately, @jeremyd2019 found a solution: borrow `libxslt`'s linker detection 
 
 ### Why clang refuses to build vanilla wimlib?
 
-Clang requires every function symbols have consistency on dllimport/dllexport-ness ([ref1](https://github.com/llvm-mirror/clang/blob/master/test/Sema/dllexport.c), [ref2](http://clang-developers.42468.n3.nabble.com/Latest-clang-shows-failure-in-redeclaration-with-dllimport-td4045316.html), while GCC and MSVC allows this behavior.
+Clang requires every function symbols have consistency on dllimport/dllexport-ness ([ref1](https://github.com/llvm-mirror/clang/blob/master/test/Sema/dllexport.c), [ref2](http://clang-developers.42468.n3.nabble.com/Latest-clang-shows-failure-in-redeclaration-with-dllimport-td4045316.html)), while GCC and MSVC allows this behavior.
 
 For example, GCC allows this code, while CLANG throws an error.
 
@@ -95,8 +98,10 @@ wimlib_free(WIMStruct *wim);
 
 ## Unsolvable issues
 
-#### Unable to build wimlib-imagex.exe
-- llvm-mingw fails to link `wimlib-imagex.exe`, but I couldn't know why.
+### Unable to build wimlib-imagex.exe
+
+- llvm-mingw (LLVM 11.0.0) fails to link `wimlib-imagex.exe`, but I couldn't know why.
+    - Latest LLVM 13 succesfully builds `wimlib-imagex.exe`.
     ```
     CCLD     libwim.la
     CCLD     wimlib-imagex.exe
@@ -105,6 +110,9 @@ wimlib_free(WIMStruct *wim);
     clang-11: error: linker command failed with exit code 1 (use -v to see invocation)
     make[1]: *** [Makefile:1318: wimlib-imagex.exe] Error 1
     ```
+
+### Unable to link static libxml2
+
 - libtool refuses to link `wimlib` with static `libxml2`.
     ```
     *** Warning: Trying to link with static lib archive <LIBXML2_STATIC_LIB>.
