@@ -50,13 +50,13 @@ macOS arm64 should be supported on theory, but I do not have access to an Apple 
 
 | Architecture | Distribution | Note |
 |--------------|--------------|------|
-| x64          | Ubuntu 18.04 | Tested on AppVeyor CI         |
-| arm          | Debian 10    | Emulated on QEMU's virt board |
-| arm64        | Debian 10    | Emulated on QEMU's virt board |
+| x64          | Ubuntu 20.04 | Tested on AppVeyor CI         |
+| arm          | Debian 11    | Emulated on QEMU's virt board |
+| arm64        | Debian 11    | Emulated on QEMU's virt board |
 
 ### Supported wimlib version
 
-- 1.13.4 (Included)
+- 1.13.5 (Included)
 
 ## Usage
 
