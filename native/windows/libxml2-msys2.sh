@@ -55,7 +55,7 @@ CORES=$(grep -c ^processor /proc/cpuinfo)
 
 # Create prefix directory
 LIB_PREFIX="${BASE_DIR}/build-prefix-${ARCH}"
-mkdir "${LIB_PREFIX}"
+mkdir -p "${LIB_PREFIX}"
 
 # Compile libxml2
 # Adapted from https://wimlib.net/git/?p=wimlib;a=tree;f=tools/windeps/Makefile;
