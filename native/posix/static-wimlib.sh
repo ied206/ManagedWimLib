@@ -101,7 +101,7 @@ make clean
 ./configure --disable-static \
     PKG_CONFIG_PATH="${PKGCONF_DIR}" \
     CPPFLAGS="-I${LIB_PREFIX}/include" LDFLAGS="-L${LIB_PREFIX}/lib" \
-    --without-libcrypto --without-fuse --without-ntfs-3g ${EXTRA_ARGS}
+    --without-libcrypto --without-ntfs-3g ${EXTRA_ARGS}
 make "-j${CORES}"
 cp ".libs/${DEST_LIB}" "${DEST_DIR}"
 popd > /dev/null
