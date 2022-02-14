@@ -40,7 +40,7 @@ steps:
   inputs:
     command: 'test'
     projects: '**/*.Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --logger="console;verbosity=detailed"'
+    arguments: '--configuration $(buildConfiguration) --logger="console;verbosity=detailed" --collect:"XPlat Code Coverage" --settings:"$(Build.SourcesDirectory)/coverlet.runsettings"'
 # https://stackoverflow.com/questions/64592534/publish-a-pipeline-azure-devops-code-coverage-report
 - task: DotNetCoreCLI@2
   displayName: 'Install ReportGenerator Tool'
