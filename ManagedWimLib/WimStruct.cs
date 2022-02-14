@@ -28,11 +28,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-// ReSharper disable UnusedMember.Global
 
 namespace ManagedWimLib
 {
-    [SuppressMessage("ReSharper", "RedundantExplicitArraySize")]
     public class Wim : IDisposable
     { // Wrapper of WIMStruct and wimlib API
         #region (static) LoadManager

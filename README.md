@@ -43,8 +43,7 @@ If you need .NET Framework 4.5 support, use [1.1.x version](https://www.nuget.or
 |          | arm          | Yes    |
 |          | arm64        | Yes    |
 | macOS    | x64          | Yes    |
-
-macOS arm64 should be supported on theory, but I do not have access to an Apple Sillicon device to test. Please contribute if you have an ARM64 macOS machine.
+|          | arm64        | Yes    |
 
 #### Tested linux distributions
 

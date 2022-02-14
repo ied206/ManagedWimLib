@@ -23,24 +23,11 @@
 
 using Joveler.DynLoader;
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-// ReSharper disable FieldCanBeMadeReadOnly.Global
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable UnusedMember.Global
-// ReSharper disable StringLiteralTypo
-// ReSharper disable ClassNeverInstantiated.Global
-// ReSharper disable InconsistentNaming
-// ReSharper disable EnumUnderlyingTypeIsInt
-// ReSharper disable FieldCanBeMadeReadOnly.Local
-// ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
-#pragma warning disable 169
-#pragma warning disable 414
-#pragma warning disable 649
+
 #pragma warning disable IDE0044
-#pragma warning disable IDE0063 // 간단한 'using' 문 사용
 
 namespace ManagedWimLib
 {
@@ -556,7 +543,6 @@ namespace ManagedWimLib
 
         #region WimLib Function Pointers
         #region UTF-16 Instances
-        [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
         internal class Utf16d
         {
             internal const UnmanagedType StrType = UnmanagedType.LPWStr;
@@ -923,7 +909,6 @@ namespace ManagedWimLib
         #endregion
 
         #region UTF-8 Instances
-        [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
         internal class Utf8d
         {
             internal const UnmanagedType StrType = UnmanagedType.LPStr;

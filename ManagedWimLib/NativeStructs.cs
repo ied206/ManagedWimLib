@@ -1282,8 +1282,6 @@ namespace ManagedWimLib
     #region Native wimlib structures
     #region WimInfo
     [StructLayout(LayoutKind.Sequential)]
-    [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local")]
-    [SuppressMessage("ReSharper", "PrivateFieldCanBeConvertedToLocalVariable")]
     public class WimInfo
     {
         /// <summary>

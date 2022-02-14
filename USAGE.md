@@ -102,15 +102,16 @@ ManagedWimLib comes with sets of binaries of `wimlib 1.13.4`. They will be copie
 
 #### For .NET Standard 2.0+
 
-| Platform          | Binary                                              | License              |
-|-------------------|-----------------------------------------------------|----------------------|
-| Windows x86       | `$(OutDir)\runtimes\win-x86\native\libwim-15.dll`   | LGPLv3               |
-| Windows x64       | `$(OutDir)\runtimes\win-x64\native\libwim-15.dll`   | LGPLv3               |
-| Windows arm64     | `$(OutDir)\runtimes\win-arm64\native\libwim-15.dll` | LGPLv3               |
-| Ubuntu 20.04 x64  | `$(OutDir)\runtimes\linux-x64\native\libwim.so`     | LGPLv3 (w/o NTFS-3G) |
-| Debian 11 armhf   | `$(OutDir)\runtimes\linux-arm\native\libwim.so`     | LGPLv3 (w/o NTFS-3G) |
-| Debian 11 arm64   | `$(OutDir)\runtimes\linux-arm64\native\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
-| macOS Big Sur x64 | `$(OutDir)\runtimes\osx-x64\native\libwim.dylib`    | LGPLv3 (w/o NTFS-3G) |
+| Platform             | Binary                                              | License              |
+|----------------------|-----------------------------------------------------|----------------------|
+| Windows x86          | `$(OutDir)\runtimes\win-x86\native\libwim-15.dll`   | LGPLv3               |
+| Windows x64          | `$(OutDir)\runtimes\win-x64\native\libwim-15.dll`   | LGPLv3               |
+| Windows arm64        | `$(OutDir)\runtimes\win-arm64\native\libwim-15.dll` | LGPLv3               |
+| Ubuntu 20.04 x64     | `$(OutDir)\runtimes\linux-x64\native\libwim.so`     | LGPLv3 (w/o NTFS-3G) |
+| Debian 11 armhf      | `$(OutDir)\runtimes\linux-arm\native\libwim.so`     | LGPLv3 (w/o NTFS-3G) |
+| Debian 11 arm64      | `$(OutDir)\runtimes\linux-arm64\native\libwim.so`   | LGPLv3 (w/o NTFS-3G) |
+| macOS Big Sur x64    | `$(OutDir)\runtimes\osx-x64\native\libwim.dylib`    | LGPLv3 (w/o NTFS-3G) |
+| macOS Monterey arm64 | `$(OutDir)\runtimes\osx-arm64\native\libwim.dylib`  | LGPLv3 (w/o NTFS-3G) |
 
 - Linux binaries are not portable. Included binaires may not work on your distribution.
     - On Linux, wimlib depends on system-installed `libfuse`.
@@ -120,15 +121,16 @@ ManagedWimLib comes with sets of binaries of `wimlib 1.13.4`. They will be copie
 
 #### Build Command
 
-| Platform          | Binary Source                                                                         | Dependency      |
-|-------------------|---------------------------------------------------------------------------------------|-----------------|
-| Windows x86       | [Official Release](https://wimlib.net/downloads/wimlib-1.13.3-windows-i686-bin.zip)   | -               |
-| Windows x64       | [Official Release](https://wimlib.net/downloads/wimlib-1.13.3-windows-x86_64-bin.zip) | -               |
-| Windows arm64     | Compile with MSYS2 and llvm-mingw                                                     | -               |
-| Ubuntu 20.04 x64  | Compile with libxml2 dependency                                                       | libfuse         |
-| Debian 11 armhf   | Compile with libxml2 dependency                                                       | libfuse         |
-| Debian 11 arm64   | Compile with libxml2 dependency                                                       | libfuse         |
-| macOS Big Sur x64 | Compile with libxml2 dependency                                                       | -               |
+| Platform             | Binary Source                                                                         | Dependency      |
+|----------------------|---------------------------------------------------------------------------------------|-----------------|
+| Windows x86          | [Official Release](https://wimlib.net/downloads/wimlib-1.13.5-windows-i686-bin.zip)   | -               |
+| Windows x64          | [Official Release](https://wimlib.net/downloads/wimlib-1.13.5-windows-x86_64-bin.zip) | -               |
+| Windows arm64        | Compile with MSYS2 and llvm-mingw                                                     | -               |
+| Ubuntu 20.04 x64     | Compile with libxml2 dependency                                                       | libfuse         |
+| Debian 11 armhf      | Compile with libxml2 dependency                                                       | libfuse         |
+| Debian 11 arm64      | Compile with libxml2 dependency                                                       | libfuse         |
+| macOS Big Sur x64    | Compile with libxml2 dependency                                                       | -               |
+| macOS Monterey arm64 | Compile with libxml2 dependency                                                       | -               |
 
 ### Custom binary
 
