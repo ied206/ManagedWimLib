@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net451;netstandard2.0;netstandard2.1</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net451;netstandard2.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <PackageId>ManagedWimLib</PackageId>
     <Title>ManagedWimLib</Title>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>2.3.0</Version>
+    <Version>2.4.0</Version>
     <Authors>Eric Biggers, Hajin Jang</Authors>
     <Company>Joveler</Company>
     <Description>Native wimlib wrapper library for .NET.
@@ -17,12 +17,13 @@ Supports Windows, Linux and macOS.</Description>
     <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
     <PackageIcon>images\Logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/ied206/ManagedWimLib</RepositoryUrl>
-    <PackageReleaseNotes>- Update included wimlib to 1.13.5.</PackageReleaseNotes>
+    <PackageReleaseNotes>- Official support for ARM64 macOS.
+- Replace .NET Standard 2.1 target with .NET Core 3.1.</PackageReleaseNotes>
     <PackageTags>wim wimlib dism imagex archive native pinvoke interop</PackageTags>
   </PropertyGroup>
   <!-- PackageReference -->
   <ItemGroup>
-    <PackageReference Include="Joveler.DynLoader" Version="2.1.0" />
+    <PackageReference Include="Joveler.DynLoader" Version="2.1.1" />
     <PackageReference Include="System.Memory" Version="4.5.4" Condition=" '$(TargetFramework)' == 'net451' or '$(TargetFramework)' == 'netstandard2.0' " />
   </ItemGroup>
   <!-- Native Library for .NET Framework 4.5.1 -->
@@ -36,8 +37,8 @@ Supports Windows, Linux and macOS.</Description>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <!-- Native Library for .NET Standard 2.0 & 2.1 -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1'">
+  <!-- Native Library for .NET Standard 2.0 & .NET Core 3.1 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netcoreapp3.1'">
     <None Include="runtimes\win-x86\native\*.dll">
       <Link>runtimes\win-x86\native\%(FileName)%(Extension)</Link> <!-- Project Reference -->
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -66,6 +67,10 @@ Supports Windows, Linux and macOS.</Description>
       <Link>runtimes\osx-x64\native\%(FileName)%(Extension)</Link> <!-- Project Reference -->
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="runtimes\osx-arm64\native\*.dylib">
+      <Link>runtimes\osx-arm64\native\%(FileName)%(Extension)</Link> <!-- Project Reference -->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <!-- NuGet Pacakge -->
   <ItemGroup>
@@ -81,5 +86,10 @@ Supports Windows, Linux and macOS.</Description>
     <None Include="runtimes\linux-arm\native\*.so" Pack="true" PackagePath="runtimes\linux-arm\native" />
     <None Include="runtimes\linux-arm64\native\*.so" Pack="true" PackagePath="runtimes\linux-arm64\native" />
     <None Include="runtimes\osx-x64\native\*.dylib" Pack="true" PackagePath="runtimes\osx-x64\native" />
+    <None Include="runtimes\osx-arm64\native\*.dylib" Pack="true" PackagePath="runtimes\osx-arm64\native" />
+  </ItemGroup>
+  <!-- etc -->
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 </Project>

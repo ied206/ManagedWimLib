@@ -142,7 +142,7 @@ namespace ManagedWimLib.Tests
             ResolveImageTemplate("MultiImage.wim", "*", Wim.AllImages);
         }
 
-        public void ResolveImageTemplate(string fileName, string imageNameOrNum, int expected)
+        public static void ResolveImageTemplate(string fileName, string imageNameOrNum, int expected)
         {
             string wimFile = Path.Combine(TestSetup.SampleDir, fileName);
             using (Wim wim = Wim.OpenWim(wimFile, OpenFlags.None))

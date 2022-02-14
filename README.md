@@ -25,8 +25,8 @@ ManagedWimLib can be installed via [nuget](https://www.nuget.org/packages/Manage
 
 ### Targeted .NET platforms
 
-- .NET Standard 2.1 (.NET Core 3.0+)
-- .NET Standard 2.0 (.NET Framework 4.6.1+, .NET Core 2.0+)
+- .NET Core 3.1
+- .NET Standard 2.0
 - .NET Framework 4.5.1
 
 If you need .NET Standard 1.3 support, use [1.2.x version](https://www.nuget.org/packages/ManagedWimLib/1.2.4) instead.<br>
@@ -43,8 +43,7 @@ If you need .NET Framework 4.5 support, use [1.1.x version](https://www.nuget.or
 |          | arm          | Yes    |
 |          | arm64        | Yes    |
 | macOS    | x64          | Yes    |
-
-macOS arm64 should be supported on theory, but I do not have access to an Apple Sillicon device to test. Please contribute if you have an ARM64 macOS machine.
+|          | arm64        | Yes    |
 
 #### Tested linux distributions
 
