@@ -70,10 +70,11 @@ namespace ManagedWimLib.Tests
         #region GetNativeLibPath
         private static string GetNativeLibPath()
         {
+            string libBaseDir = TestHelper.GetProgramAbsolutePath();
             string libDir = string.Empty;
 
 #if !NETFRAMEWORK
-            libDir = "runtimes";
+            libDir = Path.Combine(libDir, "runtimes");
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 libDir = Path.Combine(libDir, "win-");
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -104,11 +105,11 @@ namespace ManagedWimLib.Tests
 
             string libPath = null;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                libPath = Path.Combine(libDir, "libwim-15.dll");
+                libPath = Path.Combine(libBaseDir, libDir, "libwim-15.dll");
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                libPath = Path.Combine(libDir, "libwim.so");
+                libPath = Path.Combine(libBaseDir, libDir, "libwim.so");
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                libPath = Path.Combine(libDir, "libwim.dylib");
+                libPath = Path.Combine(libBaseDir, libDir, "libwim.dylib");
 
             if (libPath == null)
                 throw new PlatformNotSupportedException($"Unable to find native library.");
