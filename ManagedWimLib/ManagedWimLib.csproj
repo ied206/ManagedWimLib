@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net451;netstandard2.0;netstandard2.1</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net451;netstandard2.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <PackageId>ManagedWimLib</PackageId>
     <Title>ManagedWimLib</Title>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>2.3.1</Version>
+    <Version>2.4.0</Version>
     <Authors>Eric Biggers, Hajin Jang</Authors>
     <Company>Joveler</Company>
     <Description>Native wimlib wrapper library for .NET.
@@ -17,7 +17,8 @@ Supports Windows, Linux and macOS.</Description>
     <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
     <PackageIcon>images\Logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/ied206/ManagedWimLib</RepositoryUrl>
-    <PackageReleaseNotes>- Official support for ARM64 macOS.</PackageReleaseNotes>
+    <PackageReleaseNotes>- Official support for ARM64 macOS.
+- Replace .NET Standard 2.1 target with .NET Core 3.1.</PackageReleaseNotes>
     <PackageTags>wim wimlib dism imagex archive native pinvoke interop</PackageTags>
   </PropertyGroup>
   <!-- PackageReference -->
@@ -36,8 +37,8 @@ Supports Windows, Linux and macOS.</Description>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <!-- Native Library for .NET Standard 2.0 & 2.1 -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1'">
+  <!-- Native Library for .NET Standard 2.0 & .NET Core 3.1 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netcoreapp3.1'">
     <None Include="runtimes\win-x86\native\*.dll">
       <Link>runtimes\win-x86\native\%(FileName)%(Extension)</Link> <!-- Project Reference -->
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

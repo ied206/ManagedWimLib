@@ -25,8 +25,8 @@ ManagedWimLib can be installed via [nuget](https://www.nuget.org/packages/Manage
 
 ### Targeted .NET platforms
 
-- .NET Standard 2.1 (.NET Core 3.0+)
-- .NET Standard 2.0 (.NET Framework 4.6.1+, .NET Core 2.0+)
+- .NET Core 3.1
+- .NET Standard 2.0
 - .NET Framework 4.5.1
 
 If you need .NET Standard 1.3 support, use [1.2.x version](https://www.nuget.org/packages/ManagedWimLib/1.2.4) instead.<br>

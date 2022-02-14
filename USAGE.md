@@ -36,11 +36,12 @@ public static void InitNativeLibrary()
 }
 ```
 
-#### For .NET Standard 2.0+:
+#### For .NET Standard 2.0+, NET Core 3.1+:
 
 ```cs
 public static void InitNativeLibrary()
 {
+    string libBaseDir = AppDomain.CurrentDomain.BaseDirectory;
     string libDir = "runtimes";
     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         libDir = Path.Combine(libDir, "win-");
@@ -66,13 +67,14 @@ public static void InitNativeLibrary()
     }
     libDir = Path.Combine(libDir, "native");
 
+    // macOS ARM64 requires native library path to be absolute path.
     string libPath = null;
     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        libPath = Path.Combine(libDir, "libwim-15.dll");
+        libPath = Path.Combine(libBaseDir, libDir, "libwim-15.dll");
     else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        libPath = Path.Combine(libDir, "libwim.so");
+        libPath = Path.Combine(libBaseDir, libDir, "libwim.so");
     else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        libPath = Path.Combine(libDir, "libwim.dylib");
+        libPath = Path.Combine(libBaseDir, libDir, "libwim.dylib");
 
     if (libPath == null)
         throw new PlatformNotSupportedException($"Unable to find native library.");
@@ -100,7 +102,7 @@ ManagedWimLib comes with sets of binaries of `wimlib 1.13.4`. They will be copie
 
 - Create an empty file named `ManagedWimLib.Precompiled.Exclude` in the project directory to prevent a copy of the package-embedded binary.
 
-#### For .NET Standard 2.0+
+#### For .NET Standard 2.0, NET Core 3.1+
 
 | Platform             | Binary                                              | License              |
 |----------------------|-----------------------------------------------------|----------------------|
