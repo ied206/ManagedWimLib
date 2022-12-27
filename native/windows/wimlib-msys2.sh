@@ -26,11 +26,13 @@ fi
 
 # Set target triple
 TARGET_TRIPLE="${ARCH}-w64-mingw32"
+WIMLIB_CFLAGS=""
 if [ "${ARCH}" = i686 ]; then
-    :
+    WIMLIB_CFLAGS="-static-libgcc"
 elif [ "${ARCH}" = x86_64 ]; then
     # Turn on SSSE3 asm optimization on x64 build
     EXTRA_ARGS="--enable-ssse3-sha1"
+    WIMLIB_CFLAGS="-static-libgcc"
 elif [ "${ARCH}" = aarch64 ]; then
     # Check custom toolchain, as MinGW does not support ARM64 build
     if [[ -z "${TOOLCHAIN_DIR}" ]]; then
@@ -55,22 +57,23 @@ BASE_DIR=$(dirname "${BASE_ABS_PATH}")
 DEST_DIR="${BASE_DIR}/build-bin-${ARCH}"
 LIB_PREFIX="${BASE_DIR}/build-prefix-${ARCH}"
 PKGCONF_DIR="${LIB_PREFIX}/lib/pkgconfig"
+rm -rf "${DEST_DIR}"
 mkdir -p "${DEST_DIR}"
 
 # Check if libxml2 was properly compiled
 if ! [[ -d "${LIB_PREFIX}" ]]; then
     echo "Prefix directory [${LIB_PREFIX}] not found!" >&2
-    echo "Please run [static-libxml2-msys2.sh] first." >&2
+    echo "Please run [libxml2-msys2.sh] first." >&2
     exit 1
 fi
 if ! [[ -d "${PKGCONF_DIR}" ]]; then
     echo "PKGCONFIG directory [${PKGCONF_DIR}] not found!" >&2
-    echo "Please run [static-libxml2-msys2.sh] first. " >&2
+    echo "Please run [libxml2-msys2.sh] first. " >&2
     exit 1
 fi
 if ! [[ -s "${PKGCONF_DIR}/libxml-2.0.pc" ]]; then
     echo "libxml2 not installed in [${LIB_PREFIX}]!" >&2
-    echo "Please run [static-libxml2-msys2.sh] first. " >&2
+    echo "Please run [libxml2-msys2.sh] first. " >&2
     exit 1
 fi
 
