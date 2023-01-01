@@ -166,8 +166,10 @@ namespace ManagedWimLib
         /// Calling this method does not clear old error messages.
         /// Call <see cref="ResetErrorFile()"/> to clear them.
         /// </remarks>
-        /// <returns>If error had been created, an error string is returned. 
-        /// If error had not been generated or <see cref="SetPrintErrors(false)"/> was called, null is returned.</returns>
+        /// <returns>
+        /// If error had been created, an error string is returned. 
+        /// If error had not been generated or <see cref="SetPrintErrors(false)"/> was called, null is returned.
+        /// </returns>
         public static string GetLastError()
         {
             Manager.EnsureLoaded();

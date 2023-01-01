@@ -141,22 +141,27 @@ namespace ManagedWimLib.Tests
 
                     Template(CompressionType.None, (ulong)Math.Pow(2, 15), level, flag, false);
 
+                    // Default chunk size of XPRESS = 32K
                     Template(CompressionType.XPRESS, 0, level, flag, false);
                     Template(CompressionType.XPRESS, (ulong)Math.Pow(2, 8), level, flag, true);
                     Template(CompressionType.XPRESS, (ulong)Math.Pow(2, 14), level, flag, true);
-                    Template(CompressionType.XPRESS, (ulong)Math.Pow(2, 15), level, flag, true);
+                    Template(CompressionType.XPRESS, (ulong)Math.Pow(2, 15), level, flag, true); // Default
                     Template(CompressionType.XPRESS, (ulong)Math.Pow(2, 18), level, flag, false);
 
+                    // Default chunk size of LZX = 32K
                     Template(CompressionType.LZX, 0, level, flag, false);
                     Template(CompressionType.LZX, (ulong)Math.Pow(2, 12), level, flag, true);
+                    Template(CompressionType.LZX, (ulong)Math.Pow(2, 15), level, flag, true); // Default
                     Template(CompressionType.LZX, (ulong)Math.Pow(2, 16), level, flag, true);
                     Template(CompressionType.LZX, (ulong)Math.Pow(2, 20), level, flag, true);
                     Template(CompressionType.LZX, (ulong)Math.Pow(2, 24), level, flag, false);
 
+                    // Default chunk size of LZMS = 128K (non-solid), 64M (solid)
                     Template(CompressionType.LZMS, 0, level, flag, false);
                     Template(CompressionType.LZMS, (ulong)Math.Pow(2, 12), level, flag, true);
                     Template(CompressionType.LZMS, (ulong)Math.Pow(2, 16), level, flag, true);
-                    Template(CompressionType.LZMS, (ulong)Math.Pow(2, 24), level, flag, true);
+                    Template(CompressionType.LZMS, (ulong)Math.Pow(2, 24), level, flag, true); // 16MB
+                    Template(CompressionType.LZMS, (ulong)Math.Pow(2, 26), level, flag, true); // 64MB, Default
                     Template(CompressionType.LZMS, (ulong)Math.Pow(2, 31), level, flag, false);
 
                     Console.WriteLine();
