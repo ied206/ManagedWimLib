@@ -95,9 +95,8 @@ fi
 # Adapted from https://wimlib.net/git/?p=wimlib;a=tree;f=tools/make-windows-release;
 pushd "${SRCDIR}" > /dev/null
 make clean
-# ./configure --host=${TARGET_TRIPLE} --disable-static \
+# ./configure --host=${TARGET_TRIPLE} --disable-static CFLAGS="-static-libgcc" \
 ./configure --host=${TARGET_TRIPLE} \
-    CFLAGS="-static-libgcc" \
     CPPFLAGS="-I${LIB_PREFIX}/include" LDFLAGS="-L${LIB_PREFIX}/lib" PKG_CONFIG_PATH="${PKGCONF_DIR}" \
     --without-libcrypto --without-ntfs-3g --without-fuse \
     ${EXTRA_ARGS}
