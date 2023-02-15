@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 # static_lifuse.sh: compile static libfuse
 # NOT USED, wimlib 1.13.3 requires libfuse API level 26 (about libfuse 2.x)
 
@@ -46,7 +46,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # Create prefix directory
-mkdir "${LIB_PREFIX}"
+mkdir -p "${LIB_PREFIX}"
 
 # Compile libfuse
 # Adapted from https://wimlib.net/git/?p=wimlib;a=tree;f=tools/windeps/Makefile;

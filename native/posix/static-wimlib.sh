@@ -92,6 +92,7 @@ if [ "${OS}" = Darwin ]; then
     EXTRA_ARGS="${EXTRA_ARGS} --without-fuse"
 fi
 
+rm -rf "${DEST_DIR}"
 mkdir -p "${DEST_DIR}"
 
 # Compile wimlib
