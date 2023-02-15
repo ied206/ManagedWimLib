@@ -1,9 +1,5 @@
 # ManagedWimLib
 
-<div style="text-align: left">
-    <img src="./Image/Logo.svg" height="128">
-</div>
-
 Cross-platform [wimlib](https://wimlib.net) pinvoke library for .NET.
 
 [wimlib](https://wimlib.net) is a library that handles Windows Imaging (WIM) archives, written by [Eric Biggers](https://github.com/ebiggers).
