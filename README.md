@@ -29,7 +29,7 @@ ManagedWimLib can be installed via [nuget](https://www.nuget.org/packages/Manage
 - .NET Standard 2.0
 - .NET Framework 4.6
 
-### Discontinued target frameworks
+#### Discontinued frameworks
 
 | Platform | Last Supported Version |
 |----------|------------------------|

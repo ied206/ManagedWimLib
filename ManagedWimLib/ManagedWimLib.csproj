@@ -6,7 +6,7 @@
     <Title>ManagedWimLib</Title>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>2.4.1</Version>
+    <Version>2.5.0</Version>
     <Authors>Eric Biggers, Hajin Jang</Authors>
     <Company>Joveler</Company>
     <Description>Native wimlib wrapper library for .NET.
@@ -20,12 +20,13 @@ Supports Windows, Linux and macOS.</Description>
     <PackageReleaseNotes>- Support wimlib 1.13.6.
 - Target .NET Framework 4.6 instead of deprecated 4.5.1.</PackageReleaseNotes>
     <PackageTags>wim wimlib dism imagex archive native pinvoke interop</PackageTags>
-    <PackageReadmeFile>NUGET_EADME.md</PackageReadmeFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <!-- PackageReference -->
   <ItemGroup>
     <PackageReference Include="Joveler.DynLoader" Version="2.1.1" />
     <PackageReference Include="System.Memory" Version="4.5.5" Condition=" '$(TargetFramework)' == 'net46' or '$(TargetFramework)' == 'netstandard2.0' " />
+    <!-- <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" Condition=" '$(TargetFramework)' == 'net46' " /> -->
   </ItemGroup>
   <!-- Native Library for .NET Framework 4.6 -->
   <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
@@ -82,7 +83,7 @@ Supports Windows, Linux and macOS.</Description>
     <!-- Nuget README -->
     <None Include="NUGET_README.md" Pack="true" PackagePath="\README.md"/>
     <!-- Build Script for .NET Framework -->
-    <None Include="ManagedWimLib.netfx.targets" Pack="true" PackagePath="build\net462\ManagedWimLib.targets" />
+    <None Include="ManagedWimLib.netfx.targets" Pack="true" PackagePath="build\net46\ManagedWimLib.targets" />
     <!-- NuGet Pacakge Icon -->
     <None Include="..\Image\Logo.png" Pack="true" PackagePath="images\Logo.png" />
     <!-- Native Library -->

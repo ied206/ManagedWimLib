@@ -1,16 +1,12 @@
 # ManagedWimLib
 
+<div style="text-align: left">
+    <img src="./Image/Logo.svg" height="128">
+</div>
+
 Cross-platform [wimlib](https://wimlib.net) pinvoke library for .NET.
 
 [wimlib](https://wimlib.net) is a library that handles Windows Imaging (WIM) archives, written by [Eric Biggers](https://github.com/ebiggers).
-
-## Usage
-
-Please refer to this [document](https://github.com/ied206/ManagedWimLib/blob/v2.4.1/USAGE.md).
-
-## Tested wimlib Versions
-
-- 1.13.6 (Included)
 
 ## Support
 
@@ -20,12 +16,12 @@ Please refer to this [document](https://github.com/ied206/ManagedWimLib/blob/v2.
 - .NET Standard 2.0
 - .NET Framework 4.6
 
-### Discontinued target frameworks
+#### Discontinued frameworks
 
-| Platform             | Last Supported Version                                       |
-|----------------------|--------------------------------------------------------------|
-| .NET Standard 1.3    | [v1.1.2](https://www.nuget.org/packages/ManagedWimLib/1.1.2) |
-| .NET Framework 4.5   | [v1.2.4](https://www.nuget.org/packages/ManagedWimLib/1.2.4) |
+| Platform | Last Supported Version |
+|----------|------------------------|
+| .NET Standard 1.3 | [v1.1.2](https://www.nuget.org/packages/ManagedWimLib/1.1.2) |
+| .NET Framework 4.5 | [v1.2.4](https://www.nuget.org/packages/ManagedWimLib/1.2.4) |
 | .NET Framework 4.5.1 | [v2.4.0](https://www.nuget.org/packages/ManagedWimLib/2.4.0) |
 
 ### Supported OS platforms
@@ -45,7 +41,7 @@ Please refer to this [document](https://github.com/ied206/ManagedWimLib/blob/v2.
 
 | Architecture | Distribution | Note |
 |--------------|--------------|------|
-| x64          | Ubuntu 20.04 | CI testd |
+| x64          | Ubuntu 20.04 | Tested on AppVeyor CI         |
 | arm          | Debian 11    | Emulated on QEMU's virt board |
 | arm64        | Debian 11    | Emulated on QEMU's virt board |
 
@@ -56,3 +52,12 @@ Please refer to this [document](https://github.com/ied206/ManagedWimLib/blob/v2.
 ## Usage
 
 See [USAGE.md](./USAGE.md).
+
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md).
+
+## License
+
+- `ManagedWimLib` is licensed under [LGPLv3](./LICENSE).
+- The logo, [disc](https://thenounproject.com/term/disc/772617) by Ralf Schmitzer from the Noun Project, is licensed under CC BY 3.0 US.

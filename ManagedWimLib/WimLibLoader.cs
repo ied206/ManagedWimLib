@@ -73,7 +73,7 @@ namespace ManagedWimLib
         {
             get
             {
-#if !NET46
+#if !NETFRAMEWORK
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     return "libwim.so.15";
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
