@@ -1,39 +1,45 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net451;netstandard2.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net46;netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <PackageId>ManagedWimLib</PackageId>
     <Title>ManagedWimLib</Title>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>2.4.0</Version>
+    <Version>2.5.0</Version>
     <Authors>Eric Biggers, Hajin Jang</Authors>
     <Company>Joveler</Company>
     <Description>Native wimlib wrapper library for .NET.
 Provides every capabilities of wimlib.
 Supports Windows, Linux and macOS.</Description>
-    <Copyright>Copyright (c) 2018-2022 Hajin Jang</Copyright>
+    <Copyright>Copyright (c) 2018-2023 Hajin Jang</Copyright>
     <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
     <PackageIcon>images\Logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/ied206/ManagedWimLib</RepositoryUrl>
-    <PackageReleaseNotes>- Official support for ARM64 macOS.
-- Replace .NET Standard 2.1 target with .NET Core 3.1.</PackageReleaseNotes>
+    <PackageReleaseNotes>- Support wimlib 1.13.6.
+- Target .NET Framework 4.6 instead of deprecated 4.5.1.</PackageReleaseNotes>
     <PackageTags>wim wimlib dism imagex archive native pinvoke interop</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <!-- PackageReference -->
   <ItemGroup>
     <PackageReference Include="Joveler.DynLoader" Version="2.1.1" />
-    <PackageReference Include="System.Memory" Version="4.5.4" Condition=" '$(TargetFramework)' == 'net451' or '$(TargetFramework)' == 'netstandard2.0' " />
+    <PackageReference Include="System.Memory" Version="4.5.5" Condition=" '$(TargetFramework)' == 'net46' or '$(TargetFramework)' == 'netstandard2.0' " />
+    <!-- <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" Condition=" '$(TargetFramework)' == 'net46' " /> -->
   </ItemGroup>
-  <!-- Native Library for .NET Framework 4.5.1 -->
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
+  <!-- Native Library for .NET Framework 4.6 -->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
     <None Include="runtimes\win-x86\native\*.dll">
       <Link>x86\%(FileName)%(Extension)</Link> <!-- Project Reference -->
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="runtimes\win-x64\native\*.dll">
       <Link>x64\%(FileName)%(Extension)</Link> <!-- Project Reference -->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="runtimes\win-arm64\native\*.dll">
+      <Link>arm64\%(FileName)%(Extension)</Link> <!-- Project Reference -->
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -74,8 +80,10 @@ Supports Windows, Linux and macOS.</Description>
   </ItemGroup>
   <!-- NuGet Pacakge -->
   <ItemGroup>
+    <!-- Nuget README -->
+    <None Include="NUGET_README.md" Pack="true" PackagePath="\README.md"/>
     <!-- Build Script for .NET Framework -->
-    <None Include="ManagedWimLib.netfx.targets" Pack="true" PackagePath="build\net451\ManagedWimLib.targets" />
+    <None Include="ManagedWimLib.netfx.targets" Pack="true" PackagePath="build\net46\ManagedWimLib.targets" />
     <!-- NuGet Pacakge Icon -->
     <None Include="..\Image\Logo.png" Pack="true" PackagePath="images\Logo.png" />
     <!-- Native Library -->

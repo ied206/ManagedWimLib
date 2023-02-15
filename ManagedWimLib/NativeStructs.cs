@@ -2413,6 +2413,35 @@ namespace ManagedWimLib
     /// Each nonempty stream of each file in a WIM image is associated with a blob.
     /// Blobs are deduplicated within a WIM file.
     /// </summary>
+    /// <remarks>
+    /// TODO: this struct needs to be renamed, and perhaps made into a union since
+    /// there are several cases.  I'll try to list them below:
+    ///
+    /// 1. The blob is "missing", meaning that it is referenced by hash but not
+    ///    actually present in the WIM file.  In this case we only know the
+    ///    sha1_hash.  This case can only occur with <see cref="Wim.IterateDirTree(int, string, IterateDirTreeFlags, IterateDirTreeCallback)"/>, 
+    ///    never <see cref="Wim.IterateLookupTable(IterateLookupTableFlags, IterateLookupTableCallback)"/>.
+    ///
+    /// 2. Otherwise we know the uncompressed_size, the reference_count, and the
+    ///    is_metadata flag.  In addition:
+    ///
+    ///    A. If the blob is located in a non-solid WIM resource, then we also know
+    ///       the <see cref="SHA1"/>, <see cref="CompressedSize"/>, and <see cref="Offset"/>.
+    ///
+    ///    B. If the blob is located in a solid WIM resource, then we also know the
+    ///       <see cref="SHA1"/>, <see cref="Offset"/>, <see cref="RawResourceOffsetInWim"/>,
+    ///       <see cref="RawResourceCompressedSize"/>, <see cref="RawResourceUncompressedSize"/>. 
+    ///       But the "<see cref="Offset"/" is actually the offset in the uncompressed solid resource
+    ///       rather than the offset from the beginning of the WIM file.
+    ///
+    ///    C. If the blob is *not* located in any type of WIM resource, for example
+    ///       if it's in a external file that was scanned by <see cref="Wim.AddImage(string, string, string, AddFlags)"/>, then
+    ///       we usually won't know any more information.  The <see cref="SHA1"/> might be
+    ///       known, and prior to wimlib v1.13.6 it always was; however, in wimlib
+    ///       v1.13.6 and later, the <see cref="SHA1"/> might not be known in this case.
+    ///
+    /// Unknown or irrelevant fields are left zeroed.
+    /// </remarks>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     public class ResourceEntry
     {
@@ -2430,7 +2459,7 @@ namespace ManagedWimLib
         /// </summary>
         public ulong Offset;
         /// <summary>
-        /// The SHA-1 message digest of the blob's uncompressed contents.
+        /// If this blob is located in a WIM resource, then this is the SHA-1 message digest of the blob's uncompressed contents.
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
         public byte[] SHA1;

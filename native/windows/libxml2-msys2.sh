@@ -55,6 +55,7 @@ CORES=$(grep -c ^processor /proc/cpuinfo)
 
 # Create prefix directory
 LIB_PREFIX="${BASE_DIR}/build-prefix-${ARCH}"
+rm -rf "${LIB_PREFIX}"
 mkdir -p "${LIB_PREFIX}"
 
 # Compile libxml2

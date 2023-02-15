@@ -2,6 +2,26 @@
 
 ## v2.x
 
+### v2.4.1
+
+Relased on 2023-??-??
+
+- Support wimlib 1.13.6.
+- Target .NET Framework 4.6 instead of deprecated 4.5.1.
+
+### v2.4.0
+
+Relewsed on 2021-02-15
+
+- Official support for ARM64 macOS.
+- Replace .NET Standard 2.1 target with .NET Core 3.1.
+
+### v2.3.0
+
+Released on 2022-01-28
+
+- Update included wimlib to 1.13.5.
+
 ### v2.2.0
 
 Released on 2021-05-15
@@ -40,8 +60,8 @@ Released on 2020-06-07
     - Rewrote progress callback strcuts into classes to improve callback performance.
     - Rewrote iterate functions and their callbacks.
         - Renamed `IterateFlags` into `IterateDirTreeFlags`.
-        - Reserve `IterateLookupTableFlags` to used in `Wim.IterateLookupTable()`.
-        - `IterateDirTreeCallback` now returns int instead of `CallbackStatus`. A callback must return `Wim.IterateCallbackSuccess` on success, or an `ErrorCode` on error.
+        - Reserve `IterateLookupTableFlags` to be used in `Wim.IterateLookupTable()`.
+        - `IterateDirTreeCallback` now returns `int` instead of `CallbackStatus`. A callback must return `Wim.IterateCallbackSuccess` on success, or an `ErrorCode` on error.
     - Added `InitFlags` and overloads of `GlobalInit()`.
     - Replaced `ManagedWimLib.FileAttribute` with standard [System.IO.FileAttributes](https://docs.microsoft.com/en-US/dotnet/api/system.io.fileattributes).
     - Removed `Wim.PathSeparator`, using standard [Path.DirectorySeparatorChar](https://docs.microsoft.com/en-us/dotnet/api/system.io.path.directoryseparatorchar) is recommended.

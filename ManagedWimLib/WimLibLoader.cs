@@ -73,7 +73,7 @@ namespace ManagedWimLib
         {
             get
             {
-#if !NET451
+#if !NETFRAMEWORK
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     return "libwim.so.15";
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -553,13 +553,12 @@ namespace ManagedWimLib
             /// Set the path to the file to which the library will print error and warning messages.
             /// The library will open this file for appending.
             /// 
-            /// This also enables error messages, as if by a call to wimlib_set_print_errors(true).
+            /// This also enables error messages, as if by a call to <see cref="Wim.SetPrintErrors()"/>.
             /// </summary>
-            /// <remarks>
-            /// WIMLIB_ERR_OPEN: The file named by @p path could not be opened for appending.
-            /// WIMLIB_ERR_UNSUPPORTED: wimlib was compiled using the <c>--without-error-messages</c> option.
-            /// </remarks>
-            /// <returns>0 on success; a ::wimlib_error_code value on failure.</returns>
+            /// <returns>
+            /// 0 on success; a ::wimlib_error_code value on failure
+            /// WIMLIB_ERR_OPEN: The file named by @p path could not be opened for appending
+            /// </returns>
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_set_error_file_by_name(
                 [MarshalAs(StrType)] string path);
@@ -1279,7 +1278,7 @@ namespace ManagedWimLib
         internal delegate ErrorCode wimlib_global_init(InitFlags initFlags);
         /// <summary>
         /// Initialization function for wimlib.
-        /// Call before using any other wimlib function (except possibly Wim.SetPrintErrors()).
+        /// Call before using any other wimlib function (except possibly <see cref="Wim.SetPrintErrors()"/>).
         /// If not done manually, this function will be called automatically with a flags argument of 0.
         /// This function does nothing if called again after it has already successfully run.
         /// </summary>
@@ -1360,12 +1359,9 @@ namespace ManagedWimLib
         /// 
         /// By default, error messages are not printed.
         /// This setting applies globally (it is not per-WIM).
-        /// This can be called before wimlib_global_init().
+        /// This can be called before <see cref="Wim.GlobalInit()"/>.
         /// </summary>
-        /// <remarks>
-        /// WIMLIB_ERR_UNSUPPORTED: wimlib was compiled using the --without-error-messages option.
-        /// </remarks>
-        /// <returns></returns>
+        /// <returns>0</returns>
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_set_print_errors([MarshalAs(UnmanagedType.I1)] bool showMessages);
         private wimlib_set_print_errors SetPrintErrorsPtr;
@@ -1376,6 +1372,7 @@ namespace ManagedWimLib
             {
                 ErrorCode ret = SetPrintErrorsPtr(showMessages);
 
+                // [*] v1.13.5 or earlier
                 // When ret is ErrorCode.Unsupported, wimlib was compiled using the --without-error-messages option.
                 // In that case, ManagedWimLib must not throw WimException.
                 if (ret == ErrorCode.Unsupported)

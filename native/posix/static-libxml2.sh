@@ -30,6 +30,7 @@ BASE_DIR=$(dirname "${BASE_ABS_PATH}")
 LIB_PREFIX="${BASE_DIR}/build-prefix"
 
 # Create prefix directory
+rm -rf "${LIB_PREFIX}"
 mkdir -p "${LIB_PREFIX}"
 
 # Compile libxml2
