@@ -2,11 +2,8 @@
 # wimlib-msys2.sh: compile wimlib for Windows
 
 # Sometimes, llvm-mingw cannot cross compile wimlib-imagex.exe.
-# It is strongly believed that the LLVM linker is the main cause.
-# If it happens, try using default ld from MSYS2 MinGW.
-
-# LD = i686-w64-mingw32-ld
-# LD = C:/msys64/mingw64/x86_64-w64-mingw32/bin/ld.exe
+# It may happen when the LLVM linker is used.
+# If it happens, try using default ld from MSYS2 MinGW
 
 # [*] Check script arguments
 while getopts "a:t:" opt; do
@@ -66,7 +63,6 @@ then
     STRIP="strip"
 fi
 
-
 BASE_DIR=$(dirname "${BASE_ABS_PATH}")
 DEST_DIR="${BASE_DIR}/build-bin-${ARCH}"
 rm -rf "${DEST_DIR}"
@@ -115,4 +111,7 @@ pushd "${DEST_DIR}" > /dev/null
 ${CHECKDEP} *.dll
 popd > /dev/null
 
-echo "Collect [libwinpthread-1.dll] from your toolchain!"
+# winpthreads-1.dll warning
+echo ""
+echo "Please check if winpthreads-1.dll is required."
+ 
