@@ -37,25 +37,21 @@ Cross-platform [wimlib](https://wimlib.net) pinvoke library for .NET.
 | macOS    | x64          | Yes    |
 |          | arm64        | Yes    |
 
-#### Tested linux distributions
+#### Tested Linux distributions
 
 | Architecture | Distribution | Note |
 |--------------|--------------|------|
-| x64          | Ubuntu 20.04 | Tested on AppVeyor CI         |
-| arm          | Debian 11    | Emulated on QEMU's virt board |
-| arm64        | Debian 11    | Emulated on QEMU's virt board |
+| x64          | Ubuntu 20.04 |      |
+| arm          | Debian 12    | Emulated on QEMU's virt board |
+| arm64        | Debian 12    | Emulated on QEMU's virt board |
 
 ### Supported wimlib version
 
-- 1.13.6 (Included)
+- 1.14.1 (Included)
 
 ## Usage
 
-See [USAGE.md](./USAGE.md).
-
-## Changelog
-
-See [CHANGELOG.md](./CHANGELOG.md).
+Please refer to the project homepage.
 
 ## License
 
