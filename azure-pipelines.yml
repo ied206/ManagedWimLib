@@ -29,8 +29,8 @@ steps:
     version: '6.0.x'
 - bash: |
     sudo apt-get update -y
-    sudo apt-get install libfuse2 -y
-  displayName: 'Install libfuse'
+    sudo apt-get install libfuse3-3 -y
+  displayName: 'Install libfuse3'
   condition: eq( variables['Agent.OS'], 'Linux' )
 - task: DotNetCoreCLI@2
   displayName: 'Restore Nuget Pacakges'

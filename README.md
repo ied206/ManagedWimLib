@@ -54,13 +54,13 @@ ManagedWimLib can be installed via [nuget](https://www.nuget.org/packages/Manage
 
 | Architecture | Distribution | Note |
 |--------------|--------------|------|
-| x64          | Ubuntu 20.04 | Tested on AppVeyor CI         |
-| arm          | Debian 11    | Emulated on QEMU's virt board |
-| arm64        | Debian 11    | Emulated on QEMU's virt board |
+| x64          | Ubuntu 20.04 |      |
+| arm          | Debian 12    | Emulated on QEMU's virt board |
+| arm64        | Debian 12    | Emulated on QEMU's virt board |
 
 ### Supported wimlib version
 
-- 1.13.6 (Included)
+- 1.14.1 (Included)
 
 ## Usage
 
