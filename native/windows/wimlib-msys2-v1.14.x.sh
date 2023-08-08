@@ -34,7 +34,8 @@ TARGET_TRIPLE="${ARCH}-w64-mingw32"
 WIMLIB_CFLAGS="-Os -static-libgcc -Wno-unused-command-line-argument "
 #WIMLIB_LDFLAGS="-lucrt"  # Force linking to UCRT, to unify CRT with .NET runtime
 #WIMLIB_LD="ld"
-WIMLIB_LDFLAGS="-m i386pe"
+#WIMLIB_LDFLAGS="-m i386pe"
+WIMLIB_LDFLAGS=""
 if [ "${ARCH}" = i686 ]; then
     :
 elif [ "${ARCH}" = x86_64 ]; then
