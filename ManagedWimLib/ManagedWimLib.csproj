@@ -2,10 +2,12 @@
   <PropertyGroup>
     <TargetFrameworks>net46;netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0;netcoreapp3.1</TargetFrameworks>
-    <PackageId>ManagedWimLib</PackageId>
-    <Title>ManagedWimLib</Title>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsTrimmable>true</IsTrimmable>
+    
+    <PackageId>ManagedWimLib</PackageId>
+    <Title>ManagedWimLib</Title>
     <Version>2.5.1</Version>
     <Authors>Eric Biggers, Hajin Jang</Authors>
     <Company>Joveler</Company>
@@ -23,7 +25,7 @@ Supports Windows, Linux and macOS.</Description>
   </PropertyGroup>
   <!-- PackageReference -->
   <ItemGroup>
-    <PackageReference Include="Joveler.DynLoader" Version="2.1.1" />
+    <PackageReference Include="Joveler.DynLoader" Version="2.2.0" />
     <PackageReference Include="System.Memory" Version="4.5.5" Condition=" '$(TargetFramework)' == 'net46' or '$(TargetFramework)' == 'netstandard2.0' " />
     <!-- <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" Condition=" '$(TargetFramework)' == 'net46' " /> -->
   </ItemGroup>
@@ -80,7 +82,7 @@ Supports Windows, Linux and macOS.</Description>
   <!-- NuGet Pacakge -->
   <ItemGroup>
     <!-- Nuget README -->
-    <None Include="NUGET_README.md" Pack="true" PackagePath="\README.md"/>
+    <None Include="NUGET_README.md" Pack="true" PackagePath="\README.md" />
     <!-- Build Script for .NET Framework -->
     <None Include="ManagedWimLib.netfx.targets" Pack="true" PackagePath="build\net46\ManagedWimLib.targets" />
     <!-- NuGet Pacakge Icon -->
