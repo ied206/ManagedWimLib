@@ -60,7 +60,7 @@ ManagedWimLib can be installed via [nuget](https://www.nuget.org/packages/Manage
 
 ### Supported wimlib version
 
-- 1.14.1 (Included)
+- 1.14.2 (Included)
 
 ## Usage
 

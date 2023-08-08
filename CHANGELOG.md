@@ -2,9 +2,21 @@
 
 ## v2.x
 
-### v2.4.1
+### v2.5.1
 
-Relased on 2023-??-??
+Released on 2023-08-08
+
+- Update to wimlib 1.14.2.
+
+### v2.5.1
+
+Released on 2023-08-01
+
+- Update to wimlib 1.14.1.
+
+### v2.5.0
+
+Released on 2023-02-16
 
 - Support wimlib 1.13.6.
 - Target .NET Framework 4.6 instead of deprecated 4.5.1.
