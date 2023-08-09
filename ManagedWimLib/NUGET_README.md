@@ -33,23 +33,10 @@ Cross-platform [wimlib](https://wimlib.net) pinvoke library for .NET.
 | macOS    | x64          | Yes    |
 |          | arm64        | Yes    |
 
-#### Tested Linux distributions
-
-| Architecture | Distribution | Note |
-|--------------|--------------|------|
-| x64          | Ubuntu 20.04 |      |
-| arm          | Debian 12    | Emulated on QEMU's virt board |
-| arm64        | Debian 12    | Emulated on QEMU's virt board |
-
 ### Supported wimlib version
 
-- 1.14.1 (Included)
+- 1.14.2 (Included)
 
 ## Usage
 
 Please refer to the project homepage.
-
-## License
-
-- `ManagedWimLib` is licensed under [LGPLv3](./LICENSE).
-- The logo, [disc](https://thenounproject.com/term/disc/772617) by Ralf Schmitzer from the Noun Project, is licensed under CC BY 3.0 US.

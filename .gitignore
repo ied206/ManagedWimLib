@@ -6,6 +6,7 @@ res/
 native/posix/build-*/
 native/windows/build-*/
 *.db
+.editorconfig
 
 # User-specific files
 *.suo

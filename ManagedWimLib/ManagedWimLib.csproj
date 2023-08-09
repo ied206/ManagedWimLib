@@ -2,11 +2,13 @@
   <PropertyGroup>
     <TargetFrameworks>net46;netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0;netcoreapp3.1</TargetFrameworks>
-    <PackageId>ManagedWimLib</PackageId>
-    <Title>ManagedWimLib</Title>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>2.5.1</Version>
+    <IsTrimmable>true</IsTrimmable>
+    
+    <PackageId>ManagedWimLib</PackageId>
+    <Title>ManagedWimLib</Title>
+    <Version>2.5.2</Version>
     <Authors>Eric Biggers, Hajin Jang</Authors>
     <Company>Joveler</Company>
     <Description>Native wimlib wrapper library for .NET.
@@ -17,13 +19,13 @@ Supports Windows, Linux and macOS.</Description>
     <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
     <PackageIcon>images\Logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/ied206/ManagedWimLib</RepositoryUrl>
-    <PackageReleaseNotes>- Support wimlib 1.14.1.</PackageReleaseNotes>
+    <PackageReleaseNotes>- Update to wimlib 1.14.2</PackageReleaseNotes>
     <PackageTags>wim wimlib dism imagex archive native pinvoke interop</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <!-- PackageReference -->
   <ItemGroup>
-    <PackageReference Include="Joveler.DynLoader" Version="2.1.1" />
+    <PackageReference Include="Joveler.DynLoader" Version="2.2.0" />
     <PackageReference Include="System.Memory" Version="4.5.5" Condition=" '$(TargetFramework)' == 'net46' or '$(TargetFramework)' == 'netstandard2.0' " />
     <!-- <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" Condition=" '$(TargetFramework)' == 'net46' " /> -->
   </ItemGroup>
@@ -80,7 +82,7 @@ Supports Windows, Linux and macOS.</Description>
   <!-- NuGet Pacakge -->
   <ItemGroup>
     <!-- Nuget README -->
-    <None Include="NUGET_README.md" Pack="true" PackagePath="\README.md"/>
+    <None Include="NUGET_README.md" Pack="true" PackagePath="\README.md" />
     <!-- Build Script for .NET Framework -->
     <None Include="ManagedWimLib.netfx.targets" Pack="true" PackagePath="build\net46\ManagedWimLib.targets" />
     <!-- NuGet Pacakge Icon -->

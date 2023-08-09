@@ -92,7 +92,7 @@ public static void InitNativeLibrary()
 
 ### Embedded binary
 
-ManagedWimLib comes with sets of binaries of `wimlib 1.14.1`. They will be copied into the build directory at build time.
+ManagedWimLib comes with sets of binaries of `wimlib 1.14.2`. They will be copied into the build directory at build time.
 
 #### On .NET Framework
 
@@ -120,7 +120,7 @@ ManagedWimLib comes with sets of binaries of `wimlib 1.14.1`. They will be copie
 - Linux binaries are not portable by nature. Included binaries may not work on your distribution.
     - On Linux, wimlib depends on system-installed `libfuse3-3`.
 - If you call `Wim.GlobalInit()` without the `libPath` parameter on Linux or macOS, `ManagedWimLib` will search for system-installed wimlib.
-- POSIX binaries were compiled without NTFS-3G support to make them LGPLv3-licensed.
+- Linux binaries were compiled without NTFS-3G support to make them LGPLv3-licensed.
     - If you want NTFS-3G functionality, load the system-installed library and make sure your program is compatible with **GPLv3**.
 
 #### Build Command
