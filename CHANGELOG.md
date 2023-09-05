@@ -2,17 +2,23 @@
 
 ## v2.x
 
-### v2.5.1
+### v2.5.2
 
-Released on 2023-08-08
+Released on 2023-09-06
 
-- Update to wimlib 1.14.2.
+- Update wimlib binaries to 1.14.3.
+
+### v2.5.2
+
+Released on 2023-08-09
+
+- Update wimlib binaries to 1.14.2.
 
 ### v2.5.1
 
 Released on 2023-08-01
 
-- Update to wimlib 1.14.1.
+- Update wimlib binaries to 1.14.1.
 
 ### v2.5.0
 
