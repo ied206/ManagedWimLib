@@ -22,7 +22,7 @@ using Joveler.DynLoader;
 
 namespace ManagedWimLib
 {
-    internal class WimLibLoadManager : LoadManagerBase<WimLibLoader>
+    internal sealed class WimLibLoadManager : LoadManagerBase<WimLibLoader>
     {
         protected override string ErrorMsgInitFirst => "Please call Wim.GlobalInit() first!";
         protected override string ErrorMsgAlreadyLoaded => "ManagedWimLib is already initialized.";
