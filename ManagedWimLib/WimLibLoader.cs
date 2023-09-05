@@ -31,7 +31,7 @@ using System.Runtime.InteropServices;
 
 namespace ManagedWimLib
 {
-    internal class WimLibLoader : DynLoaderBase
+    internal sealed class WimLibLoader : DynLoaderBase
     {
         #region Const
         internal const string MsgErrorFileNotSet = "ErrorFile is not set unable to read last error.";

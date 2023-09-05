@@ -35,7 +35,7 @@ Cross-platform [wimlib](https://wimlib.net) pinvoke library for .NET.
 
 ### Supported wimlib version
 
-- 1.14.2 (Included)
+- 1.14.3 (Included)
 
 ## Usage
 

@@ -24,7 +24,6 @@
 using Joveler.DynLoader;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -36,25 +35,76 @@ namespace ManagedWimLib
         #region (static) LoadManager
         internal static WimLibLoadManager Manager = new WimLibLoadManager();
         internal static WimLibLoader Lib => Manager.Lib;
+        internal static object _libLock = new object();
         #endregion
 
         #region (static) GlobalInit, GlobalCleanup
+        /// <summary>
+        /// Load system default wimlib library.
+        /// </summary>
         public static void GlobalInit() => GlobalInit(InitFlags.None);
+        /// <summary>
+        /// Load system default wimlib library with given flags.
+        /// </summary>
+        /// <param name="flags">Flags to be passed to wimlib.</param>
         public static void GlobalInit(InitFlags flags)
         {
-            Manager.GlobalInit();
-            Lib.GlobalInit(flags);
+            lock (_libLock)
+            {
+                Manager.GlobalInit();
+                Lib.GlobalInit(flags);
+            }
         }
+        /// <summary>
+        /// Load given wimlib library.
+        /// </summary>
+        /// <param name="libPath">The path to the libary file.</param>
         public static void GlobalInit(string libPath) => GlobalInit(libPath, InitFlags.None);
+        /// <summary>
+        /// Load given wimlib library with given flags.
+        /// </summary>
+        /// <param name="libPath">The path to the libary file.</param>
+        /// <param name="flags">Flags to be passed to wimlib.</param>
         public static void GlobalInit(string libPath, InitFlags flags)
         {
-            Manager.GlobalInit(libPath);
-            Lib.GlobalInit(flags);
+            lock (_libLock)
+            {
+                Manager.GlobalInit(libPath);
+                Lib.GlobalInit(flags);
+            }
         }
+        /// <summary>
+        /// Cleanup loaded wimlib library.
+        /// Throws InvalidOperationException when the wimlib library was not loaded.
+        /// </summary>
         public static void GlobalCleanup()
         {
-            Lib.GlobalCleanup();
-            Manager.GlobalCleanup();
+            lock (_libLock)
+            {
+                if (Lib.GlobalCleanup == null)
+                    throw new InvalidOperationException("Please load wimlib library first.");
+
+                Lib.GlobalCleanup();
+                Manager.GlobalCleanup();
+            }   
+        }
+        /// <summary>
+        /// Cleanup loaded wimlib library.
+        /// Returns queitly when the wimlib lirary was not loaded.
+        /// </summary>
+        /// <remarks>
+        /// Returns true when the library was successfully unloaded.
+        /// </remarks>
+        public static bool TryGlobalCleanup()
+        {
+            lock (_libLock)
+            {
+                if (Lib.GlobalCleanup == null)
+                    return false;
+
+                Lib.GlobalCleanup();
+                return Manager.TryGlobalCleanup();
+            }   
         }
         #endregion
 
