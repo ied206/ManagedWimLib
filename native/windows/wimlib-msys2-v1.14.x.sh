@@ -57,6 +57,7 @@ fi
 BASE_ABS_PATH=$(readlink -f "$0")
 CORES=$(grep -c ^processor /proc/cpuinfo)
 DEST_LIB="libwim-15.dll"
+DEST_EXE="wimlib-imagex.exe"
 STRIP="${TARGET_TRIPLE}-strip"
 CHECKDEP="ldd"
 if ! command -v "${STRIP}" &> /dev/null
@@ -88,9 +89,12 @@ fi
 pushd "${SRCDIR}" > /dev/null
 make clean
 # ./configure --host=${TARGET_TRIPLE} --disable-static CFLAGS="-static-libgcc" \
+# --libdir=${SRCDIR} required for cross-compiling wimlib-imagex.exe.
+# If not, libtool automatically include `-L/ucrt64/lib`, causing x86_64 libmsvcrt.a/libmingw32.a to be always linked and cause an error.
 ./configure --host=${TARGET_TRIPLE} --disable-static \
     CFLAGS="${WIMLIB_CFLAGS}" LDFLAGS="${WIMLIB_LDFLAGS}" \
     --without-ntfs-3g --without-fuse \
+    --libdir="${SRCDIR}" \
     ${EXTRA_ARGS}
 if [[ $? -ne 0 ]]; then # configure failed
     echo "./configure failed, please check config.log." >&2
@@ -98,18 +102,19 @@ if [[ $? -ne 0 ]]; then # configure failed
 fi
 make -j${CORES}
 cp ".libs/${DEST_LIB}" "${DEST_DIR}"
+cp ".libs/${DEST_EXE}" "${DEST_DIR}"
 popd > /dev/null
 
 # Strip binaries
 pushd "${DEST_DIR}" > /dev/null
-ls -lh *.dll
-${STRIP} *.dll
-ls -lh *.dll
+ls -lh *.dll *.exe
+${STRIP} *.dll *.exe
+ls -lh *.dll *.exe
 popd > /dev/null
 
 # Check dependency of binaries
 pushd "${DEST_DIR}" > /dev/null
-${CHECKDEP} *.dll
+${CHECKDEP} *.dll *.exe
 popd > /dev/null
 
 # winpthreads-1.dll warning
