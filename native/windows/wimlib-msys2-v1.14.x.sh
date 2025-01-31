@@ -130,27 +130,34 @@ if ! [[ -z "${TOOLCHAIN_DIR}" ]]; then
     export PATH=${TOOLCHAIN_DIR}/bin:${PATH}
 fi
 
+# Prevent libtool quirk which 'linker path does not have real file for...' error.
+# https://github.com/msys2/MINGW-packages/discussions/8056
+export lt_cv_deplibs_check_method=${lt_cv_deplibs_check_method='pass_all'}
+
 # Compile wimlib
 # Adapted from https://wimlib.net/git/?p=wimlib;a=tree;f=tools/make-windows-release;
 BUILD_MODES=( "exe" "lib" )
 pushd "${SRCDIR}" > /dev/null
 for BUILD_MODE in "${BUILD_MODES[@]}"; do
     CONFIGURE_ARGS=""
+    WIMLIB_CFLAGS="-D_NO_CRT_STDIO_INLINE"
     if [ "$BUILD_MODE" = "lib" ]; then
         CONFIGURE_ARGS="--disable-static --enable-shared"
         # WIMLIB_LDFLAGS="-no-undefined"
     elif [ "$BUILD_MODE" = "exe" ]; then
         CONFIGURE_ARGS="--enable-static --disable-shared"
     fi
-    
+
     make clean
     # ./configure --host=${TARGET_TRIPLE} --disable-static CFLAGS="-static-libgcc" \
     # --libdir=${SRCDIR} required for cross-compiling wimlib-imagex.exe.
     # If not, libtool automatically include `-L/ucrt64/lib`, causing x86_64 libmsvcrt.a/libmingw32.a to be always linked and cause an error.
-    ./configure --host=${TARGET_TRIPLE} --libdir="${SRCDIR}" \
+    # ./configure --host=${TARGET_TRIPLE} --libdir="${SRCDIR}" \
+    ./configure --host=${TARGET_TRIPLE} --libdir="${TOOLCHAIN_DIR}/${TARGET_TRIPLE}/lib" \
         ${CONFIGURE_ARGS} \
         --without-ntfs-3g --without-fuse \
-        "CFLAGS=${WIMLIB_CFLAGS}" "LDFLAGS=${WIMLIB_LDFLAGS}" \
+        CFLAGS="${WIMLIB_CFLAGS} -Os" \
+        LDFLAGS="${WIMLIB_LDFLAGS}" \
         ${EXTRA_ARGS}
     if [[ $? -ne 0 ]]; then # configure failed
         echo "./configure failed, please check config.log." >&2
