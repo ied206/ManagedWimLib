@@ -9,7 +9,6 @@ function print_help() {
 
 # Check script arguments
 CROSS_ARCH=""
-CROSS_TRIPLE=""
 while getopts "a:h" opt; do
     case $opt in
         a) # pre-defined Architecture for cross-compile
@@ -115,23 +114,22 @@ elif [[ "${OS}" == Darwin ]]; then
     # https://developer.apple.com/documentation/apple-silicon/building-a-universal-macos-binary
     # https://gist.github.com/andrewgrant/477c7037b1fc0dd7275109d3f2254ea9
     if [[ "${CROSS_ARCH}" == x86_64 ]]; then
-        TARGET_ARCH="x86_64"
+        TARGET_MAC_ARCH="x86_64"
     elif [[ "${CROSS_ARCH}" == aarch64 || "${CROSS_ARCH}" == arm64 ]]; then
-        TARGET_ARCH="arm64"
+        TARGET_MAC_ARCH="arm64"
     elif [[ "${CROSS_ARCH}" != "" ]]; then
         echo "[${ARCH}] is not a pre-defined architecture" >&2
         exit 1
     fi
 
-    if [[ "${CROSS_ARCH}" != "" ]]; then
-        DEST_DIR="${DEST_DIR}-${CROSS_ARCH}"
-        LIB_PREFIX="${LIB_PREFIX}-${CROSS_ARCH}"
-        echo "(Cross compile) Target architecture set to [${CROSS_ARCH}]"
+    if [[ "${TARGET_MAC_ARCH}" != "" ]]; then
+        DEST_DIR="${DEST_DIR}-${TARGET_MAC_ARCH}"
+        LIB_PREFIX="${LIB_PREFIX}-${TARGET_MAC_ARCH}"
+        echo "(Cross compile) Target architecture set to [${TARGET_MAC_ARCH}]"
     fi 
 fi
 PKGCONF_DIR="${LIB_PREFIX}/lib/pkgconfig"
 
-# Prepare to compiled wimlib
 # Turn off fuse on macOS build
 if [[ "${OS}" == Darwin ]]; then 
     EXTRA_ARGS="${EXTRA_ARGS} --without-fuse"
@@ -141,10 +139,10 @@ fi
 if [[ "${TARGET_TRIPLE}" != "" ]]; then
     EXTRA_ARGS="${EXTRA_ARGS} --host=${TARGET_TRIPLE}"
 fi 
-if [[ "${TARGET_ARCH}" != "" ]]; then
-    CPPFLAGS="${CPPFLAGS} -arch ${TARGET_ARCH}"
-    CFLAGS="${CFLAGS} -arch ${TARGET_ARCH}"
-    LDFLAGS="${LDFLAGS} -arch ${TARGET_ARCH}"
+if [[ "${TARGET_MAC_ARCH}" != "" ]]; then
+    CPPFLAGS="${CPPFLAGS} -arch ${TARGET_MAC_ARCH}"
+    CFLAGS="${CFLAGS} -arch ${TARGET_MAC_ARCH}"
+    LDFLAGS="${LDFLAGS} -arch ${TARGET_MAC_ARCH}"
     #CPPFLAGS="${CPPFLAGS} --target=${TARGET_ARCH}"
     #CFLAGS="${CFLAGS} --target=${TARGET_ARCH}"
     #LDFLAGS="${LDFLAGS} --target=${TARGET_ARCHi}"
@@ -157,8 +155,9 @@ mkdir -p "${DEST_DIR}"
 # Adapted from https://wimlib.net/git/?p=wimlib;a=tree;f=tools/make-windows-release;
 pushd "${SRCDIR}" > /dev/null
 make clean
-./configure --disable-static --enable-dynamic \
-    --without-ntfs-3g ${EXTRA_ARGS} \
+./configure --disable-static --enable-shared \
+    --without-ntfs-3g \
+    ${EXTRA_ARGS} \
     CPPFLAGS="${CPPFLAGS}" \
     CFLAGS="${CFLAGS} -Os" \
     LDFLAGS="${LDFLAGS}"
