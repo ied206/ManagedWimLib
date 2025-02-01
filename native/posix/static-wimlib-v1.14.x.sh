@@ -4,7 +4,7 @@
 function print_help() {
     echo "Usage: $0 [-a armhf|aarch64] <SRC_DIR>" >&2
     echo "" >&2
-    echo "-a: Specify architecture for cross-compiling (Linux only, Optional)" >&2
+    echo "-a: Specify architecture for cross-compiling (Optional)" >&2
 }
 
 # Check script arguments
@@ -28,9 +28,9 @@ done
 # Parse <SRC_DIR>
 shift $(( OPTIND - 1 ))
 SRCDIR="$@"
-if ! [[ -d "${SRC_DIR}" ]]; then
+if ! [[ -d "${SRCDIR}" ]]; then
     print_help
-    echo "Source [${SRC_DIR}] is not a directory!" >&2
+    echo "Source [${SRCDIR}] is not a directory!" >&2
     exit 1
 fi
 
@@ -61,7 +61,6 @@ fi
 BASE_DIR=$(dirname "${BASE_ABS_PATH}")
 DEST_DIR="${BASE_DIR}/build-bin"
 LIB_PREFIX="${BASE_DIR}/build-prefix"
-PKGCONF_DIR="${LIB_PREFIX}/lib/pkgconfig"
 
 # Required dependencies
 # Debian/Ubuntu: sudo apt install libfuse3-dev nasm pkg-config
@@ -107,6 +106,7 @@ if [[ "${OS}" == Linux ]]; then
 
     if [[ "${CROSS_ARCH}" != "" ]]; then
         DEST_DIR="${DEST_DIR}-${CROSS_ARCH}"
+        LIB_PREFIX="${LIB_PREFIX}-${CROSS_ARCH}"
     fi
     if [ "${TARGET_TRIPLE}" != "" ]; then
         echo "(Cross compile) Target triple set to [${TARGET_TRIPLE}]"
@@ -123,10 +123,13 @@ elif [[ "${OS}" == Darwin ]]; then
         exit 1
     fi
 
-    if [ "${CROSS_ARCH}" != "" ]; then
+    if [[ "${CROSS_ARCH}" != "" ]]; then
+        DEST_DIR="${DEST_DIR}-${CROSS_ARCH}"
+        LIB_PREFIX="${LIB_PREFIX}-${CROSS_ARCH}"
         echo "(Cross compile) Target architecture set to [${CROSS_ARCH}]"
     fi 
 fi
+PKGCONF_DIR="${LIB_PREFIX}/lib/pkgconfig"
 
 # Prepare to compiled wimlib
 # Turn off fuse on macOS build
@@ -173,6 +176,7 @@ popd > /dev/null
 
 # Check dependency of a binary
 pushd "${DEST_DIR}" > /dev/null
+file "${DEST_LIB}"
 ${CHECKDEP} "${DEST_LIB}"
 popd > /dev/null
 
