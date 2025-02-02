@@ -108,6 +108,10 @@ if [[ "${CROSS_ARCH}" != "" ]]; then
         STRIP="${TARGET_TRIPLE}-strip"
         DEST_DIR="${DEST_DIR}-${CROSS_ARCH}"
         LIB_PREFIX="${LIB_PREFIX}-${CROSS_ARCH}"
+
+        EXTRA_ARGS="${EXTRA_ARGS} PKG_CONFIG_PATH=\"${LIB_PREFIX}/lib/pkgconfig\""
+        CPPFLAGS="${CPPFLAGS} -I${LIB_PREFIX}/include"
+        LDFLAGS="${LDFLAGS} -L${LIB_PREFIX}/lib"
     elif [[ "${OS}" == Darwin ]]; then
         # https://developer.apple.com/documentation/apple-silicon/building-a-universal-macos-binary
         # https://gist.github.com/andrewgrant/477c7037b1fc0dd7275109d3f2254ea9
@@ -169,10 +173,9 @@ make clean
 ./configure --disable-static --enable-shared \
     --without-ntfs-3g \
     ${EXTRA_ARGS} \
-    PKG_CONFIG_PATH="${LIB_PREFIX}/lib/pkgconfig" \
-    CPPFLAGS="${CPPFLAGS} -I${LIB_PREFIX}/include" \
+    CPPFLAGS="${CPPFLAGS}" \
     CFLAGS="${CFLAGS} -Os" \
-    LDFLAGS="${LDFLAGS} -L${LIB_PREFIX}/lib"
+    LDFLAGS="${LDFLAGS}"
 
 make "-j${CORES}"
 cp ".libs/${DEST_LIB}" "${DEST_DIR}"
