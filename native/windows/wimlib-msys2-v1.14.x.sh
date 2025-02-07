@@ -6,21 +6,6 @@
 #     EVEN IF YOU ARE USING LLVM_MINGW!
 #   CCLD     libwim.la
 #
-# *** Warning: linker path does not have real file for library -lntdll.
-# *** I have the capability to make that library automatically link in when
-# *** you link to this library.  But I can only do this if you have a
-# *** shared version of the library, which you do not appear to have
-# *** because I did check the linker path looking for a file starting
-# *** with libntdll and none of the candidates passed a file format test
-# *** using a file magic. Last file checked: C:/Joveler/Tools/llvm-mingw/aarch64-w64-mingw32/lib/libntdll.a
-# *** The inter-library dependencies that have been dropped here will be
-# *** automatically added whenever a program is linked with this library
-# *** or is declared to -dlopen it.
-
-# *** Since this library must not contain undefined symbols,
-# *** because either the platform does not support them or
-# *** it was explicitly requested with -no-undefined,
-# *** libtool will only create a static version of it.
 
 
 function print_help() {
