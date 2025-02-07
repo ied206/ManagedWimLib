@@ -91,13 +91,13 @@ if [[ ! -z "${RADARE2_DIR}" ]]; then # -r not set
         RABIN2=
     fi
 fi
-if [[ -z "${RABIN2}" ]] ;then
+if [[ -z "${RABIN2}" ]]; then
     which rabin2 > /dev/null
-    if [[ $? -eq 0 ]]; then # rabin is callableUnable to find rabin2
+    if [[ $? -eq 0 ]]; then # rabin is callable
         RABIN2=rabin2
     fi
 fi
-if [[ ! -z "${RABIN2}" ]]; then
+if [[ ! -z "${RABIN2}" ]]; then # Unable to find rabin2
     CHECKDEP="${RABIN2} -Al"
 fi
 
@@ -162,6 +162,7 @@ popd > /dev/null
 pushd "${DEST_DIR}" > /dev/null
 echo
 echo "[*] Stripping [${DEST_LIB}]" 
+file *.dll *.exe
 ls -lh *.dll *.exe
 ${STRIP} *.dll *.exe
 ls -lh *.dll *.exe
