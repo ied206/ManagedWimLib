@@ -4,7 +4,7 @@
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netstandard2.0;net80</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <IsTrimmable>true</IsTrimmable>
+    <IsTrimmable Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">true</IsTrimmable>
     
     <PackageId>ManagedWimLib</PackageId>
     <Title>ManagedWimLib</Title>
