@@ -51,7 +51,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Condition="'@(InteropLibFiles_arm64)' != ''" Include="@(InteropLibFiles_arm64)">
-      <Link>x64\%(FileName)%(Extension)</Link>
+      <Link>arm64\%(FileName)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
