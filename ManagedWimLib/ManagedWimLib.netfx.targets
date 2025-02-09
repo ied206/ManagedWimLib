@@ -78,7 +78,7 @@
                       HasTrailingSlash('$(OutDir)') And
                       Exists('$(OutDir)')"
           Inputs="@(InteropLibFiles_x64)"
-          Outputs="@(InteropLibFiles_x64 -> '$(OutDir)x86\%(Filename)%(Extension)')">
+          Outputs="@(InteropLibFiles_x64 -> '$(OutDir)x64\%(Filename)%(Extension)')">
     <Copy SourceFiles="@(InteropLibFiles_x64)"
           DestinationFiles="@(InteropLibFiles_x64 -> '$(OutDir)x64\%(Filename)%(Extension)')" />
   </Target>
@@ -88,9 +88,9 @@
                       HasTrailingSlash('$(OutDir)') And
                       Exists('$(OutDir)')"
           Inputs="@(InteropLibFiles_arm64)"
-          Outputs="@(InteropLibFiles_arm64 -> '$(OutDir)x86\%(Filename)%(Extension)')">
+          Outputs="@(InteropLibFiles_arm64 -> '$(OutDir)arm64\%(Filename)%(Extension)')">
     <Copy SourceFiles="@(InteropLibFiles_arm64)"
-          DestinationFiles="@(InteropLibFiles_arm64 -> '$(OutDir)x64\%(Filename)%(Extension)')" />
+          DestinationFiles="@(InteropLibFiles_arm64 -> '$(OutDir)arm64\%(Filename)%(Extension)')" />
   </Target>
 
   <!--
@@ -116,7 +116,7 @@
                      '$(OutDir)' != '' And
                      HasTrailingSlash('$(OutDir)') And
                      Exists('$(OutDir)')">
-    <Delete Files="@(InteropLibFiles_arm64 -> '$(OutDir)x64\%(Filename)%(Extension)')" />
+    <Delete Files="@(InteropLibFiles_arm64 -> '$(OutDir)arm64\%(Filename)%(Extension)')" />
   </Target>
 
   <!--

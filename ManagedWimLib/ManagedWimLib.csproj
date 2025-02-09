@@ -21,7 +21,7 @@ Supports Windows, Linux and macOS.</Description>
     <PackageIcon>images\Logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/ied206/ManagedWimLib</RepositoryUrl>
     <PackageReleaseNotes>- Update wimlib binaries to 1.14.4.</PackageReleaseNotes>
-    <PackageTags>wim wimlib dism imagex archive native pinvoke interop</PackageTags>
+    <PackageTags>wim wimlib dism imagex archive native pinvoke interop xpress lzx lzms</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <!-- PackageReference -->
