@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2020 Hajin Jang
+    Copyright (C) 2017-present Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -35,7 +35,7 @@ namespace ManagedWimLib.Tests
         [TestMethod]
         public void Join()
         {
-            JoinTemplate(new string[] { "Split.swm", "Split2.swm" });
+            JoinTemplate(["Split.swm", "Split2.swm"]);
         }
 
         public static void JoinTemplate(string[] splitWimNames)
@@ -63,7 +63,7 @@ namespace ManagedWimLib.Tests
         [TestMethod]
         public void JoinProgress()
         {
-            JoinProgressTemplate(new string[] { "Split.swm", "Split2.swm" });
+            JoinProgressTemplate(["Split.swm", "Split2.swm"]);
         }
 
         public void JoinProgressTemplate(string[] splitWimNames)

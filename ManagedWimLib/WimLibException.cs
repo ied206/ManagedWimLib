@@ -28,7 +28,6 @@ using System.Text;
 namespace ManagedWimLib
 {
     #region WimException
-    [Serializable]
     public class WimLibException : Exception
     {
         public ErrorCode ErrorCode;
@@ -45,13 +44,13 @@ namespace ManagedWimLib
             ErrorCode = ErrorCode.Success;
         }
 
-        public WimLibException(string message)
+        public WimLibException(string? message)
             : base(message)
         {
             ErrorCode = ErrorCode.Success;
         }
 
-        public WimLibException(string message, Exception innerException)
+        public WimLibException(string? message, Exception innerException)
             : base(message, innerException)
         {
             ErrorCode = ErrorCode.Success;

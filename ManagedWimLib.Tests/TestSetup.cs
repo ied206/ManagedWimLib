@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2020 Hajin Jang
+    Copyright (C) 2017-present Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -461,8 +461,8 @@ namespace ManagedWimLib.Tests
             switch (set)
             {
                 case SampleSet.Src01:
-                    checkList = new[]
-                    {
+                    checkList =
+                    [
                         new Tuple<string, bool>(Path.Combine(@"\ABCD"), true),
                         new Tuple<string, bool>(Path.Combine(@"\ABCD", "Z"), true),
                         new Tuple<string, bool>(Path.Combine(@"\ABDE"), true),
@@ -482,42 +482,42 @@ namespace ManagedWimLib.Tests
 
                         new Tuple<string, bool>(Path.Combine(@"\ABDE", "Z", "X.txt"), false),
                         new Tuple<string, bool>(Path.Combine(@"\ABDE", "Z", "Y.ini"), false),
-                    };
+                    ];
                     break;
                 case SampleSet.Src02_1:
-                    checkList = new[]
-                    {
+                    checkList =
+                    [
                         new Tuple<string, bool>(Path.Combine(@"\B"), true),
                         new Tuple<string, bool>(Path.Combine(@"\A.txt"), false),
                         new Tuple<string, bool>(Path.Combine(@"\B", "C.txt"), false),
                         new Tuple<string, bool>(Path.Combine(@"\B", "D.ini"), false),
-                    };
+                    ];
                     break;
                 case SampleSet.Src02_2:
-                    checkList = new[]
-                    {
+                    checkList =
+                    [
                         new Tuple<string, bool>(Path.Combine(@"\B"), true),
                         new Tuple<string, bool>(Path.Combine(@"\Z.txt"), false),
                         new Tuple<string, bool>(Path.Combine(@"\B", "C.txt"), false),
                         new Tuple<string, bool>(Path.Combine(@"\B", "D.ini"), false),
-                    };
+                    ];
                     break;
                 case SampleSet.Src02_3:
-                    checkList = new[]
-                    {
+                    checkList =
+                    [
                         new Tuple<string, bool>(Path.Combine(@"\B"), true),
                         new Tuple<string, bool>(Path.Combine(@"\Y.txt"), false),
                         new Tuple<string, bool>(Path.Combine(@"\Z.txt"), false),
                         new Tuple<string, bool>(Path.Combine(@"\B", "C.txt"), false),
                         new Tuple<string, bool>(Path.Combine(@"\B", "D.ini"), false),
-                    };
+                    ];
                     break;
                 case SampleSet.Src03:
-                    checkList = new[]
-                    {
+                    checkList =
+                    [
                         new Tuple<string, bool>(Path.Combine(@"\가"), false),
                         new Tuple<string, bool>(Path.Combine(@"\나"), false),
-                    };
+                    ];
                     break;
                 default:
                     throw new NotImplementedException();

@@ -26,6 +26,7 @@ namespace ManagedWimLib
     {
         protected override string ErrorMsgInitFirst => "Please call Wim.GlobalInit() first!";
         protected override string ErrorMsgAlreadyLoaded => "ManagedWimLib is already initialized.";
+        internal string InternalErrorMsgInitFirst => ErrorMsgInitFirst;
 
         protected override WimLibLoader CreateLoader() => new WimLibLoader();
     }

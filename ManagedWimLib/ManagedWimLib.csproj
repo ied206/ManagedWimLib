@@ -5,6 +5,7 @@
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IsTrimmable Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">true</IsTrimmable>
+    <nullable>enable</nullable>
     
     <PackageId>ManagedWimLib</PackageId>
     <Title>ManagedWimLib</Title>

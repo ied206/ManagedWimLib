@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2020 Hajin Jang
+    Copyright (C) 2017-present Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -39,23 +39,23 @@ namespace ManagedWimLib.Tests
         {
             string sampleDir = Path.Combine(TestSetup.SampleDir);
 
-            UpdateTemplate("XPRESS.wim", new UpdateCommand[2]
-            {
+            UpdateTemplate("XPRESS.wim",
+            [
                 UpdateCommand.SetAdd(Path.Combine(sampleDir, "Append01", "Z.txt"), "ADD", null, AddFlags.None),
                 UpdateCommand.SetAdd(Path.Combine(sampleDir, "Src03", "가"), "유니코드", null, AddFlags.None),
-            });
+            ]);
 
-            UpdateTemplate("LZX.wim", new UpdateCommand[2]
-            {
+            UpdateTemplate("LZX.wim",
+            [
                 UpdateCommand.SetDelete("ACDE.txt", DeleteFlags.None),
                 UpdateCommand.SetDelete("ABCD", DeleteFlags.Recursive),
-            });
+            ]);
 
-            UpdateTemplate("LZMS.wim", new UpdateCommand[2]
-            {
+            UpdateTemplate("LZMS.wim",
+            [
                 UpdateCommand.SetRename("ACDE.txt", "FILE"),
                 UpdateCommand.SetRename("ABCD", "DIR"),
-            });
+            ]);
         }
 
         public static CallbackStatus UpdateProgressCallback(ProgressMsg msg, object info, object progctx)

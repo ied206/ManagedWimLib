@@ -24,29 +24,22 @@
 using Joveler.DynLoader;
 using System;
 using System.Runtime.InteropServices;
-// ReSharper disable FieldCanBeMadeReadOnly.Local
-// ReSharper disable InconsistentNaming
-// ReSharper disable FieldCanBeMadeReadOnly.Global
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable UnusedMember.Global
-#pragma warning disable 649
-#pragma warning disable IDE0044
 
 namespace ManagedWimLib
 {
     #region ProgressCallback delegate
-    public delegate CallbackStatus ProgressCallback(ProgressMsg msg, object info, object progctx);
+    public delegate CallbackStatus ProgressCallback(ProgressMsg msg, object? info, object? progctx);
     #endregion
 
     #region ManagedWimLibCallback
     internal class ManagedProgressCallback
     {
-        private readonly ProgressCallback _callback;
-        private readonly object _userData;
+        private readonly ProgressCallback? _callback;
+        private readonly object? _userData;
 
         internal WimLibLoader.NativeProgressFunc NativeFunc { get; }
 
-        public ManagedProgressCallback(ProgressCallback callback, object userData)
+        public ManagedProgressCallback(ProgressCallback? callback, object? userData)
         {
             _callback = callback ?? throw new ArgumentNullException(nameof(callback));
             _userData = userData;
@@ -57,7 +50,7 @@ namespace ManagedWimLib
 
         private CallbackStatus NativeCallback(ProgressMsg msgType, IntPtr info, IntPtr progctx)
         {
-            object pInfo = null;
+            object? pInfo = null;
 
             if (_callback == null)
                 return CallbackStatus.Continue;
@@ -87,7 +80,7 @@ namespace ManagedWimLib
                     break;
                 case ProgressMsg.UpdateBeginCommand:
                 case ProgressMsg.UpdateEndCommand:
-                    UpdateProgressBase _base = Marshal.PtrToStructure<UpdateProgressBase>(info);
+                    UpdateProgressBase _base = Marshal.PtrToStructure<UpdateProgressBase>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(UpdateProgressBase)}]");
                     pInfo = _base.ToManaged();
                     break;
                 case ProgressMsg.VerifyIntegrity:
@@ -229,14 +222,14 @@ namespace ManagedWimLib
         /// Top-level directory being scanned; or, when capturing an NTFS volume with AddFlags.NTFS, 
         /// this is instead the path to the file or block device that contains the NTFS volume being scanned. 
         /// </summary>
-        public string Source => Wim.Lib.PtrToStringAuto(_sourcePtr);
-        private IntPtr _sourcePtr;
+        public string Source => Wim.Lib!.PtrToStringAuto(_sourcePtr) ?? throw new InvalidOperationException($"[{nameof(_sourcePtr)}] is null");
+        private readonly IntPtr _sourcePtr;
         /// <summary>
         /// Path to the file (or directory) that has been scanned, valid on SCAN_DENTRY.
         /// When capturing an NTFS volume with ::WIMLIB_ADD_FLAG_NTFS, this path will be relative to the root of the NTFS volume. 
         /// </summary>
-        public string CurPath => Wim.Lib.PtrToStringAuto(_curPathPtr);
-        private IntPtr _curPathPtr;
+        public string CurPath => Wim.Lib!.PtrToStringAuto(_curPathPtr) ?? throw new InvalidOperationException($"[{nameof(_curPathPtr)}] is null");
+        private readonly IntPtr _curPathPtr;
         /// <summary>
         /// Dentry scan status, valid on SCAN_DENTRY. 
         /// </summary>
@@ -251,8 +244,8 @@ namespace ManagedWimLib
         /// For SCAN_DENTRY and a status of WIMLIB_SCAN_DENTRY_FIXED_SYMLINK or WIMLIB_SCAN_DENTRY_NOT_FIXED_SYMLINK,
         /// this is the target of the absolute symbolic link or junction.
         /// </summary>
-        public string WimTargetPathSymlinkTarget => Wim.Lib.PtrToStringAuto(_wimTargetPathSymlinkTargetPtr);
-        private IntPtr _wimTargetPathSymlinkTargetPtr;
+        public string WimTargetPathSymlinkTarget => Wim.Lib!.PtrToStringAuto(_wimTargetPathSymlinkTargetPtr) ?? throw new InvalidOperationException($"[{nameof(_wimTargetPathSymlinkTargetPtr)}] is null");
+        private readonly IntPtr _wimTargetPathSymlinkTargetPtr;
         /// <summary>
         /// The number of directories scanned so far, not counting excluded/unsupported files.
         /// </summary>
@@ -300,22 +293,22 @@ namespace ManagedWimLib
         /// If the WimStruct from which the extraction being performed has a backing file, 
         /// then this is an absolute path to that backing file. Otherwise, this is null.
         /// </summary>
-        public string WimFileName => Wim.Lib.PtrToStringAuto(_wimFileNamePtr);
-        private IntPtr _wimFileNamePtr;
+        public string WimFileName => Wim.Lib!.PtrToStringAuto(_wimFileNamePtr) ?? throw new InvalidOperationException($"[{nameof(_wimFileNamePtr)}] is null");
+        private readonly IntPtr _wimFileNamePtr;
         /// <summary>
         /// Name of the image from which files are being extracted, or the empty string if the image is unnamed.
         /// </summary>
-        public string ImageName => Wim.Lib.PtrToStringAuto(_imageNamePtr);
-        private IntPtr _imageNamePtr;
+        public string ImageName => Wim.Lib!.PtrToStringAuto(_imageNamePtr) ?? throw new InvalidOperationException($"[{nameof(_imageNamePtr)}] is null");
+        private readonly IntPtr _imageNamePtr;
         /// <summary>
         /// Path to the directory or NTFS volume to which the files are being extracted.
         /// </summary>
-        public string Target => Wim.Lib.PtrToStringAuto(_targetPtr);
-        private IntPtr _targetPtr;
+        public string Target => Wim.Lib!.PtrToStringAuto(_targetPtr) ?? throw new InvalidOperationException($"[{nameof(_targetPtr)}] is null");
+        private readonly IntPtr _targetPtr;
         /// <summary>
         /// Reserved.
         /// </summary>
-        private IntPtr _reserved;
+        private readonly IntPtr _reserved;
         /// <summary>
         /// The number of bytes of file data that will be extracted. 
         /// </summary>
@@ -350,7 +343,7 @@ namespace ManagedWimLib
         /// EXTRACT_SPWM_PART_BEGIN.
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-        public byte[] Guid;
+        public byte[] Guid = new byte[16];
         /// <summary>
         /// For EXTRACT_FILE_STRUCTURE and EXTRACT_METADATA messages, 
         /// this is the number of files that have been processed so far.
@@ -383,14 +376,14 @@ namespace ManagedWimLib
         /// <summary>
         /// Name of the temporary file that the WIM was written to.
         /// </summary>
-        public string From => Wim.Lib.PtrToStringAuto(_fromPtr);
-        private IntPtr _fromPtr;
+        public string From => Wim.Lib!.PtrToStringAuto(_fromPtr) ?? throw new InvalidOperationException($"[{nameof(_fromPtr)}] is null");
+        private readonly IntPtr _fromPtr;
         /// <summary>
         /// Name of the original WIM file to which the temporary file is
         /// being renamed.
         /// </summary>
-        public string To => Wim.Lib.PtrToStringAuto(_toPtr);
-        private IntPtr _toPtr;
+        public string To => Wim.Lib!.PtrToStringAuto(_toPtr) ?? throw new InvalidOperationException($"[{nameof(_toPtr)}] is null");
+        private readonly IntPtr _toPtr;
     }
     #endregion
 
@@ -406,17 +399,17 @@ namespace ManagedWimLib
         /// <summary>
         /// Name of the temporary file that the WIM was written to.
         /// </summary>
-        public UpdateCommand Command;
+        public UpdateCommand Command = new UpdateCommand();
         /// <summary>
         /// Number of update commands that have been completed so far.
         /// </summary>
-        public ulong CompletedCommands => CompletedCommandsVal.ToUInt64();
-        internal UIntPtr CompletedCommandsVal;
+        public ulong CompletedCommands => CompletedCommandsVal;
+        internal nuint CompletedCommandsVal;
         /// <summary>
         /// Number of update commands that are being executed as part of this call to Wim.UpdateImage().
         /// </summary>
-        public ulong TotalCommands => TotalCommandsVal.ToUInt64();
-        internal UIntPtr TotalCommandsVal;
+        public ulong TotalCommands => TotalCommandsVal;
+        internal nuint TotalCommandsVal;
     }
 
     /// <summary>
@@ -428,7 +421,7 @@ namespace ManagedWimLib
         /// <summary>
         /// Name of the temporary file that the WIM was written to.
         /// </summary>
-        private IntPtr _cmdPtr;
+        private readonly IntPtr _cmdPtr;
         private UpdateCommand32 Cmd32 => Marshal.PtrToStructure<UpdateCommand32>(_cmdPtr);
         private UpdateCommand64 Cmd64 => Marshal.PtrToStructure<UpdateCommand64>(_cmdPtr);
 
@@ -436,7 +429,9 @@ namespace ManagedWimLib
         {
             get
             {
-                return (Wim.Lib.PlatformBitness) switch
+                Wim.Manager.EnsureLoaded();
+
+                return Wim.Lib!.PlatformBitness switch
                 {
                     PlatformBitness.Bit32 => Cmd32.ToManagedClass(),
                     PlatformBitness.Bit64 => Cmd64.ToManagedClass(),
@@ -447,11 +442,11 @@ namespace ManagedWimLib
         /// <summary>
         /// Number of update commands that have been completed so far.
         /// </summary>
-        public UIntPtr CompletedCommandsVal;
+        public nuint CompletedCommandsVal;
         /// <summary>
         /// Number of update commands that are being executed as part of this call to Wim.UpdateImage().
         /// </summary>
-        public UIntPtr TotalCommandsVal;
+        public nuint TotalCommandsVal;
 
         public UpdateProgress ToManaged()
         {
@@ -497,8 +492,8 @@ namespace ManagedWimLib
         /// <summary>
         /// For VERIFY_INTEGRITY messages, this is the path to the WIM file being checked.
         /// </summary>
-        public string FileName => Wim.Lib.PtrToStringAuto(_fileNamePtr);
-        private IntPtr _fileNamePtr;
+        public string FileName => Wim.Lib!.PtrToStringAuto(_fileNamePtr) ?? throw new InvalidOperationException($"[{nameof(_fileNamePtr)}] is null");
+        private readonly IntPtr _fileNamePtr;
     }
     #endregion
 
@@ -531,8 +526,8 @@ namespace ManagedWimLib
         /// Since wimlib v1.7.0, the library user may change this when receiving SPLIT_BEGIN_PART in order to
         /// cause the next split WIM part to be written to a different location.
         /// </summary>
-        public string PartName => Wim.Lib.PtrToStringAuto(_partNamePtr);
-        private IntPtr _partNamePtr;
+        public string PartName => Wim.Lib!.PtrToStringAuto(_partNamePtr) ?? throw new InvalidOperationException($"[{nameof(_partNamePtr)}] is null");
+        private readonly IntPtr _partNamePtr;
     }
     #endregion
 
@@ -546,8 +541,8 @@ namespace ManagedWimLib
         /// <summary>
         /// Path to the file in the image that is being replaced.
         /// </summary>
-        public string PathInWim => Wim.Lib.PtrToStringAuto(_pathInWimPtr);
-        private IntPtr _pathInWimPtr;
+        public string PathInWim => Wim.Lib!.PtrToStringAuto(_pathInWimPtr) ?? throw new InvalidOperationException($"[{nameof(_pathInWimPtr)}] is null");
+        private readonly IntPtr _pathInWimPtr;
     }
     #endregion
 
@@ -561,13 +556,13 @@ namespace ManagedWimLib
         /// <summary>
         /// Path to the file in the image.
         /// </summary>
-        public string PathInWim => Wim.Lib.PtrToStringAuto(_pathInWimPtr);
-        private IntPtr _pathInWimPtr;
+        public string PathInWim => Wim.Lib!.PtrToStringAuto(_pathInWimPtr) ?? throw new InvalidOperationException($"[{nameof(_pathInWimPtr)}] is null");
+        private readonly IntPtr _pathInWimPtr;
         /// <summary>
         /// Path to which the file is being extracted .
         /// </summary>
-        public string ExtractionInWim => Wim.Lib.PtrToStringAuto(_extractionInWimPtr);
-        private IntPtr _extractionInWimPtr;
+        public string ExtractionInWim => Wim.Lib!.PtrToStringAuto(_extractionInWimPtr) ?? throw new InvalidOperationException($"[{nameof(_extractionInWimPtr)}] is null");
+        private readonly IntPtr _extractionInWimPtr;
     }
     #endregion
 
@@ -581,13 +576,13 @@ namespace ManagedWimLib
         /// <summary>
         /// Path to directory being unmounted.
         /// </summary>
-        public string MountPoint => Wim.Lib.PtrToStringAuto(_mountPointPtr);
-        private IntPtr _mountPointPtr;
+        public string MountPoint => Wim.Lib!.PtrToStringAuto(_mountPointPtr) ?? throw new InvalidOperationException($"[{nameof(_mountPointPtr)}] is null");
+        private readonly IntPtr _mountPointPtr;
         /// <summary>
         /// Path to WIM file being unmounted.
         /// </summary>
-        public string MountedWim => Wim.Lib.PtrToStringAuto(_mountedWimPtr);
-        private IntPtr _mountedWimPtr;
+        public string MountedWim => Wim.Lib!.PtrToStringAuto(_mountedWimPtr) ?? throw new InvalidOperationException($"[{nameof(_mountedWimPtr)}] is null");
+        private readonly IntPtr _mountedWimPtr;
         /// <summary>
         /// 1-based index of image being unmounted.
         /// </summary>
@@ -624,8 +619,8 @@ namespace ManagedWimLib
         /// Also, this message will not be received for empty files or reparse points (or symbolic links),
         /// unless they have nonempty named data streams.
         /// </remarks>
-        public string PathToFile => Wim.Lib.PtrToStringAuto(_pathToFilePtr);
-        private IntPtr _pathToFilePtr;
+        public string PathToFile => Wim.Lib!.PtrToStringAuto(_pathToFilePtr) ?? throw new InvalidOperationException($"[{nameof(_pathToFilePtr)}] is null");
+        private readonly IntPtr _pathToFilePtr;
     }
     #endregion
 
@@ -636,8 +631,8 @@ namespace ManagedWimLib
     [StructLayout(LayoutKind.Sequential)]
     public class VerifyImageProgress
     {
-        public string WimFile => Wim.Lib.PtrToStringAuto(_wimFilePtr);
-        private IntPtr _wimFilePtr;
+        public string WimFile => Wim.Lib!.PtrToStringAuto(_wimFilePtr) ?? throw new InvalidOperationException($"[{nameof(_wimFilePtr)}] is null");
+        private readonly IntPtr _wimFilePtr;
         public uint TotalImages;
         public uint CurrentImage;
     }
@@ -650,8 +645,8 @@ namespace ManagedWimLib
     [StructLayout(LayoutKind.Sequential)]
     public class VerifyStreamsProgress
     {
-        public string WimFile => Wim.Lib.PtrToStringAuto(_wimFilePtr);
-        private IntPtr _wimFilePtr;
+        public string WimFile => Wim.Lib!.PtrToStringAuto(_wimFilePtr) ?? throw new InvalidOperationException($"[{nameof(_wimFilePtr)}] is null");
+        private readonly IntPtr _wimFilePtr;
         public ulong TotalStreams;
         public ulong TotalBytes;
         public ulong CurrentStreams;
@@ -673,8 +668,8 @@ namespace ManagedWimLib
         /// NTFS-3G capture mode:  The path will be given relative to the root of the NTFS volume, with a leading slash.
         /// Windows capture mode:  The path will be a Win32 namespace path to the file.
         /// </summary>
-        public string Path => Wim.Lib.PtrToStringAuto(_pathPtr);
-        private IntPtr _pathPtr;
+        public string Path => Wim.Lib!.PtrToStringAuto(_pathPtr) ?? throw new InvalidOperationException($"[{nameof(_pathPtr)}] is null");
+        private readonly IntPtr _pathPtr;
         /// <summary>
         /// Indicates whether the file or directory will be excluded from capture or not. 
         /// This will be false by default.
@@ -695,8 +690,8 @@ namespace ManagedWimLib
         /// <summary>
         /// Path to the file for which the error occurred, or NULL if not relevant.
         /// </summary>
-        public string Path => Wim.Lib.PtrToStringAuto(_pathPtr);
-        private IntPtr _pathPtr;
+        public string Path => Wim.Lib!.PtrToStringAuto(_pathPtr) ?? throw new InvalidOperationException($"[{nameof(_pathPtr)}] is null");
+        private readonly IntPtr _pathPtr;
         /// <summary>
         /// The wimlib error code associated with the error.
         /// </summary>

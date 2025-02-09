@@ -35,16 +35,16 @@ namespace ManagedWimLib
     /// <see cref="Wim.IterateDirTree()"/> may return positive integer when the error occured,
     /// and it is hard to distinct it from user-returned positive integer.
     /// </summary>
-    public delegate int IterateDirTreeCallback(DirEntry dentry, object userData);
+    public delegate int IterateDirTreeCallback(DirEntry dentry, object? userData);
 
     internal class ManagedIterateDirTreeCallback
     {
-        private readonly IterateDirTreeCallback _callback;
-        private readonly object _userData;
+        private readonly IterateDirTreeCallback? _callback;
+        private readonly object? _userData;
 
         internal WimLibLoader.NativeIterateDirTreeCallback NativeFunc { get; }
 
-        public ManagedIterateDirTreeCallback(IterateDirTreeCallback callback, object userData)
+        public ManagedIterateDirTreeCallback(IterateDirTreeCallback? callback, object? userData)
         {
             _callback = callback;
             _userData = userData;
@@ -59,7 +59,10 @@ namespace ManagedWimLib
                 return Wim.IterateCallbackSuccess; // Default return value is a value represents Success/Continue.
 
             int ret;
-            DirEntryBase b = Marshal.PtrToStructure<DirEntryBase>(entryPtr);
+            DirEntryBase? b = Marshal.PtrToStructure<DirEntryBase>(entryPtr);
+            if (b == null)
+                return Wim.IterateCallbackSuccess;
+
             DirEntry dentry = new DirEntry
             {
                 FileName = b.FileName,
@@ -87,7 +90,7 @@ namespace ManagedWimLib
             for (int i = 0; i < dentry.Streams.Length; i++)
             {
                 IntPtr offset = IntPtr.Add(baseOffset, i * Marshal.SizeOf<StreamEntry>());
-                dentry.Streams[i] = Marshal.PtrToStructure<StreamEntry>(offset);
+                dentry.Streams[i] = Marshal.PtrToStructure<StreamEntry>(offset) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(StreamEntry)}]");
             }
 
             ret = _callback(dentry, _userData);
@@ -102,16 +105,16 @@ namespace ManagedWimLib
     /// Type of a callback function to <see cref="Wim.IterateLookupTable()"/>.
     /// Must return <see cref="Wim.IterateCallbackSuccess"/> (0) on success. 
     /// </summary>
-    public delegate int IterateLookupTableCallback(ResourceEntry resource, object userCtx);
+    public delegate int IterateLookupTableCallback(ResourceEntry resource, object? userCtx);
 
     internal class ManagedIterateLookupTableCallback
     {
         private readonly IterateLookupTableCallback _callback;
-        private readonly object _userData;
+        private readonly object? _userData;
 
         internal WimLibLoader.NativeIterateLookupTableCallback NativeFunc { get; }
 
-        public ManagedIterateLookupTableCallback(IterateLookupTableCallback callback, object userData)
+        public ManagedIterateLookupTableCallback(IterateLookupTableCallback callback, object? userData)
         {
             _callback = callback;
             _userData = userData;
