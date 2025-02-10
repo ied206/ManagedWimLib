@@ -58,12 +58,12 @@ namespace ManagedWimLib
             switch (msgType)
             {
                 case ProgressMsg.WriteStreams:
-                    pInfo = Marshal.PtrToStructure<WriteStreamsProgress>(info);
+                    pInfo = Marshal.PtrToStructure<WriteStreamsProgress>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(WriteStreamsProgress)}].");
                     break;
                 case ProgressMsg.ScanBegin:
                 case ProgressMsg.ScanDEntry:
                 case ProgressMsg.ScanEnd:
-                    pInfo = Marshal.PtrToStructure<ScanProgress>(info);
+                    pInfo = Marshal.PtrToStructure<ScanProgress>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(ScanProgress)}].");
                     break;
                 case ProgressMsg.ExtractSpwmPartBegin:
                 case ProgressMsg.ExtractImageBegin:
@@ -73,48 +73,48 @@ namespace ManagedWimLib
                 case ProgressMsg.ExtractMetadata:
                 case ProgressMsg.ExtractTreeEnd:
                 case ProgressMsg.ExtractImageEnd:
-                    pInfo = Marshal.PtrToStructure<ExtractProgress>(info);
+                    pInfo = Marshal.PtrToStructure<ExtractProgress>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(ExtractProgress)}].");
                     break;
                 case ProgressMsg.Rename:
-                    pInfo = Marshal.PtrToStructure<RenameProgress>(info);
+                    pInfo = Marshal.PtrToStructure<RenameProgress>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(RenameProgress)}].");
                     break;
                 case ProgressMsg.UpdateBeginCommand:
                 case ProgressMsg.UpdateEndCommand:
-                    UpdateProgressBase _base = Marshal.PtrToStructure<UpdateProgressBase>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(UpdateProgressBase)}]");
+                    UpdateProgressBase _base = Marshal.PtrToStructure<UpdateProgressBase>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(UpdateProgressBase)}].");
                     pInfo = _base.ToManaged();
                     break;
                 case ProgressMsg.VerifyIntegrity:
                 case ProgressMsg.CalcIntegrity:
-                    pInfo = Marshal.PtrToStructure<IntegrityProgress>(info);
+                    pInfo = Marshal.PtrToStructure<IntegrityProgress>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(IntegrityProgress)}].");
                     break;
                 case ProgressMsg.SplitBeginPart:
                 case ProgressMsg.SplitEndPart:
-                    pInfo = Marshal.PtrToStructure<SplitProgress>(info);
+                    pInfo = Marshal.PtrToStructure<SplitProgress>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(SplitProgress)}].");
                     break;
                 case ProgressMsg.ReplaceFileInWim:
-                    pInfo = Marshal.PtrToStructure<ReplaceProgress>(info);
+                    pInfo = Marshal.PtrToStructure<ReplaceProgress>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(ReplaceProgress)}].");
                     break;
                 case ProgressMsg.WimBootExclude:
-                    pInfo = Marshal.PtrToStructure<WimBootExcludeProgress>(info);
+                    pInfo = Marshal.PtrToStructure<WimBootExcludeProgress>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(WimBootExcludeProgress)}].");
                     break;
                 case ProgressMsg.UnmountBegin:
-                    pInfo = Marshal.PtrToStructure<UnmountProgress>(info);
+                    pInfo = Marshal.PtrToStructure<UnmountProgress>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(UnmountProgress)}].");
                     break;
                 case ProgressMsg.DoneWithFile:
-                    pInfo = Marshal.PtrToStructure<DoneWithFileProgress>(info);
+                    pInfo = Marshal.PtrToStructure<DoneWithFileProgress>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(DoneWithFileProgress)}].");
                     break;
                 case ProgressMsg.BeginVerifyImage:
                 case ProgressMsg.EndVerifyImage:
-                    pInfo = Marshal.PtrToStructure<VerifyImageProgress>(info);
+                    pInfo = Marshal.PtrToStructure<VerifyImageProgress>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(VerifyImageProgress)}].");
                     break;
                 case ProgressMsg.VerifyStreams:
-                    pInfo = Marshal.PtrToStructure<VerifyStreamsProgress>(info);
+                    pInfo = Marshal.PtrToStructure<VerifyStreamsProgress>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(VerifyStreamsProgress)}].");
                     break;
                 case ProgressMsg.TestFileExclusion:
-                    pInfo = Marshal.PtrToStructure<TestFileExclusionProgress>(info);
+                    pInfo = Marshal.PtrToStructure<TestFileExclusionProgress>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(TestFileExclusionProgress)}].");
                     break;
                 case ProgressMsg.HandleError:
-                    pInfo = Marshal.PtrToStructure<HandleErrorProgress>(info);
+                    pInfo = Marshal.PtrToStructure<HandleErrorProgress>(info) ?? throw new InvalidOperationException($"Failed to marshal [{nameof(HandleErrorProgress)}].");
                     break;
             }
 

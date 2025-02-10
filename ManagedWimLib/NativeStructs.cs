@@ -1789,7 +1789,7 @@ namespace ManagedWimLib
         private IntPtr _addFsSourcePathPtr;
         public string AddFsSourcePath
         {
-            get => Wim.Lib!.PtrToStringAuto(_addFsSourcePathPtr) ?? throw new InvalidOperationException($"[{nameof(_addFsSourcePathPtr)}] is null");
+            readonly get => Wim.Lib!.PtrToStringAuto(_addFsSourcePathPtr) ?? throw new InvalidOperationException($"[{nameof(_addFsSourcePathPtr)}] is null");
             set => UpdatePtr(ref _addFsSourcePathPtr, value);
         }
         /// <summary>
@@ -1799,7 +1799,7 @@ namespace ManagedWimLib
         private IntPtr _addWimTargetPathPtr;
         public string AddWimTargetPath
         {
-            get => Wim.Lib!.PtrToStringAuto(_addWimTargetPathPtr) ?? throw new InvalidOperationException($"[{nameof(_addWimTargetPathPtr)}] is null");
+            readonly get => Wim.Lib!.PtrToStringAuto(_addWimTargetPathPtr) ?? throw new InvalidOperationException($"[{nameof(_addWimTargetPathPtr)}] is null");
             set => UpdatePtr(ref _addWimTargetPathPtr, value);
         }
         /// <summary>
@@ -1809,7 +1809,7 @@ namespace ManagedWimLib
         private IntPtr _addConfigFilePtr;
         public string? AddConfigFile
         {
-            get => _addConfigFilePtr == IntPtr.Zero ? null : Wim.Lib!.PtrToStringAuto(_addConfigFilePtr) ?? null;
+            readonly get => _addConfigFilePtr == IntPtr.Zero ? null : Wim.Lib!.PtrToStringAuto(_addConfigFilePtr) ?? null;
             set => UpdatePtr(ref _addConfigFilePtr, value);
         }
         /// <summary>
@@ -1827,7 +1827,7 @@ namespace ManagedWimLib
         private IntPtr _delWimPathPtr;
         public string DelWimPath
         {
-            get => Wim.Lib!.PtrToStringAuto(_delWimPathPtr) ?? throw new InvalidOperationException($"[{nameof(_delWimPathPtr)}] is null");
+            readonly get => Wim.Lib!.PtrToStringAuto(_delWimPathPtr) ?? throw new InvalidOperationException($"[{nameof(_delWimPathPtr)}] is null");
             set => UpdatePtr(ref _delWimPathPtr, value);
         }
         /// <summary>
@@ -1845,7 +1845,7 @@ namespace ManagedWimLib
         private IntPtr _renWimSourcePathPtr;
         public string RenWimSourcePath
         {
-            get => Wim.Lib!.PtrToStringAuto(_renWimSourcePathPtr) ?? throw new InvalidOperationException($"[{nameof(_renWimSourcePathPtr)}] is null");
+            readonly get => Wim.Lib!.PtrToStringAuto(_renWimSourcePathPtr) ?? throw new InvalidOperationException($"[{nameof(_renWimSourcePathPtr)}] is null");
             set => UpdatePtr(ref _renWimSourcePathPtr, value);
         }
         /// <summary>
@@ -1855,7 +1855,7 @@ namespace ManagedWimLib
         private IntPtr _renWimTargetPathPtr;
         public string RenWimTargetPath
         {
-            get => Wim.Lib!.PtrToStringAuto(_renWimTargetPathPtr) ?? throw new InvalidOperationException($"[{nameof(_renWimTargetPathPtr)}] is null");
+            readonly get => Wim.Lib!.PtrToStringAuto(_renWimTargetPathPtr) ?? throw new InvalidOperationException($"[{nameof(_renWimTargetPathPtr)}] is null");
             set => UpdatePtr(ref _renWimTargetPathPtr, value);
         }
         /// <summary>
@@ -1939,7 +1939,7 @@ namespace ManagedWimLib
         private IntPtr _addFsSourcePathPtr;
         public string AddFsSourcePath
         {
-            get => Wim.Lib!.PtrToStringAuto(_addFsSourcePathPtr) ?? throw new InvalidOperationException($"[{nameof(_addFsSourcePathPtr)}] is null");
+            readonly get => Wim.Lib!.PtrToStringAuto(_addFsSourcePathPtr) ?? throw new InvalidOperationException($"[{nameof(_addFsSourcePathPtr)}] is null");
             set => UpdatePtr(ref _addFsSourcePathPtr, value);
         }
         /// <summary>
@@ -1949,7 +1949,7 @@ namespace ManagedWimLib
         private IntPtr _addWimTargetPathPtr;
         public string AddWimTargetPath
         {
-            get => Wim.Lib!.PtrToStringAuto(_addWimTargetPathPtr) ?? throw new InvalidOperationException($"[{nameof(_addWimTargetPathPtr)}] is null");
+            readonly get => Wim.Lib!.PtrToStringAuto(_addWimTargetPathPtr) ?? throw new InvalidOperationException($"[{nameof(_addWimTargetPathPtr)}] is null");
             set => UpdatePtr(ref _addWimTargetPathPtr, value);
         }
         /// <summary>
@@ -1959,7 +1959,7 @@ namespace ManagedWimLib
         private IntPtr _addConfigFilePtr;
         public string? AddConfigFile
         {
-            get => _addConfigFilePtr == IntPtr.Zero ? null : Wim.Lib!.PtrToStringAuto(_addConfigFilePtr) ?? null;
+            readonly get => _addConfigFilePtr == IntPtr.Zero ? null : Wim.Lib!.PtrToStringAuto(_addConfigFilePtr) ?? null;
             set => UpdatePtr(ref _addConfigFilePtr, value);
         }
         /// <summary>
@@ -1977,7 +1977,7 @@ namespace ManagedWimLib
         private IntPtr _delWimPathPtr;
         public string DelWimPath
         {
-            get => Wim.Lib!.PtrToStringAuto(_delWimPathPtr) ?? throw new InvalidOperationException($"[{nameof(_delWimPathPtr)}] is null");
+            readonly get => Wim.Lib!.PtrToStringAuto(_delWimPathPtr) ?? throw new InvalidOperationException($"[{nameof(_delWimPathPtr)}] is null");
             set => UpdatePtr(ref _delWimPathPtr, value);
         }
         /// <summary>
@@ -1995,7 +1995,7 @@ namespace ManagedWimLib
         private IntPtr _renWimSourcePathPtr;
         public string RenWimSourcePath
         {
-            get => Wim.Lib!.PtrToStringAuto(_renWimSourcePathPtr) ?? throw new InvalidOperationException($"[{nameof(_renWimSourcePathPtr)}] is null");
+            readonly get => Wim.Lib!.PtrToStringAuto(_renWimSourcePathPtr) ?? throw new InvalidOperationException($"[{nameof(_renWimSourcePathPtr)}] is null");
             set => UpdatePtr(ref _renWimSourcePathPtr, value);
         }
         /// <summary>
@@ -2005,7 +2005,7 @@ namespace ManagedWimLib
         private IntPtr _renWimTargetPathPtr;
         public string RenWimTargetPath
         {
-            get => Wim.Lib!.PtrToStringAuto(_renWimTargetPathPtr) ?? throw new InvalidOperationException($"[{nameof(_renWimTargetPathPtr)}] is null");
+            readonly get => Wim.Lib!.PtrToStringAuto(_renWimTargetPathPtr) ?? throw new InvalidOperationException($"[{nameof(_renWimTargetPathPtr)}] is null");
             set => UpdatePtr(ref _renWimTargetPathPtr, value);
         }
         /// <summary>
@@ -2364,7 +2364,7 @@ namespace ManagedWimLib
         /// <summary>
         /// Seconds since start of UNIX epoch (January 1, 1970)
         /// </summary>
-        public long UnixEpoch => _unixEpochVal;
+        public readonly long UnixEpoch => _unixEpochVal;
         /// <summary>
         /// Nanoseconds (0-999999999)
         /// </summary>
