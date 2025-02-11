@@ -27,8 +27,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-#pragma warning disable IDE0044
-
 namespace ManagedWimLib
 {
     internal sealed class WimLibLoader : DynLoaderBase
@@ -624,12 +622,12 @@ namespace ManagedWimLib
             #region Export - ExportImage
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_export_image(
-                IntPtr src_wim,
-                int src_image,
-                IntPtr dest_wim,
-                [MarshalAs(StrType)] string dest_name,
-                [MarshalAs(StrType)] string dest_description,
-                ExportFlags export_flags);
+                IntPtr srcWim,
+                int srcImage,
+                IntPtr destWim,
+                [MarshalAs(StrType)] string destName,
+                [MarshalAs(StrType)] string destDescription,
+                ExportFlags exportFlags);
             internal wimlib_export_image? ExportImage;
             #endregion
 
@@ -647,8 +645,8 @@ namespace ManagedWimLib
                 IntPtr wim,
                 int image,
                 [MarshalAs(StrType)] string target,
-                [MarshalAs(StrType)] string path_list_file,
-                ExtractFlags extract_flags);
+                [MarshalAs(StrType)] string pathListFile,
+                ExtractFlags extractFlags);
             internal wimlib_extract_pathlist? ExtractPathList;
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -657,8 +655,8 @@ namespace ManagedWimLib
                 int image,
                 [MarshalAs(StrType)] string target,
                 [MarshalAs(UnmanagedType.LPArray, ArraySubType = StrType)] string[] paths,
-                nuint num_paths, // size_t
-                ExtractFlags extract_flags);
+                nuint numPaths, // size_t
+                ExtractFlags extractFlags);
             internal wimlib_extract_paths? ExtractPaths;
             #endregion
 
@@ -667,7 +665,7 @@ namespace ManagedWimLib
             internal delegate IntPtr wimlib_get_image_property(
                 IntPtr wim,
                 int image,
-                [MarshalAs(StrType)] string property_name);
+                [MarshalAs(StrType)] string propertyName);
             internal wimlib_get_image_property? GetImageProperty;
             #endregion
 
@@ -682,7 +680,7 @@ namespace ManagedWimLib
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate int wimlib_resolve_image(
                 IntPtr wim,
-                [MarshalAs(StrType)] string image_name_or_num);
+                [MarshalAs(StrType)] string imageNameOrNum);
             internal wimlib_resolve_image? ResolveImage;
             #endregion
 
@@ -702,19 +700,19 @@ namespace ManagedWimLib
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_join(
                 [MarshalAs(UnmanagedType.LPArray, ArraySubType = StrType)] string[] swms,
-                uint num_swms,
-                [MarshalAs(StrType)] string output_path,
-                OpenFlags swms_open_flags,
-                WriteFlags write_flags);
+                uint numSwms,
+                [MarshalAs(StrType)] string outputPath,
+                OpenFlags swmsOpenFlags,
+                WriteFlags writeFlags);
             internal wimlib_join? Join;
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_join_with_progress(
                 [MarshalAs(UnmanagedType.LPArray, ArraySubType = StrType)] string[] swms,
-                uint num_swms,
-                [MarshalAs(StrType)] string output_path,
-                OpenFlags swms_open_flags,
-                WriteFlags write_flags,
+                uint numSwms,
+                [MarshalAs(StrType)] string outputPath,
+                OpenFlags swmsOpenFlags,
+                WriteFlags writeFlags,
                 [MarshalAs(UnmanagedType.FunctionPtr)] NativeProgressFunc progfunc,
                 IntPtr progctx);
             internal wimlib_join_with_progress? JoinWithProgress;
@@ -723,16 +721,16 @@ namespace ManagedWimLib
             #region Open - OpenWim, OpenWithProgress
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_open_wim(
-                [MarshalAs(StrType)] string wim_file,
-                OpenFlags open_flags,
-                out IntPtr wim_ret);
+                [MarshalAs(StrType)] string wimFile,
+                OpenFlags openFlags,
+                out IntPtr wimRet);
             internal wimlib_open_wim? OpenWim;
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_open_wim_with_progress(
-                [MarshalAs(StrType)] string wim_file,
-                OpenFlags open_flags,
-                out IntPtr wim_ret,
+                [MarshalAs(StrType)] string wimFile,
+                OpenFlags openFlags,
+                out IntPtr wimRet,
                 [MarshalAs(UnmanagedType.FunctionPtr)] NativeProgressFunc progfunc,
                 IntPtr progctx);
             internal wimlib_open_wim_with_progress? OpenWimWithProgress;
@@ -744,8 +742,8 @@ namespace ManagedWimLib
                 IntPtr wim,
                 int image,
                 [MarshalAs(StrType)] string dir,
-                MountFlags mount_flags,
-                [MarshalAs(StrType)] string staging_dir);
+                MountFlags mountFlags,
+                [MarshalAs(StrType)] string stagingDir);
             internal wimlib_mount_image? MountImage;
             #endregion
 
@@ -753,10 +751,10 @@ namespace ManagedWimLib
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_reference_resource_files(
                 IntPtr wim,
-                [MarshalAs(UnmanagedType.LPArray, ArraySubType = StrType)] string[] resource_wimfiles_or_globs,
+                [MarshalAs(UnmanagedType.LPArray, ArraySubType = StrType)] string[] resourceWimfilesOrGlobs,
                 uint count,
-                RefFlags ref_flags,
-                OpenFlags open_flags);
+                RefFlags refFlags,
+                OpenFlags openFlags);
             internal wimlib_reference_resource_files? ReferenceResourceFiles;
             #endregion
 
@@ -765,8 +763,8 @@ namespace ManagedWimLib
             internal delegate ErrorCode wimlib_rename_path(
                 IntPtr wim,
                 int image,
-                [MarshalAs(StrType)] string source_path,
-                [MarshalAs(StrType)] string dest_path);
+                [MarshalAs(StrType)] string sourcePath,
+                [MarshalAs(StrType)] string destPath);
             internal wimlib_rename_path? RenamePath;
             #endregion
 
@@ -796,8 +794,8 @@ namespace ManagedWimLib
             internal delegate ErrorCode wimlib_set_image_property(
                 IntPtr wim,
                 int image,
-                [MarshalAs(StrType)] string property_name,
-                [MarshalAs(StrType)] string property_value);
+                [MarshalAs(StrType)] string propertyName,
+                [MarshalAs(StrType)] string propertyValue);
             internal wimlib_set_image_property? SetImageProperty;
             #endregion
 
@@ -805,9 +803,9 @@ namespace ManagedWimLib
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_split(
                 IntPtr wim,
-                [MarshalAs(StrType)] string swm_name,
-                ulong part_size,
-                WriteFlags write_flags);
+                [MarshalAs(StrType)] string swmName,
+                ulong partSize,
+                WriteFlags writeFlags);
             internal wimlib_split? Split;
             #endregion
 
@@ -815,13 +813,13 @@ namespace ManagedWimLib
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_unmount_image(
                 [MarshalAs(StrType)] string dir,
-                UnmountFlags unmount_flags);
+                UnmountFlags unmountFlags);
             internal wimlib_unmount_image? UnmountImage;
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_unmount_image_with_progress(
                 [MarshalAs(StrType)] string dir,
-                UnmountFlags unmount_flags,
+                UnmountFlags unmountFlags,
                 [MarshalAs(UnmanagedType.FunctionPtr)] NativeProgressFunc progfunc,
                 IntPtr progctx);
             internal wimlib_unmount_image_with_progress? UnmountImageWithProgress;
@@ -833,8 +831,8 @@ namespace ManagedWimLib
                 IntPtr wim,
                 [MarshalAs(StrType)] string path,
                 int image,
-                WriteFlags write_flags,
-                uint num_threads);
+                WriteFlags writeFlags,
+                uint numThreads);
             internal wimlib_write? Write;
             #endregion
 
@@ -847,28 +845,21 @@ namespace ManagedWimLib
             /// For LLP64 platforms (Windows)
             /// </remarks>
             [StructLayout(LayoutKind.Sequential, CharSet = StructCharSet)]
-            internal struct CaptureSourceBaseL32
+            internal struct CaptureSourceBaseL32(string fsSourcePath, string wimTargetPath)
             {
                 /// <summary>
                 /// Absolute or relative path to a file or directory on the external filesystem to be included in the image.
                 /// </summary>
-                public string FsSourcePath;
+                public string FsSourcePath = fsSourcePath;
                 /// <summary>
                 /// Destination path in the image.
                 /// To specify the root directory of the image, use <see cref="Path.DirectorySeparatorChar"/>. 
                 /// </summary>
-                public string WimTargetPath;
+                public string WimTargetPath = wimTargetPath;
                 /// <summary>
                 /// Reserved; set to 0.
                 /// </summary>
-                private int _reserved;
-
-                public CaptureSourceBaseL32(string fsSourcePath, string wimTargetPath)
-                {
-                    FsSourcePath = fsSourcePath;
-                    WimTargetPath = wimTargetPath;
-                    _reserved = 0;
-                }
+                private readonly int _reserved = 0;
             };
 
             /// <summary>
@@ -879,28 +870,21 @@ namespace ManagedWimLib
             /// For LP64 platforms (64bit POSIX)
             /// </remarks>
             [StructLayout(LayoutKind.Sequential, CharSet = StructCharSet)]
-            internal struct CaptureSourceBaseL64
+            internal struct CaptureSourceBaseL64(string fsSourcePath, string wimTargetPath)
             {
                 /// <summary>
                 /// Absolute or relative path to a file or directory on the external filesystem to be included in the image.
                 /// </summary>
-                public string FsSourcePath;
+                public string FsSourcePath = fsSourcePath;
                 /// <summary>
                 /// Destination path in the image.
                 /// To specify the root directory of the image, use <see cref="Path.DirectorySeparatorChar"/>. 
                 /// </summary>
-                public string WimTargetPath;
+                public string WimTargetPath = wimTargetPath;
                 /// <summary>
                 /// Reserved; set to 0.
                 /// </summary>
-                private long _reserved;
-
-                public CaptureSourceBaseL64(string fsSourcePath, string wimTargetPath)
-                {
-                    FsSourcePath = fsSourcePath;
-                    WimTargetPath = wimTargetPath;
-                    _reserved = 0;
-                }
+                private readonly long _reserved = 0;
             };
             #endregion
         }
@@ -1048,7 +1032,7 @@ namespace ManagedWimLib
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate int wimlib_resolve_image(
                 IntPtr wim,
-                [MarshalAs(StrType)] string image_name_or_num);
+                [MarshalAs(StrType)] string imageNameOrNum);
             internal wimlib_resolve_image? ResolveImage;
             #endregion
 
@@ -1060,7 +1044,7 @@ namespace ManagedWimLib
                 [MarshalAs(StrType)] string path,
                 IterateDirTreeFlags flags,
                 [MarshalAs(UnmanagedType.FunctionPtr)] NativeIterateDirTreeCallback cb,
-                IntPtr user_ctx);
+                IntPtr userCtx);
             internal wimlib_iterate_dir_tree? IterateDirTree;
             #endregion
 
@@ -1069,18 +1053,18 @@ namespace ManagedWimLib
             internal delegate ErrorCode wimlib_join(
                 [MarshalAs(UnmanagedType.LPArray, ArraySubType = StrType)] string[] swms,
                 uint num_swms,
-                [MarshalAs(StrType)] string output_path,
-                OpenFlags swms_open_flags,
-                WriteFlags write_flags);
+                [MarshalAs(StrType)] string outputPath,
+                OpenFlags swmsOpenFlags,
+                WriteFlags writeFlags);
             internal wimlib_join? Join;
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_join_with_progress(
                 [MarshalAs(UnmanagedType.LPArray, ArraySubType = StrType)] string[] swms,
-                uint num_swms,
-                [MarshalAs(StrType)] string output_path,
-                OpenFlags swms_open_flags,
-                WriteFlags write_flags,
+                uint numSwms,
+                [MarshalAs(StrType)] string outputPath,
+                OpenFlags swmsOpenFlags,
+                WriteFlags writeFlags,
                 [MarshalAs(UnmanagedType.FunctionPtr)] NativeProgressFunc progfunc,
                 IntPtr progctx);
             internal wimlib_join_with_progress? JoinWithProgress;
@@ -1089,16 +1073,16 @@ namespace ManagedWimLib
             #region Open - OpenWim, OpenWithProgress
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_open_wim(
-                [MarshalAs(StrType)] string wim_file,
-                OpenFlags open_flags,
-                out IntPtr wim_ret);
+                [MarshalAs(StrType)] string wimFile,
+                OpenFlags openFlags,
+                out IntPtr wimRet);
             internal wimlib_open_wim? OpenWim;
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_open_wim_with_progress(
-                [MarshalAs(StrType)] string wim_file,
-                OpenFlags open_flags,
-                out IntPtr wim_ret,
+                [MarshalAs(StrType)] string wimFile,
+                OpenFlags openFlags,
+                out IntPtr wimRet,
                 [MarshalAs(UnmanagedType.FunctionPtr)] NativeProgressFunc progfunc,
                 IntPtr progctx);
             internal wimlib_open_wim_with_progress? OpenWimWithProgress;
@@ -1110,8 +1094,8 @@ namespace ManagedWimLib
                 IntPtr wim,
                 int image,
                 [MarshalAs(StrType)] string dir,
-                MountFlags mount_flags,
-                [MarshalAs(StrType)] string staging_dir);
+                MountFlags mountFlags,
+                [MarshalAs(StrType)] string stagingDir);
             internal wimlib_mount_image? MountImage;
             #endregion
 
@@ -1119,10 +1103,10 @@ namespace ManagedWimLib
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_reference_resource_files(
                 IntPtr wim,
-                [MarshalAs(UnmanagedType.LPArray, ArraySubType = StrType)] string[] resource_wimfiles_or_globs,
+                [MarshalAs(UnmanagedType.LPArray, ArraySubType = StrType)] string[] resourceWimfilesOrGlobs,
                 uint count,
-                RefFlags ref_flags,
-                OpenFlags open_flags);
+                RefFlags refFlags,
+                OpenFlags openFlags);
             internal wimlib_reference_resource_files? ReferenceResourceFiles;
             #endregion
 
@@ -1131,8 +1115,8 @@ namespace ManagedWimLib
             internal delegate ErrorCode wimlib_rename_path(
                 IntPtr wim,
                 int image,
-                [MarshalAs(StrType)] string source_path,
-                [MarshalAs(StrType)] string dest_path);
+                [MarshalAs(StrType)] string sourcePath,
+                [MarshalAs(StrType)] string destPath);
             internal wimlib_rename_path? RenamePath;
             #endregion
 
@@ -1162,8 +1146,8 @@ namespace ManagedWimLib
             internal delegate ErrorCode wimlib_set_image_property(
                 IntPtr wim,
                 int image,
-                [MarshalAs(StrType)] string property_name,
-                [MarshalAs(StrType)] string property_value);
+                [MarshalAs(StrType)] string propertyName,
+                [MarshalAs(StrType)] string propertyValue);
             internal wimlib_set_image_property? SetImageProperty;
             #endregion
 
@@ -1171,9 +1155,9 @@ namespace ManagedWimLib
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_split(
                 IntPtr wim,
-                [MarshalAs(StrType)] string swm_name,
-                ulong part_size,
-                WriteFlags write_flags);
+                [MarshalAs(StrType)] string swmName,
+                ulong partSize,
+                WriteFlags writeFlags);
             internal wimlib_split? Split;
             #endregion
 
@@ -1181,13 +1165,13 @@ namespace ManagedWimLib
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_unmount_image(
                 [MarshalAs(StrType)] string dir,
-                UnmountFlags unmount_flags);
+                UnmountFlags unmountFlags);
             internal wimlib_unmount_image? UnmountImage;
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate ErrorCode wimlib_unmount_image_with_progress(
                 [MarshalAs(StrType)] string dir,
-                UnmountFlags unmount_flags,
+                UnmountFlags unmountFlags,
                 [MarshalAs(UnmanagedType.FunctionPtr)] NativeProgressFunc progfunc,
                 IntPtr progctx);
             internal wimlib_unmount_image_with_progress? UnmountImageWithProgress;
@@ -1199,8 +1183,8 @@ namespace ManagedWimLib
                 IntPtr wim,
                 [MarshalAs(StrType)] string path,
                 int image,
-                WriteFlags write_flags,
-                uint num_threads);
+                WriteFlags writeFlags,
+                uint numThreads);
             internal wimlib_write? Write;
             #endregion
 
@@ -1213,28 +1197,21 @@ namespace ManagedWimLib
             /// For LLP64 platforms (Windows)
             /// </remarks>
             [StructLayout(LayoutKind.Sequential, CharSet = StructCharSet)]
-            internal struct CaptureSourceBaseL32
+            internal struct CaptureSourceBaseL32(string fsSourcePath, string wimTargetPath)
             {
                 /// <summary>
                 /// Absolute or relative path to a file or directory on the external filesystem to be included in the image.
                 /// </summary>
-                public string FsSourcePath;
+                public string FsSourcePath = fsSourcePath;
                 /// <summary>
                 /// Destination path in the image.
                 /// To specify the root directory of the image, use <see cref="Path.DirectorySeparatorChar"/>. 
                 /// </summary>
-                public string WimTargetPath;
+                public string WimTargetPath = wimTargetPath;
                 /// <summary>
                 /// Reserved; set to 0.
                 /// </summary>
-                private int _reserved;
-
-                public CaptureSourceBaseL32(string fsSourcePath, string wimTargetPath)
-                {
-                    FsSourcePath = fsSourcePath;
-                    WimTargetPath = wimTargetPath;
-                    _reserved = 0;
-                }
+                private readonly int _reserved = 0;
             };
 
             /// <summary>
@@ -1245,28 +1222,21 @@ namespace ManagedWimLib
             /// For LP64 platforms (64bit POSIX)
             /// </remarks>
             [StructLayout(LayoutKind.Sequential, CharSet = StructCharSet)]
-            internal struct CaptureSourceBaseL64
+            internal struct CaptureSourceBaseL64(string fsSourcePath, string wimTargetPath)
             {
                 /// <summary>
                 /// Absolute or relative path to a file or directory on the external filesystem to be included in the image.
                 /// </summary>
-                public string FsSourcePath;
+                public string FsSourcePath = fsSourcePath;
                 /// <summary>
                 /// Destination path in the image.
                 /// To specify the root directory of the image, use <see cref="Path.DirectorySeparatorChar"/>. 
                 /// </summary>
-                public string WimTargetPath;
+                public string WimTargetPath = wimTargetPath;
                 /// <summary>
                 /// Reserved; set to 0.
                 /// </summary>
-                private long _reserved;
-
-                public CaptureSourceBaseL64(string fsSourcePath, string wimTargetPath)
-                {
-                    FsSourcePath = fsSourcePath;
-                    WimTargetPath = wimTargetPath;
-                    _reserved = 0;
-                }
+                private readonly long _reserved = 0;
             };
             #endregion
         }
@@ -1539,7 +1509,7 @@ namespace ManagedWimLib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_create_new_wim(
             CompressionType ctype,
-            out IntPtr wim_ret);
+            out IntPtr wimRet);
         internal wimlib_create_new_wim? CreateNewWim;
         #endregion
 
@@ -1639,8 +1609,8 @@ namespace ManagedWimLib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_get_xml_data(
             IntPtr wim,
-            ref IntPtr buf_ret,
-            ref nuint bufsize_ret); // size_t
+            ref IntPtr bufRet,
+            ref nuint bufsizeRet); // size_t
         internal wimlib_get_xml_data? GetXmlData;
 
         internal bool IsImageNameInUse(IntPtr wim, string name)
@@ -1707,7 +1677,7 @@ namespace ManagedWimLib
             IntPtr wim,
             IterateLookupTableFlags flags,
             [MarshalAs(UnmanagedType.FunctionPtr)] NativeIterateLookupTableCallback cb,
-            IntPtr user_ctx);
+            IntPtr userCtx);
         internal wimlib_iterate_lookup_table? IterateLookupTable;
         #endregion
         #region Join - Join, JoinWithProgress
@@ -1774,17 +1744,17 @@ namespace ManagedWimLib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_reference_resources(
             IntPtr wim,
-            [MarshalAs(UnmanagedType.LPArray)] IntPtr[] resource_wims,
-            uint num_resource_wims,
-            RefFlags ref_flags);
+            [MarshalAs(UnmanagedType.LPArray)] IntPtr[] resourceWims,
+            uint numResourceWims,
+            RefFlags refFlags);
         internal wimlib_reference_resources? ReferenceResources;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_reference_template_image(
             IntPtr wim,
-            int new_image,
-            IntPtr template_wim,
-            int template_image,
+            int newImage,
+            IntPtr templateWim,
+            int templateImage,
             int flags);
         internal wimlib_reference_template_image? ReferenceTemplateImage;
         #endregion
@@ -1849,13 +1819,13 @@ namespace ManagedWimLib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_set_output_chunk_size(
             IntPtr wim,
-            uint chunk_size);
+            uint chunkSize);
         internal wimlib_set_output_chunk_size? SetOutputChunkSize;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_set_output_pack_chunk_size(
             IntPtr wim,
-            uint chunk_size);
+            uint chunkSize);
         internal wimlib_set_output_pack_chunk_size? SetOutputPackChunkSize;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -1886,7 +1856,7 @@ namespace ManagedWimLib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_verify_wim(
             IntPtr wim,
-            int verify_flags);
+            int verifyFlags);
         internal wimlib_verify_wim? VerifyWim;
         #endregion
 
@@ -1916,8 +1886,8 @@ namespace ManagedWimLib
             IntPtr wim,
             int image,
             [MarshalAs(UnmanagedType.LPArray)] UpdateCommand32[] cmds,
-            uint num_cmds,
-            UpdateFlags update_flags);
+            uint numCmds,
+            UpdateFlags updateFlags);
         internal wimlib_update_image_32? UpdateImage32;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -1925,8 +1895,8 @@ namespace ManagedWimLib
             IntPtr wim,
             int image,
             [MarshalAs(UnmanagedType.LPArray)] UpdateCommand64[] cmds,
-            ulong num_cmds,
-            UpdateFlags update_flags);
+            ulong numCmds,
+            UpdateFlags updateFlags);
         internal wimlib_update_image_64? UpdateImage64;
         #endregion
 
@@ -1943,7 +1913,7 @@ namespace ManagedWimLib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_overwrite(
             IntPtr wim,
-            WriteFlags write_flags,
+            WriteFlags writeFlags,
             uint numThreads);
         internal wimlib_overwrite? Overwrite;
         #endregion
@@ -1952,14 +1922,14 @@ namespace ManagedWimLib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_set_default_compression_level(
             int ctype,
-            uint compression_level);
+            uint compressionLevel);
         internal wimlib_set_default_compression_level? SetDefaultCompressionLevel;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ulong wimlib_get_compressor_needed_memory(
             CompressionType ctype,
-            nuint max_block_size, // size_t
-            uint compression_level);
+            nuint maxBlockSize, // size_t
+            uint compressionLevel);
         internal wimlib_get_compressor_needed_memory? GetCompressorNeededMemory;
         #endregion
 
@@ -1967,9 +1937,9 @@ namespace ManagedWimLib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_create_compressor(
             CompressionType ctype,
-            nuint max_block_size, // size_t
-            uint compression_level,
-            out IntPtr compressor_ret);
+            nuint maxBlockSize, // size_t
+            uint compressionLevel,
+            out IntPtr compressorRet);
         internal wimlib_create_compressor? CreateCompressor;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -1978,10 +1948,10 @@ namespace ManagedWimLib
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal unsafe delegate nuint wimlib_compress( // size_t
-            byte* uncompressed_data,
-            nuint uncompressed_size, // size_t
-            byte* compressed_data,
-            nuint compressed_size_avail, // size_t
+            byte* uncompressedData,
+            nuint uncompressedSize, // size_t
+            byte* compressedData,
+            nuint compressedSizeAvail, // size_t
             IntPtr compressor);
         internal wimlib_compress? Compress;
         #endregion
@@ -1990,8 +1960,8 @@ namespace ManagedWimLib
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate ErrorCode wimlib_create_decompressor(
             CompressionType ctype,
-            nuint max_block_size, // size_t
-            out IntPtr decompressor_ret);
+            nuint maxBlockSize, // size_t
+            out IntPtr decompressorRet);
         internal wimlib_create_decompressor? CreateDecompressor;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -2000,10 +1970,10 @@ namespace ManagedWimLib
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal unsafe delegate int wimlib_decompress( // size_t
-            byte* compressed_data,
-            nuint compressed_size, // size_t
-            byte* uncompressed_data,
-            nuint uncompressed_size_avail, // size_t
+            byte* compressedData,
+            nuint compressedSize, // size_t
+            byte* uncompressedData,
+            nuint uncompressedSizeAvail, // size_t
             IntPtr decompressor);
         internal wimlib_decompress? Decompress;
         #endregion

@@ -94,7 +94,7 @@ namespace ManagedWimLib
 
                 Lib.GlobalCleanup();
                 Manager.GlobalCleanup();
-            }   
+            }
         }
         /// <summary>
         /// Cleanup loaded wimlib library.
@@ -112,7 +112,7 @@ namespace ManagedWimLib
 
                 Lib.GlobalCleanup();
                 return Manager.TryGlobalCleanup();
-            }   
+            }
         }
         #endregion
 

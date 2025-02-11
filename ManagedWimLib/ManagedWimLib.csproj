@@ -10,7 +10,7 @@
     <PackageId>ManagedWimLib</PackageId>
     <Title>ManagedWimLib</Title>
     <Version>2.5.4</Version>
-    <Authors>Eric Biggers, Hajin Jang</Authors>
+    <Authors>Hajin Jang</Authors>
     <Company>Joveler</Company>
     <Description>Native wimlib wrapper library for .NET.
 Provides every capabilities of wimlib.
