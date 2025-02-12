@@ -25,42 +25,26 @@ ManagedWimLib can be installed via [nuget](https://www.nuget.org/packages/Manage
 
 ### Targeted .NET platforms
 
-- .NET Core 3.1
+- .NET 8.0
 - .NET Standard 2.0
-- .NET Framework 4.6
-
-#### Discontinued frameworks
-
-| Platform | Last Supported Version |
-|----------|------------------------|
-| .NET Standard 1.3 | [v1.1.2](https://www.nuget.org/packages/ManagedWimLib/1.1.2) |
-| .NET Framework 4.5 | [v1.2.4](https://www.nuget.org/packages/ManagedWimLib/1.2.4) |
-| .NET Framework 4.5.1 | [v2.4.0](https://www.nuget.org/packages/ManagedWimLib/2.4.0) |
+- .NET Framework 4.6.2
 
 ### Supported OS platforms
 
-| Platform | Architecture | Tested |
-|----------|--------------|--------|
-| Windows  | x86          | Yes    |
-|          | x64          | Yes    |
-|          | arm64        | Yes    |
-| Linux    | x64          | Yes    |
-|          | arm          | Yes    |
-|          | arm64        | Yes    |
-| macOS    | x64          | Yes    |
-|          | arm64        | Yes    |
-
-#### Tested linux distributions
-
-| Architecture | Distribution | Note |
-|--------------|--------------|------|
-| x64          | Ubuntu 20.04 |      |
-| arm          | Debian 12    | Emulated on QEMU's virt board |
-| arm64        | Debian 12    | Emulated on QEMU's virt board |
+| Platform | Architecture | Minimum Target | Tested |
+|----------|--------------|----------------|--------|
+| Windows  | x86          | Windows 7 SP1  | Yes    |
+|          | x64          | Windows 7 SP1  | Yes    |
+|          | arm64        | Windows 7 SP1  | Yes    |
+| Linux    | x64          | Ubuntu 20.04   | Yes    |
+|          | armhf        | Ubuntu 20.04   | Yes    |
+|          | arm64        | Ubuntu 20.04   | Yes    |
+| macOS    | x64          | macOS 11       | Yes    |
+|          | arm64        | macOS 11       | Yes    |
 
 ### Supported wimlib version
 
-- 1.14.3 (Included)
+- 1.14.4 (Included)
 
 ## Usage
 

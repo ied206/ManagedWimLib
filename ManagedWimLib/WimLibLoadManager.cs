@@ -2,7 +2,7 @@
     Licensed under LGPLv3
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2020 Hajin Jang
+    Copyright (C) 2017-present Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -26,6 +26,7 @@ namespace ManagedWimLib
     {
         protected override string ErrorMsgInitFirst => "Please call Wim.GlobalInit() first!";
         protected override string ErrorMsgAlreadyLoaded => "ManagedWimLib is already initialized.";
+        internal string InternalErrorMsgInitFirst => ErrorMsgInitFirst;
 
         protected override WimLibLoader CreateLoader() => new WimLibLoader();
     }

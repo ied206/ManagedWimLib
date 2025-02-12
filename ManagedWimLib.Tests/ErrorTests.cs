@@ -36,7 +36,7 @@ namespace ManagedWimLib.Tests
         [TestMethod]
         public void GetLastError()
         {
-            string[] paths = new string[] { @"\NOTEXIST.bin", @"NOTGLOB?.cue" };
+            string[] paths = [@"\NOTEXIST.bin", @"NOTGLOB?.cue"];
 
             // Default is Wim.SetPrintErrors(true);
             CheckErrorTemplate("XPRESS.wim", paths, true);
@@ -120,7 +120,7 @@ namespace ManagedWimLib.Tests
                 // The files must not exist
                 foreach (string path in paths.Select(x => TestHelper.NormalizePath(x.TrimStart('\\'))))
                 {
-                    if (path.IndexOfAny(new char[] { '*', '?' }) == -1)
+                    if (path.IndexOfAny(['*', '?']) == -1)
                     { // No wlidcard
                         Assert.IsFalse(File.Exists(Path.Combine(destDir, path)));
                     }

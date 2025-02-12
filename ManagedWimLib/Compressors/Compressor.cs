@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2020 Hajin Jang
+    Copyright (C) 2020-present Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -31,17 +31,17 @@ namespace ManagedWimLib.Compressors
     {
         #region (static) LoadManager
         private static WimLibLoadManager Manager => Wim.Manager;
-        private static WimLibLoader Lib => Wim.Manager.Lib;
+        private static WimLibLoader? Lib => Wim.Manager.Lib;
         #endregion
 
         #region Fields
-        private IntPtr _ptr;
+        private IntPtr _compPtr;
         #endregion
 
         #region Constructor (private)
-        private Compressor(IntPtr ptr)
+        private Compressor(IntPtr compPtr)
         {
-            _ptr = ptr;
+            _compPtr = compPtr;
         }
         #endregion
 
@@ -61,11 +61,12 @@ namespace ManagedWimLib.Compressors
         {
             if (!disposing)
                 return;
-            if (_ptr == IntPtr.Zero)
+            if (_compPtr == IntPtr.Zero)
                 return;
+            Manager.EnsureLoaded();
 
-            Lib.FreeCompressor(_ptr);
-            _ptr = IntPtr.Zero;
+            Lib!.FreeCompressor!(_compPtr);
+            _compPtr = IntPtr.Zero;
         }
         #endregion
 
@@ -111,7 +112,7 @@ namespace ManagedWimLib.Compressors
                 throw new ArgumentOutOfRangeException(nameof(maxBlockSize));
 
             compressionLevel |= (uint)compressorFlags;
-            ErrorCode ret = Lib.CreateCompressor(ctype, new UIntPtr((uint)maxBlockSize), compressionLevel, out IntPtr compPtr);
+            ErrorCode ret = Lib!.CreateCompressor!(ctype, (nuint)maxBlockSize, compressionLevel, out IntPtr compPtr);
             WimLibException.CheckErrorCode(ret);
 
             return new Compressor(compPtr);
@@ -138,17 +139,20 @@ namespace ManagedWimLib.Compressors
         /// <exception cref="OverflowException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
         public unsafe int Compress(ReadOnlySpan<byte> uncompressedSpan, Span<byte> compressedSpan)
         {
-            UIntPtr compressedBytes;
+            if (Lib == null)
+                throw new ObjectDisposedException(Manager.InternalErrorMsgInitFirst);
+
+            nuint compressedBytes;
             fixed (byte* uncompressedBuf = uncompressedSpan)
             fixed (byte* compressedBuf = compressedSpan)
             {
-                UIntPtr uncompressedSize = new UIntPtr((uint)uncompressedSpan.Length);
-                UIntPtr compressedSizeAvail = new UIntPtr((uint)compressedSpan.Length);
-                compressedBytes = Lib.Compress(uncompressedBuf, uncompressedSize, compressedBuf, compressedSizeAvail, _ptr);
+                nuint uncompressedSize = (nuint)uncompressedSpan.Length;
+                nuint compressedSizeAvail = (nuint)compressedSpan.Length;
+                compressedBytes = Lib!.Compress!(uncompressedBuf, uncompressedSize, compressedBuf, compressedSizeAvail, _compPtr);
             }
 
             // Since compressedSizeAvail is int, the returned value cannot be larger than int.MaxValue.
-            ulong ret = compressedBytes.ToUInt64();
+            ulong ret = compressedBytes;
             return (int)ret;
         }
 
@@ -221,11 +225,14 @@ namespace ManagedWimLib.Compressors
         /// <exception cref="OverflowException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
         public unsafe ulong Compress(byte* uncompressedBuf, ulong uncompressedSize, byte* compressedBuf, ulong compressedSizeAvail)
         {
-            UIntPtr uncompressedSizeInterop = new UIntPtr(uncompressedSize);
-            UIntPtr compressedSizeAvailInterop = new UIntPtr(compressedSizeAvail);
-            UIntPtr compressedBytes = Lib.Compress(uncompressedBuf, uncompressedSizeInterop, compressedBuf, compressedSizeAvailInterop, _ptr);
+            if (Lib == null)
+                throw new ObjectDisposedException(Manager.InternalErrorMsgInitFirst);
 
-            ulong ret = compressedBytes.ToUInt64();
+            nuint uncompressedSizeInterop = (nuint)uncompressedSize;
+            nuint compressedSizeAvailInterop = (nuint)compressedSizeAvail;
+            nuint compressedBytes = Lib.Compress!(uncompressedBuf, uncompressedSizeInterop, compressedBuf, compressedSizeAvailInterop, _compPtr);
+
+            ulong ret = compressedBytes;
             return ret;
         }
         #endregion

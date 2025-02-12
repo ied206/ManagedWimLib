@@ -1,30 +1,45 @@
 #!/bin/bash
 # wimlib-msys2.sh: compile wimlib for Windows
 
-# Sometimes, llvm-mingw cannot cross compile wimlib-imagex.exe.
-# It may happen when the LLVM linker is used.
-# If it happens, try using default ld from MSYS2 MinGW
+# [*] If libtool fails to link libwim-15.dll with this message,
+#     Install proper toolchain of the MSYS2 shell
+#     EVEN IF YOU ARE USING LLVM_MINGW!
+#   CCLD     libwim.la
+#
+
+
+function print_help() {
+    echo "Usage: $0 <-a i686|x86_64|aarch64> [-t TOOLCHAIN_DIR] [-r RADARE2_DIR] <SRCDIR>" >&2
+}
 
 # [*] Check script arguments
-while getopts "a:t:" opt; do
-  case $opt in
+while getopts "a:t:r:h:" opt; do
+    case $opt in
     a) # architecture
-      ARCH=$OPTARG
-      ;;
+        ARCH=$OPTARG
+        ;;
     t) # toolchain, required for aarch64
-      TOOLCHAIN_DIR=$OPTARG
-      ;;
+        TOOLCHAIN_DIR=$OPTARG
+        ;;
+    r) # radare2, optional
+        RADARE2_DIR=$OPTARG
+        ;;
+    h)
+        print_help
+        exit 1
+        ;;
     :)
-      echo "Usage: $0 <-a i686|x86_64|aarch64> [-t TOOLCHAIN_DIR] <WIMLIB_SRCDIR>" >&2
-      exit 1
-      ;;
-  esac
+        print_help
+        exit 1
+        ;;
+    esac
 done
-# [*] Parse <FILE_SRCDIR>
+# [*] Parse <SRCDIR>
 shift $(( OPTIND - 1 ))
 SRCDIR="$@"
 if ! [[ -d "${SRCDIR}" ]]; then
-    echo "[${SRCDIR}] is not a directory!" >&2
+    print_help
+    echo "Source [${SRCDIR}] is not a directory!" >&2
     exit 1
 fi
 
@@ -32,9 +47,6 @@ fi
 TARGET_TRIPLE="${ARCH}-w64-mingw32"
 # -static-libgcc causes warning in clang. Supress it with -Wno-unused-command-line-argument.
 WIMLIB_CFLAGS="-Os -static-libgcc -Wno-unused-command-line-argument "
-#WIMLIB_LDFLAGS="-lucrt"  # Force linking to UCRT, to unify CRT with .NET runtime
-#WIMLIB_LD="ld"
-#WIMLIB_LDFLAGS="-m i386pe"
 WIMLIB_LDFLAGS=""
 if [ "${ARCH}" = i686 ]; then
     :
@@ -57,6 +69,7 @@ fi
 BASE_ABS_PATH=$(readlink -f "$0")
 CORES=$(grep -c ^processor /proc/cpuinfo)
 DEST_LIB="libwim-15.dll"
+DEST_EXE="wimlib-imagex.exe"
 STRIP="${TARGET_TRIPLE}-strip"
 CHECKDEP="ldd"
 if ! command -v "${STRIP}" &> /dev/null
@@ -69,7 +82,26 @@ DEST_DIR="${BASE_DIR}/build-bin-${ARCH}"
 rm -rf "${DEST_DIR}"
 mkdir -p "${DEST_DIR}"
 
-# Required dependencies: nasm (x86_64 only)
+# [*] If radare2 is available, use rabin2 instead of ldd.
+# Win32 ldd is not that correct when checking cross-compiled binaries.
+if [[ ! -z "${RADARE2_DIR}" ]]; then # -r not set
+    RABIN2="${RADARE2_DIR}/bin/rabin2.exe"
+    which "${RABIN2}" > /dev/null
+    if [[ $? -ne 0 ]]; then # rabin2 does not exist
+        RABIN2=
+    fi
+fi
+if [[ -z "${RABIN2}" ]]; then
+    which rabin2 > /dev/null
+    if [[ $? -eq 0 ]]; then # rabin is callable
+        RABIN2=rabin2
+    fi
+fi
+if [[ ! -z "${RABIN2}" ]]; then # Unable to find rabin2
+    CHECKDEP="${RABIN2} -Al"
+fi
+
+# [*] Required dependencies: nasm (x86_64 only)
 # MSYS2: pacman -S nasm
 which nasm > /dev/null
 if [[ $? -ne 0 ]]; then # Unable to find nasm
@@ -83,36 +115,65 @@ if ! [[ -z "${TOOLCHAIN_DIR}" ]]; then
     export PATH=${TOOLCHAIN_DIR}/bin:${PATH}
 fi
 
+# Prevent libtool quirk which 'linker path does not have real file for...' error.
+# https://github.com/msys2/MINGW-packages/discussions/8056
+export lt_cv_deplibs_check_method=${lt_cv_deplibs_check_method='pass_all'}
+
 # Compile wimlib
 # Adapted from https://wimlib.net/git/?p=wimlib;a=tree;f=tools/make-windows-release;
+BUILD_MODES=( "exe" "lib" )
 pushd "${SRCDIR}" > /dev/null
-make clean
-# ./configure --host=${TARGET_TRIPLE} --disable-static CFLAGS="-static-libgcc" \
-./configure --host=${TARGET_TRIPLE} --disable-static \
-    CFLAGS="${WIMLIB_CFLAGS}" LDFLAGS="${WIMLIB_LDFLAGS}" \
-    --without-ntfs-3g --without-fuse \
-    ${EXTRA_ARGS}
-if [[ $? -ne 0 ]]; then # configure failed
-    echo "./configure failed, please check config.log." >&2
-    exit 1
-fi
-make -j${CORES}
-cp ".libs/${DEST_LIB}" "${DEST_DIR}"
+for BUILD_MODE in "${BUILD_MODES[@]}"; do
+    CONFIGURE_ARGS=""
+    WIMLIB_CFLAGS="-D_NO_CRT_STDIO_INLINE"
+    if [ "$BUILD_MODE" = "lib" ]; then
+        CONFIGURE_ARGS="--disable-static --enable-shared"
+        # WIMLIB_LDFLAGS="-no-undefined"
+    elif [ "$BUILD_MODE" = "exe" ]; then
+        CONFIGURE_ARGS="--enable-static --disable-shared"
+    fi
+
+    make clean
+    # ./configure --host=${TARGET_TRIPLE} --disable-static CFLAGS="-static-libgcc" \
+    # --libdir=${SRCDIR} required for cross-compiling wimlib-imagex.exe.
+    # If not, libtool automatically include `-L/ucrt64/lib`, causing x86_64 libmsvcrt.a/libmingw32.a to be always linked and cause an error.
+    # ./configure --host=${TARGET_TRIPLE} --libdir="${SRCDIR}" \
+    ./configure --host=${TARGET_TRIPLE} --libdir="${TOOLCHAIN_DIR}/${TARGET_TRIPLE}/lib" \
+        ${CONFIGURE_ARGS} \
+        --without-ntfs-3g --without-fuse \
+        CFLAGS="${WIMLIB_CFLAGS} -Os" \
+        LDFLAGS="${WIMLIB_LDFLAGS}" \
+        ${EXTRA_ARGS}
+    if [[ $? -ne 0 ]]; then # configure failed
+        echo "./configure failed, please check config.log." >&2
+        exit 1
+    fi
+    make -j${CORES}
+
+    if [ "$BUILD_MODE" = "lib" ]; then
+        cp ".libs/${DEST_LIB}" "${DEST_DIR}"
+    elif [ "$BUILD_MODE" = "exe" ]; then
+        cp "${DEST_EXE}" "${DEST_DIR}"
+    fi
+done
 popd > /dev/null
 
 # Strip binaries
 pushd "${DEST_DIR}" > /dev/null
-ls -lh *.dll
-${STRIP} *.dll
-ls -lh *.dll
+echo
+echo "[*] Stripping [${DEST_LIB}]" 
+file *.dll *.exe
+ls -lh *.dll *.exe
+${STRIP} *.dll *.exe
+ls -lh *.dll *.exe
 popd > /dev/null
 
 # Check dependency of binaries
 pushd "${DEST_DIR}" > /dev/null
+echo
+echo "[*] Linked libraries of [${DEST_LIB}]" 
 ${CHECKDEP} *.dll
+echo
+echo "[*] Linked libraries of [${DEST_EXE}]" 
+${CHECKDEP} *.exe
 popd > /dev/null
-
-# winpthreads-1.dll warning
-echo ""
-echo "Please check if winpthreads-1.dll is required."
- 

@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2020 Hajin Jang
+    Copyright (C) 2017-present Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -22,13 +22,11 @@
 */
 
 using System;
-using System.Runtime.Serialization;
 using System.Text;
 
 namespace ManagedWimLib
 {
     #region WimException
-    [Serializable]
     public class WimLibException : Exception
     {
         public ErrorCode ErrorCode;
@@ -45,13 +43,13 @@ namespace ManagedWimLib
             ErrorCode = ErrorCode.Success;
         }
 
-        public WimLibException(string message)
+        public WimLibException(string? message)
             : base(message)
         {
             ErrorCode = ErrorCode.Success;
         }
 
-        public WimLibException(string message, Exception innerException)
+        public WimLibException(string? message, Exception innerException)
             : base(message, innerException)
         {
             ErrorCode = ErrorCode.Success;
@@ -75,21 +73,6 @@ namespace ManagedWimLib
             if (ret != ErrorCode.Success)
                 throw new WimLibException(ret);
         }
-
-        #region Serializable
-        protected WimLibException(SerializationInfo info, StreamingContext ctx)
-        {
-            ErrorCode = (ErrorCode)info.GetValue(nameof(ErrorCode), typeof(ErrorCode));
-        }
-
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            if (info == null)
-                throw new ArgumentNullException(nameof(info));
-            info.AddValue(nameof(ErrorCode), ErrorCode);
-            base.GetObjectData(info, context);
-        }
-        #endregion
     }
     #endregion
 }

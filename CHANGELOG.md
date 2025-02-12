@@ -2,6 +2,13 @@
 
 ## v2.x
 
+### v2.6.0
+
+Released on 2025-02-12
+
+- (BREAKING CHANGE) Now targets .NET 8.0/.NET Framework 4.6.2/.NET Standard 2.0.
+- Update wimlib binaries to 1.14.4.
+
 ### v2.5.3
 
 Released on 2023-09-06

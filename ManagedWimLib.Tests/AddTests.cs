@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2020 Hajin Jang
+    Copyright (C) 2017-present Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -237,11 +237,11 @@ namespace ManagedWimLib.Tests
                 {
                     wim.RegisterCallback(ProgressCallback);
 
-                    CaptureSource[] srcs = new CaptureSource[]
-                    {
+                    CaptureSource[] srcs =
+                    [
                         new CaptureSource(srcDir1, @"\A"),
                         new CaptureSource(srcDir3, @"\Z"),
-                    };
+                    ];
 
                     wim.AddImageMultiSource(srcs, "UnitTest", null, addFlags);
                     wim.Write(wimFile, Wim.AllImages, WriteFlags.None, Wim.DefaultThreads);

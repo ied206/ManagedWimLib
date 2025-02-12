@@ -92,7 +92,26 @@ public static void InitNativeLibrary()
 
 ### Embedded binary
 
-ManagedWimLib comes with sets of binaries of `wimlib 1.14.2`. They will be copied into the build directory at build time.
+ManagedWimLib comes with sets of binaries of `wimlib 1.14.4`. They will be copied into the build directory at build time.
+
+#### On .NET/.NET Core & .NET Standard
+
+| Platform      | Minimum Target | Binary                                              | License              | C Runtime     |
+|---------------|----------------|-----------------------------------------------------|----------------------|---------------|
+| Windows x86   | Windows 7 SP1  | `$(OutDir)\runtimes\win-x86\native\libwim-15.dll`   | LGPLv3               | Universal CRT |
+| Windows x64   | Windows 7 SP1  | `$(OutDir)\runtimes\win-x64\native\libwim-15.dll`   | LGPLv3               | Universal CRT |
+| Windows arm64 | Windows 7 SP1  | `$(OutDir)\runtimes\win-arm64\native\libwim-15.dll` | LGPLv3               | Universal CRT |
+| Linux x64     | Ubuntu 20.04   | `$(OutDir)\runtimes\linux-x64\native\libwim.so`     | LGPLv3 (w/o NTFS-3G) | glibc         |
+| Linux armhf   | Ubuntu 20.04   | `$(OutDir)\runtimes\linux-arm\native\libwim.so`     | LGPLv3 (w/o NTFS-3G) | glibc         |
+| Linux arm64   | Ubuntu 20.04   | `$(OutDir)\runtimes\linux-arm64\native\libwim.so`   | LGPLv3 (w/o NTFS-3G) | glibc         |
+| macOS x64     | macOS 11       | `$(OutDir)\runtimes\osx-x64\native\libwim.dylib`    | LGPLv3 (w/o NTFS-3G) | libSystem     |
+| macOS arm64   | macOS 11       | `$(OutDir)\runtimes\osx-arm64\native\libwim.dylib`  | LGPLv3 (w/o NTFS-3G) | libSystem     |
+
+- Linux binaries are not portable by nature. Included binaries may not work on your distribution.
+    - On Linux, wimlib depends on system-installed `libfuse3-3`.
+- If you call `Wim.GlobalInit()` without the `libPath` parameter on Linux or macOS, `ManagedWimLib` will search for system-installed wimlib.
+- Linux binaries were compiled without NTFS-3G/fuse support to make them LGPLv3-licensed.
+    - If you want NTFS-3G/fuse functionality, load the system-installed library or prepare library yourself. Make sure your program is compatible with **GPLv3**!
 
 #### On .NET Framework
 
@@ -104,37 +123,18 @@ ManagedWimLib comes with sets of binaries of `wimlib 1.14.2`. They will be copie
 
 - Create an empty file named `ManagedWimLib.Precompiled.Exclude` in the project directory to prevent a copy of the package-embedded binary.
 
-#### On .NET/.NET Core & .NET Standard
-
-| Platform             | Binary                                              | License              | C Runtime     |
-|----------------------|-----------------------------------------------------|----------------------|---------------|
-| Windows x86          | `$(OutDir)\runtimes\win-x86\native\libwim-15.dll`   | LGPLv3               | Universal CRT |
-| Windows x64          | `$(OutDir)\runtimes\win-x64\native\libwim-15.dll`   | LGPLv3               | Universal CRT |
-| Windows arm64        | `$(OutDir)\runtimes\win-arm64\native\libwim-15.dll` | LGPLv3               | Universal CRT |
-| Ubuntu 20.04 x64     | `$(OutDir)\runtimes\linux-x64\native\libwim.so`     | LGPLv3 (w/o NTFS-3G) | glibc         | 
-| Debian 11 armhf      | `$(OutDir)\runtimes\linux-arm\native\libwim.so`     | LGPLv3 (w/o NTFS-3G) | glibc         | 
-| Debian 11 arm64      | `$(OutDir)\runtimes\linux-arm64\native\libwim.so`   | LGPLv3 (w/o NTFS-3G) | glibc         |
-| macOS Big Sur x64    | `$(OutDir)\runtimes\osx-x64\native\libwim.dylib`    | LGPLv3 (w/o NTFS-3G) | libSystem     |
-| macOS Ventura arm64  | `$(OutDir)\runtimes\osx-arm64\native\libwim.dylib`  | LGPLv3 (w/o NTFS-3G) | libSystem     |
-
-- Linux binaries are not portable by nature. Included binaries may not work on your distribution.
-    - On Linux, wimlib depends on system-installed `libfuse3-3`.
-- If you call `Wim.GlobalInit()` without the `libPath` parameter on Linux or macOS, `ManagedWimLib` will search for system-installed wimlib.
-- Linux binaries were compiled without NTFS-3G support to make them LGPLv3-licensed.
-    - If you want NTFS-3G functionality, load the system-installed library and make sure your program is compatible with **GPLv3**.
-
 #### Build Command
 
-| Platform             | Binary Source                      | Dependency      |
-|----------------------|------------------------------------|-----------------|
-| Windows x86          | Compiled with MSYS2 and llvm-mingw | -               |
-| Windows x64          | Compiled with MSYS2 and llvm-mingw | -               |
-| Windows arm64        | Compiled with MSYS2 and llvm-mingw | -               |
-| Ubuntu 20.04 x64     | Compiled without NTFS-3G           | libfuse3-3      |
-| Debian 12 armhf      | Compiled without NTFS-3G           | libfuse3-3      |
-| Debian 12 arm64      | Compiled without NTFS-3G           | libfuse3-3      |
-| macOS Big Sur x64    | Compiled without fuse3             | -               |
-| macOS Ventura arm64  | Compiled without fuse3             | -               |
+| Platform      | Binary Source                      | Dependency      |
+|---------------|------------------------------------|-----------------|
+| Windows x86   | Compiled with MSYS2 and llvm-mingw | -               |
+| Windows x64   | Compiled with MSYS2 and llvm-mingw | -               |
+| Windows arm64 | Compiled with MSYS2 and llvm-mingw | -               |
+| Linux x64     | Compiled without NTFS-3G/fuse3     | -               |
+| Linux armhf   | Compiled without NTFS-3G/fuse3     | -               |
+| Linux arm64   | Compiled without NTFS-3G/fuse3     | -               |
+| macOS x64     | Compiled without NTFS-3G/fuse3     | -               |
+| macOS arm64   | Compiled without NTFS-3G/fuse3     | -               |
 
 ### Custom binary
 

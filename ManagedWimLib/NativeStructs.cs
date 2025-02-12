@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2020 Hajin Jang
+    Copyright (C) 2017-present Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -1288,7 +1288,7 @@ namespace ManagedWimLib
         /// (Note: all parts of a split WIM normally have identical GUIDs.)
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-        public byte[] Guid;
+        public byte[] Guid = new byte[16];
         /// <summary>
         /// The number of images in this WIM file.
         /// </summary>
@@ -1413,7 +1413,7 @@ namespace ManagedWimLib
             set => WimLibLoader.SetBitField(ref _bitFlag, 9, value);
         }
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 9)]
-        private uint[] _reserved;
+        private readonly uint[] _reserved = new uint[9];
     }
     #endregion
 
@@ -1456,16 +1456,16 @@ namespace ManagedWimLib
         /// <summary>
         /// Filesystem path to the file or directory tree to add.
         /// </summary>
-        public string AddFsSourcePath;
+        public string AddFsSourcePath = string.Empty;
         /// <summary>
         /// Destination path in the image.
         /// To specify the root directory of the image, use Wim.RootPath.
         /// </summary>
-        public string AddWimTargetPath;
+        public string AddWimTargetPath = string.Empty;
         /// <summary>
         /// Path to capture configuration file to use, or null if not specified.
         /// </summary>
-        public string AddConfigFile;
+        public string? AddConfigFile;
         /// <summary>
         /// Bitwise OR of AddFlags.
         /// </summary>
@@ -1476,7 +1476,7 @@ namespace ManagedWimLib
         /// <summary>
         /// The path to the file or directory within the image to delete.
         /// </summary>
-        public string DelWimPath;
+        public string DelWimPath = string.Empty;
         /// <summary>
         /// Bitwise OR of DeleteFlags.
         /// </summary>
@@ -1487,11 +1487,11 @@ namespace ManagedWimLib
         /// <summary>
         /// The path to the source file or directory within the image.
         /// </summary>
-        public string RenWimSourcePath;
+        public string RenWimSourcePath = string.Empty;
         /// <summary>
         /// The path to the destination file or directory within the image.
         /// </summary>
-        public string RenWimTargetPath;
+        public string RenWimTargetPath = string.Empty;
         /// <summary>
         /// Reserved; set to 0. 
         /// </summary>
@@ -1552,7 +1552,7 @@ namespace ManagedWimLib
         #endregion
 
         #region Factory Methods
-        public static UpdateCommand SetAdd(string fsSourcePath, string wimTargetPath, string configFile, AddFlags addFlags)
+        public static UpdateCommand SetAdd(string fsSourcePath, string wimTargetPath, string? configFile, AddFlags addFlags)
         {
             return new UpdateCommand
             {
@@ -1713,13 +1713,13 @@ namespace ManagedWimLib
         /// <summary>
         /// Path to capture configuration file to use, or null if not specified.
         /// </summary>
-        public string ConfigFile;
+        public string? ConfigFile;
         /// <summary>
         /// Bitwise OR of AddFlags.
         /// </summary>
         public AddFlags AddFlags;
 
-        public AddCommand(string fsSourcePath, string wimTargetPath, string configFile, AddFlags addFlags)
+        public AddCommand(string fsSourcePath, string wimTargetPath, string? configFile, AddFlags addFlags)
         {
             FsSourcePath = fsSourcePath;
             WimTargetPath = wimTargetPath;
@@ -1773,7 +1773,7 @@ namespace ManagedWimLib
     /// <remarks>
     /// Original C struct (wimlib_update_command) contains a union with three structs: Add, Delete and Rename.
     /// LayoutKind.Explicit is required to represent them in the .Net world.
-    /// C# struct was used instead of class because .Net have to pass an array of value type to C code.
+    /// C# struct was used instead of class because .NET have to pass an array of value type to C code.
     /// </remarks>
     [StructLayout(LayoutKind.Explicit)]
     internal struct UpdateCommand32
@@ -1789,7 +1789,7 @@ namespace ManagedWimLib
         private IntPtr _addFsSourcePathPtr;
         public string AddFsSourcePath
         {
-            get => Wim.Lib.PtrToStringAuto(_addFsSourcePathPtr);
+            readonly get => Wim.Lib!.PtrToStringAuto(_addFsSourcePathPtr) ?? throw new InvalidOperationException($"[{nameof(_addFsSourcePathPtr)}] is null");
             set => UpdatePtr(ref _addFsSourcePathPtr, value);
         }
         /// <summary>
@@ -1799,7 +1799,7 @@ namespace ManagedWimLib
         private IntPtr _addWimTargetPathPtr;
         public string AddWimTargetPath
         {
-            get => Wim.Lib.PtrToStringAuto(_addWimTargetPathPtr);
+            readonly get => Wim.Lib!.PtrToStringAuto(_addWimTargetPathPtr) ?? throw new InvalidOperationException($"[{nameof(_addWimTargetPathPtr)}] is null");
             set => UpdatePtr(ref _addWimTargetPathPtr, value);
         }
         /// <summary>
@@ -1807,9 +1807,9 @@ namespace ManagedWimLib
         /// </summary>
         [FieldOffset(12)]
         private IntPtr _addConfigFilePtr;
-        public string AddConfigFile
+        public string? AddConfigFile
         {
-            get => Wim.Lib.PtrToStringAuto(_addConfigFilePtr);
+            readonly get => _addConfigFilePtr == IntPtr.Zero ? null : Wim.Lib!.PtrToStringAuto(_addConfigFilePtr) ?? null;
             set => UpdatePtr(ref _addConfigFilePtr, value);
         }
         /// <summary>
@@ -1827,7 +1827,7 @@ namespace ManagedWimLib
         private IntPtr _delWimPathPtr;
         public string DelWimPath
         {
-            get => Wim.Lib.PtrToStringAuto(_delWimPathPtr);
+            readonly get => Wim.Lib!.PtrToStringAuto(_delWimPathPtr) ?? throw new InvalidOperationException($"[{nameof(_delWimPathPtr)}] is null");
             set => UpdatePtr(ref _delWimPathPtr, value);
         }
         /// <summary>
@@ -1845,7 +1845,7 @@ namespace ManagedWimLib
         private IntPtr _renWimSourcePathPtr;
         public string RenWimSourcePath
         {
-            get => Wim.Lib.PtrToStringAuto(_renWimSourcePathPtr);
+            readonly get => Wim.Lib!.PtrToStringAuto(_renWimSourcePathPtr) ?? throw new InvalidOperationException($"[{nameof(_renWimSourcePathPtr)}] is null");
             set => UpdatePtr(ref _renWimSourcePathPtr, value);
         }
         /// <summary>
@@ -1855,7 +1855,7 @@ namespace ManagedWimLib
         private IntPtr _renWimTargetPathPtr;
         public string RenWimTargetPath
         {
-            get => Wim.Lib.PtrToStringAuto(_renWimTargetPathPtr);
+            readonly get => Wim.Lib!.PtrToStringAuto(_renWimTargetPathPtr) ?? throw new InvalidOperationException($"[{nameof(_renWimTargetPathPtr)}] is null");
             set => UpdatePtr(ref _renWimTargetPathPtr, value);
         }
         /// <summary>
@@ -1892,10 +1892,11 @@ namespace ManagedWimLib
             ptr = IntPtr.Zero;
         }
 
-        internal static void UpdatePtr(ref IntPtr ptr, string str)
+        internal static void UpdatePtr(ref IntPtr ptr, string? str)
         {
             FreePtr(ref ptr);
-            ptr = Wim.Lib.StringToHGlobalAuto(str);
+            if (str != null)
+                ptr = Wim.Lib!.StringToHGlobalAuto(str);
         }
         #endregion
 
@@ -1938,7 +1939,7 @@ namespace ManagedWimLib
         private IntPtr _addFsSourcePathPtr;
         public string AddFsSourcePath
         {
-            get => Wim.Lib.PtrToStringAuto(_addFsSourcePathPtr);
+            readonly get => Wim.Lib!.PtrToStringAuto(_addFsSourcePathPtr) ?? throw new InvalidOperationException($"[{nameof(_addFsSourcePathPtr)}] is null");
             set => UpdatePtr(ref _addFsSourcePathPtr, value);
         }
         /// <summary>
@@ -1948,7 +1949,7 @@ namespace ManagedWimLib
         private IntPtr _addWimTargetPathPtr;
         public string AddWimTargetPath
         {
-            get => Wim.Lib.PtrToStringAuto(_addWimTargetPathPtr);
+            readonly get => Wim.Lib!.PtrToStringAuto(_addWimTargetPathPtr) ?? throw new InvalidOperationException($"[{nameof(_addWimTargetPathPtr)}] is null");
             set => UpdatePtr(ref _addWimTargetPathPtr, value);
         }
         /// <summary>
@@ -1956,9 +1957,9 @@ namespace ManagedWimLib
         /// </summary>
         [FieldOffset(24)]
         private IntPtr _addConfigFilePtr;
-        public string AddConfigFile
+        public string? AddConfigFile
         {
-            get => Wim.Lib.PtrToStringAuto(_addConfigFilePtr);
+            readonly get => _addConfigFilePtr == IntPtr.Zero ? null : Wim.Lib!.PtrToStringAuto(_addConfigFilePtr) ?? null;
             set => UpdatePtr(ref _addConfigFilePtr, value);
         }
         /// <summary>
@@ -1976,7 +1977,7 @@ namespace ManagedWimLib
         private IntPtr _delWimPathPtr;
         public string DelWimPath
         {
-            get => Wim.Lib.PtrToStringAuto(_delWimPathPtr);
+            readonly get => Wim.Lib!.PtrToStringAuto(_delWimPathPtr) ?? throw new InvalidOperationException($"[{nameof(_delWimPathPtr)}] is null");
             set => UpdatePtr(ref _delWimPathPtr, value);
         }
         /// <summary>
@@ -1994,7 +1995,7 @@ namespace ManagedWimLib
         private IntPtr _renWimSourcePathPtr;
         public string RenWimSourcePath
         {
-            get => Wim.Lib.PtrToStringAuto(_renWimSourcePathPtr);
+            readonly get => Wim.Lib!.PtrToStringAuto(_renWimSourcePathPtr) ?? throw new InvalidOperationException($"[{nameof(_renWimSourcePathPtr)}] is null");
             set => UpdatePtr(ref _renWimSourcePathPtr, value);
         }
         /// <summary>
@@ -2004,7 +2005,7 @@ namespace ManagedWimLib
         private IntPtr _renWimTargetPathPtr;
         public string RenWimTargetPath
         {
-            get => Wim.Lib.PtrToStringAuto(_renWimTargetPathPtr);
+            readonly get => Wim.Lib!.PtrToStringAuto(_renWimTargetPathPtr) ?? throw new InvalidOperationException($"[{nameof(_renWimTargetPathPtr)}] is null");
             set => UpdatePtr(ref _renWimTargetPathPtr, value);
         }
         /// <summary>
@@ -2041,10 +2042,11 @@ namespace ManagedWimLib
             ptr = IntPtr.Zero;
         }
 
-        internal static void UpdatePtr(ref IntPtr ptr, string str)
+        internal static void UpdatePtr(ref IntPtr ptr, string? str)
         {
             FreePtr(ref ptr);
-            ptr = Wim.Lib.StringToHGlobalAuto(str);
+            if (str != null)
+                ptr = Wim.Lib!.StringToHGlobalAuto(str);
         }
         #endregion
 
@@ -2076,29 +2078,29 @@ namespace ManagedWimLib
         /// <summary>
         /// Name of the file, or null if this file is unnamed. Only the root directory of an image will be unnamed.
         /// </summary>
-        public string FileName => Wim.Lib.PtrToStringAuto(_fileNamePtr);
+        public string FileName => Wim.Lib!.PtrToStringAuto(_fileNamePtr) ?? throw new InvalidOperationException($"[{nameof(_fileNamePtr)}] is null");
         private IntPtr _fileNamePtr;
         /// <summary>
         /// 8.3 name (or "DOS name", or "short name") of this file; or null if this file has no such name.
         /// </summary>
-        public string DosName => Wim.Lib.PtrToStringAuto(_dosNamePtr);
+        public string DosName => Wim.Lib!.PtrToStringAuto(_dosNamePtr) ?? throw new InvalidOperationException($"[{nameof(_dosNamePtr)}] is null");
         private IntPtr _dosNamePtr;
         /// <summary>
         /// Full path to this file within the image.
         /// Path separators will be <see cref="Path.DirectorySeparatorChar"/>.
         /// </summary>
-        public string FullPath => Wim.Lib.PtrToStringAuto(_fullPathPtr);
+        public string FullPath => Wim.Lib!.PtrToStringAuto(_fullPathPtr) ?? throw new InvalidOperationException($"[{nameof(_fullPathPtr)}] is null");
         private IntPtr _fullPathPtr;
         /// <summary>
         /// Depth of this directory entry, where 0 is the root, 1 is the root's children, ..., etc.
         /// </summary>
-        public ulong Depth => DepthVal.ToUInt64();
-        private UIntPtr DepthVal; // size_t
+        public ulong Depth => _depthVal;
+        private nuint _depthVal; // size_t
         /// <summary>
         /// Pointer to the security descriptor for this file, in Windows SECURITY_DESCRIPTOR_RELATIVE format,
         /// or null if this file has no security descriptor.
         /// </summary>
-        public byte[] SecurityDescriptor
+        public byte[]? SecurityDescriptor
         {
             get
             {
@@ -2106,7 +2108,7 @@ namespace ManagedWimLib
                     return null;
 
                 byte[] buf = new byte[SecurityDescriptorSize];
-                Marshal.Copy(SecurityDescriptorPtr, buf, 0, (int)_securityDescriptorSizeVal.ToUInt32());
+                Marshal.Copy(SecurityDescriptorPtr, buf, 0, (int)_securityDescriptorSizeVal);
                 return buf;
             }
         }
@@ -2114,8 +2116,8 @@ namespace ManagedWimLib
         /// <summary>
         /// Size of the above security descriptor, in bytes. 
         /// </summary>
-        public ulong SecurityDescriptorSize => _securityDescriptorSizeVal.ToUInt64();
-        private UIntPtr _securityDescriptorSizeVal; // size_t
+        public ulong SecurityDescriptorSize => _securityDescriptorSizeVal;
+        private nuint _securityDescriptorSizeVal; // size_t
         /// <summary>
         /// File attributes, such as whether the file is a directory or not.
         /// These are the "standard" Windows FILE_ATTRIBUTE_* values, thus <see cref="System.IO.FileAttributes"/> typed.
@@ -2194,14 +2196,14 @@ namespace ManagedWimLib
         /// The object ID of this file, if any.
         /// Only valid if WimObjectId.ObjectId is not all zeroes.
         /// </summary>
-        public WimObjectId ObjectId;
+        public WimObjectId? ObjectId;
 
         private int _creationTimeHigh;
         private int _lastWriteTimeHigh;
         private int _lastAccessTimeHigh;
         private int _reserved2;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-        private ulong[] _reserved;
+        private ulong[] _reserved = new ulong[4];
     }
 
     /// <summary>
@@ -2218,16 +2220,16 @@ namespace ManagedWimLib
         /// <summary>
         /// Name of the file, or null if this file is unnamed. Only the root directory of an image will be unnamed.
         /// </summary>
-        public string FileName;
+        public string? FileName;
         /// <summary>
         /// 8.3 name (or "DOS name", or "short name") of this file; or null if this file has no such name.
         /// </summary>
-        public string DosName;
+        public string? DosName;
         /// <summary>
         /// Full path to this file within the image.
         /// Path separators will be <see cref="Path.DirectorySeparatorChar"/>.
         /// </summary>
-        public string FullPath;
+        public string? FullPath;
         /// <summary>
         /// Depth of this directory entry, where 0 is the root, 1 is the root's children, ..., etc.
         /// </summary>
@@ -2236,7 +2238,7 @@ namespace ManagedWimLib
         /// A security descriptor for this file, in Windows SECURITY_DESCRIPTOR_RELATIVE format,
         /// or null if this file has no security descriptor.
         /// </summary>
-        public byte[] SecurityDescriptor;
+        public byte[]? SecurityDescriptor;
         /// <summary>
         /// File attributes, such as whether the file is a directory or not.
         /// These are the "standard" Windows FILE_ATTRIBUTE_* values, thus <see cref="System.IO.FileAttributes"/> typed.
@@ -2315,7 +2317,7 @@ namespace ManagedWimLib
         /// The object ID of this file, if any.
         /// Only valid if WimObjectId.ObjectId is not all zeroes.
         /// </summary>
-        public WimObjectId ObjectId;
+        public WimObjectId? ObjectId;
         /// <summary>
         /// Variable-length array of streams that make up this file.
         ///
@@ -2327,7 +2329,7 @@ namespace ManagedWimLib
         /// Then, following the first entry, there be NumNamedStreams additional entries that specify the named data streams,
         /// if any, each of which will have (stream_name != null).
         /// </summary>
-        public StreamEntry[] Streams;
+        public StreamEntry[] Streams = [];
     }
 
     /// <summary>
@@ -2358,11 +2360,11 @@ namespace ManagedWimLib
         /// Represents a data, not an address.
         /// Represented type is int64_t in 64bit, int32_t in 32bit.
         /// </summary>
-        private IntPtr _unixEpochVal;
+        private nint _unixEpochVal;
         /// <summary>
         /// Seconds since start of UNIX epoch (January 1, 1970)
         /// </summary>
-        public long UnixEpoch => _unixEpochVal.ToInt64();
+        public readonly long UnixEpoch => _unixEpochVal;
         /// <summary>
         /// Nanoseconds (0-999999999)
         /// </summary>
@@ -2376,7 +2378,7 @@ namespace ManagedWimLib
             genesis = genesis.AddTicks(NanoSeconds / 100);
 
             // wimlib provide high 32bit separately if timespec.tv_sec is only 32bit
-            if (Wim.Lib.PlatformBitness == PlatformBitness.Bit32)
+            if (Wim.Lib!.PlatformBitness == PlatformBitness.Bit32)
             {
                 long high64 = (long)high << 32;
                 genesis = genesis.AddSeconds(high64);
@@ -2396,13 +2398,13 @@ namespace ManagedWimLib
     public class WimObjectId
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-        public byte[] ObjectId;
+        public byte[] ObjectId = new byte[16];
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-        public byte[] BirthVolumeId;
+        public byte[] BirthVolumeId = new byte[16];
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-        public byte[] BirthObjectId;
+        public byte[] BirthObjectId = new byte[16];
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-        public byte[] DomainId;
+        public byte[] DomainId = new byte[16];
     }
     #endregion
 
@@ -2461,7 +2463,7 @@ namespace ManagedWimLib
         /// If this blob is located in a WIM resource, then this is the SHA-1 message digest of the blob's uncompressed contents.
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
-        public byte[] SHA1;
+        public byte[] SHA1 = new byte[20];
         /// <summary>
         /// If this blob is located in a WIM resource, then this is the part number of the WIM file containing it.
         /// </summary>
@@ -2510,7 +2512,7 @@ namespace ManagedWimLib
         /// </summary>
         public ulong RawResourceUncompressedSize;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)]
-        private ulong[] _reserved;
+        private ulong[] _reserved = new ulong[1];
     }
     #endregion
 
@@ -2521,7 +2523,7 @@ namespace ManagedWimLib
     /// Normally, only WIM images captured from NTFS filesystems will have multiple streams per file.
     /// In practice, this is a rarely used feature of the filesystem.
     ///
-    /// TODO: the library now explicitly tracks stream types,which allows it to have multiple unnamed streams
+    /// TODO: the library now explicitly tracks stream types, which allows it to have multiple unnamed streams
     /// (e.g. both a reparse point stream and unnamed data stream).
     /// However, this isn't yet exposed by <see cref="Wim.IterateDirTree()"/>.
     /// </summary>
@@ -2531,14 +2533,13 @@ namespace ManagedWimLib
         /// <summary>
         /// Name of the stream, or null if the stream is unnamed.
         /// </summary>
-        public string StreamName;
+        public string? StreamName;
         /// <summary>
         /// Info about this stream's data, such as its hash and size if known.
         /// </summary>
-        public ResourceEntry Resource;
+        public ResourceEntry Resource = new ResourceEntry();
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-
-        private ulong[] _reserved;
+        private ulong[] _reserved = new ulong[4];
     }
     #endregion
     #endregion

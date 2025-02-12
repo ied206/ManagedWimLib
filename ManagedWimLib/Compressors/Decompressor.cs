@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2020 Hajin Jang
+    Copyright (C) 2020-present Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -30,17 +30,17 @@ namespace ManagedWimLib.Compressors
     {
         #region (static) LoadManager
         private static WimLibLoadManager Manager => Wim.Manager;
-        private static WimLibLoader Lib => Wim.Manager.Lib;
+        private static WimLibLoader? Lib => Wim.Manager.Lib;
         #endregion
 
         #region Fields
-        private IntPtr _ptr;
+        private IntPtr _decompPtr;
         #endregion
 
         #region Constructor (private)
-        private Decompressor(IntPtr ptr)
+        private Decompressor(IntPtr decompPtr)
         {
-            _ptr = ptr;
+            _decompPtr = decompPtr;
         }
         #endregion
 
@@ -60,11 +60,13 @@ namespace ManagedWimLib.Compressors
         {
             if (!disposing)
                 return;
-            if (_ptr == IntPtr.Zero)
+            if (_decompPtr == IntPtr.Zero)
                 return;
+            if (Lib == null)
+                throw new ObjectDisposedException(Manager.InternalErrorMsgInitFirst);
 
-            Lib.FreeDecompressor(_ptr);
-            _ptr = IntPtr.Zero;
+            Lib.FreeDecompressor!(_decompPtr);
+            _decompPtr = IntPtr.Zero;
         }
         #endregion
 
@@ -94,7 +96,7 @@ namespace ManagedWimLib.Compressors
             if (maxBlockSize < 0)
                 throw new ArgumentOutOfRangeException(nameof(maxBlockSize));
 
-            ErrorCode ret = Lib.CreateDecompressor(ctype, new UIntPtr((uint)maxBlockSize), out IntPtr decompPtr);
+            ErrorCode ret = Lib!.CreateDecompressor!(ctype, (nuint)maxBlockSize, out IntPtr decompPtr);
             WimLibException.CheckErrorCode(ret);
 
             return new Decompressor(decompPtr);
@@ -200,11 +202,14 @@ namespace ManagedWimLib.Compressors
         /// <exception cref="OverflowException">Used a size greater than uint.MaxValue in 32bit platform.</exception>
         public unsafe bool Decompress(byte* compressedBuf, ulong compressedSize, byte* uncompressedBuf, ulong exactUncompressedSize)
         {
-            UIntPtr compressedSizeInterop = new UIntPtr(compressedSize);
-            UIntPtr uncompressedSizeInterop = new UIntPtr(exactUncompressedSize);
+            if (Lib == null)
+                throw new ObjectDisposedException(Manager.InternalErrorMsgInitFirst);
+
+            nuint compressedSizeInterop = (nuint)compressedSize;
+            nuint uncompressedSizeInterop = (nuint)exactUncompressedSize;
 
             // 0 on success, Non-0 on failure.
-            int ret = Lib.Decompress(compressedBuf, compressedSizeInterop, uncompressedBuf, uncompressedSizeInterop, _ptr);
+            int ret = Lib.Decompress!(compressedBuf, compressedSizeInterop, uncompressedBuf, uncompressedSizeInterop, _decompPtr);
             return ret == 0;
         }
         #endregion

@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2020 Hajin Jang
+    Copyright (C) 2017-present Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -141,14 +141,14 @@ namespace ManagedWimLib.Tests
 
         public void ExtractPathTemplate(string fileName, string path)
         {
-            ExtractPathsTemplate(fileName, new string[] { path });
+            ExtractPathsTemplate(fileName, [path]);
         }
 
         [TestMethod]
         [TestCategory("WimLib")]
         public void ExtractPaths()
         {
-            string[] paths = new string[] { @"\ACDE.txt", @"\ABCD\*.txt", @"\?CDE.txt" };
+            string[] paths = [@"\ACDE.txt", @"\ABCD\*.txt", @"\?CDE.txt"];
             ExtractPathsTemplate("XPRESS.wim", paths);
             ExtractPathsTemplate("LZX.wim", paths);
             ExtractPathsTemplate("LZMS.wim", paths);
@@ -226,7 +226,7 @@ namespace ManagedWimLib.Tests
 
                 foreach (string path in paths.Select(x => TestHelper.NormalizePath(x.TrimStart('\\'))))
                 {
-                    if (path.IndexOfAny(new char[] { '*', '?' }) == -1)
+                    if (path.IndexOfAny(['*', '?']) == -1)
                     { // No wlidcard
                         Assert.IsTrue(File.Exists(Path.Combine(destDir, path)));
                     }
@@ -250,7 +250,7 @@ namespace ManagedWimLib.Tests
         [TestMethod]
         public void ExtractList()
         {
-            string[] paths = new string[] { @"\ACDE.txt", @"\ABCD\*.txt", @"\?CDE.txt" };
+            string[] paths = [@"\ACDE.txt", @"\ABCD\*.txt", @"\?CDE.txt"];
             ExtractListTemplate("XPRESS.wim", paths);
             ExtractListTemplate("LZX.wim", paths);
             ExtractListTemplate("LZMS.wim", paths);
@@ -335,7 +335,7 @@ namespace ManagedWimLib.Tests
 
                 foreach (string path in paths.Select(x => TestHelper.NormalizePath(x.TrimStart('\\'))))
                 {
-                    if (path.IndexOfAny(new char[] { '*', '?' }) == -1)
+                    if (path.IndexOfAny(['*', '?']) == -1)
                     { // No wlidcard
                         Assert.IsTrue(File.Exists(Path.Combine(destDir, path)));
                     }

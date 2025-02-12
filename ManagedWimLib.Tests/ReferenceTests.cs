@@ -5,7 +5,7 @@
     Copyright (C) 2012-2018 Eric Biggers
 
     C# Wrapper written by Hajin Jang
-    Copyright (C) 2017-2020 Hajin Jang
+    Copyright (C) 2017-present Hajin Jang
 
     This file is free software; you can redistribute it and/or modify it under
     the terms of the GNU Lesser General Public License as published by the Free
@@ -183,9 +183,9 @@ namespace ManagedWimLib.Tests
         [TestMethod]
         public void ReferenceResourceFiles()
         {
-            ReferenceResourceFilesTemplate(new[] { "Split.swm", "Split2.swm" });
-            ReferenceResourceFilesTemplate(new[] { "Split.swm", "Split*.swm" }, RefFlags.GlobEnable | RefFlags.GlobErrOnNoMatch);
-            ReferenceResourceFilesTemplate(new[] { "Split.swm", "Split*.swm" }, RefFlags.GlobEnable | RefFlags.GlobErrOnNoMatch, true);
+            ReferenceResourceFilesTemplate(["Split.swm", "Split2.swm"]);
+            ReferenceResourceFilesTemplate(["Split.swm", "Split*.swm"], RefFlags.GlobEnable | RefFlags.GlobErrOnNoMatch);
+            ReferenceResourceFilesTemplate(["Split.swm", "Split*.swm"], RefFlags.GlobEnable | RefFlags.GlobErrOnNoMatch, true);
         }
 
         public void ReferenceResourceFilesTemplate(string[] splitWimNames, RefFlags refFlags = RefFlags.None, bool failure = false)
@@ -283,7 +283,7 @@ namespace ManagedWimLib.Tests
         [TestMethod]
         public void ReferenceResources()
         {
-            ReferenceResourcesTemplate(new[] { "Split.swm", "Split2.swm" });
+            ReferenceResourcesTemplate(["Split.swm", "Split2.swm"]);
         }
 
         public void ReferenceResourcesTemplate(string[] splitWimNames, RefFlags refFlags = RefFlags.None, bool failure = false)
