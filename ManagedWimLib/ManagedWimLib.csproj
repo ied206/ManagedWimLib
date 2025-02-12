@@ -9,7 +9,7 @@
     
     <PackageId>ManagedWimLib</PackageId>
     <Title>ManagedWimLib</Title>
-    <Version>2.5.4</Version>
+    <Version>2.6.0</Version>
     <Authors>Hajin Jang</Authors>
     <Company>Joveler</Company>
     <Description>Native wimlib wrapper library for .NET.
@@ -20,7 +20,8 @@ Supports Windows, Linux and macOS.</Description>
     <PackageProjectUrl>https://github.com/ied206/ManagedWimLib</PackageProjectUrl>
     <PackageIcon>images\Logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/ied206/ManagedWimLib</RepositoryUrl>
-    <PackageReleaseNotes>- Update wimlib binaries to 1.14.4.</PackageReleaseNotes>
+    <PackageReleaseNotes>- (BREAKING CHANGE) Now targets .NET 8.0/.NET Framework 4.6.2/.NET Standard 2.0.
+- Update wimlib binaries to 1.14.4.</PackageReleaseNotes>
     <PackageTags>wim wimlib dism imagex archive native pinvoke interop xpress lzx lzms</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
