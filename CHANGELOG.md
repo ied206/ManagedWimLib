@@ -8,6 +8,8 @@ Released on 2025-02-12
 
 - (BREAKING CHANGE) Now targets .NET 8.0/.NET Framework 4.6.2/.NET Standard 2.0.
 - Update wimlib binaries to 1.14.4.
+- Fix broken .NET Framework MSBuild script for copying native DLLs.
+- Adds support for nullable reference type information.
 
 ### v2.5.3
 
